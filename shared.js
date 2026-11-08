@@ -58,3 +58,20 @@ export function onAuth(callback) {
 
 export function isAdmin(userData) { return userData && userData.role === 'admin'; }
 export function goTo(page) { window.location.href = page; }
+
+// بصمة الجهاز (عشان نعرف نتحكم في الأجهزة)
+export async function getDeviceFingerprint() {
+  const raw = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width + "x" + screen.height,
+    new Date().getTimezoneOffset(),
+    navigator.hardwareConcurrency || 0
+  ].join("|");
+  const buf = new TextEncoder().encode(raw);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 24);
+}
