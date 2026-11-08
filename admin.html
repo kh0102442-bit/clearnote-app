@@ -16,7 +16,6 @@
     -webkit-tap-highlight-color: transparent; padding-bottom: 30px; font-size: 16px;
   }
 
-  /* الهيدر */
   .admin-header {
     background: var(--navy); color: white; padding: 15px 18px;
     display: flex; justify-content: space-between; align-items: center;
@@ -47,7 +46,6 @@
   }
   .nav-tab.active { color: white; }
   
-  /* الخلفية المتحركة (الشريحة) */
   .nav-slider {
     position: absolute;
     top: 8px; bottom: 8px;
@@ -55,17 +53,20 @@
     border-radius: 10px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     z-index: 1;
-    width: calc(50% - 10px); /* عشان التبويبين */
-    right: 8px; /* البداية */
+    width: calc(33.33% - 10px);
+    right: 8px;
   }
   .nav-tab:nth-child(2).active ~ .nav-slider {
-    transform: translateX(-100%); /* الحركة */
+    transform: translateX(-100%);
     background: var(--accent);
+  }
+  .nav-tab:nth-child(3).active ~ .nav-slider {
+    transform: translateX(-200%);
+    background: #2980b9;
   }
 
   .admin-container { padding: 0 15px; width: 100%; box-sizing: border-box; }
 
-  /* ===== شجرة المحتوى ===== */
   .tree-group { margin-bottom: 15px; width: 100%; box-sizing: border-box; }
   .node-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); width: 100%; box-sizing: border-box; overflow: hidden; }
   .node-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--white); }
@@ -87,7 +88,6 @@
   .node-card[data-type="module_summary"] .node-icon { background: #f3e5f5; color: #9b59b6; }
   .node-card[data-type="module_terms"] .node-icon { background: #fff3e0; color: #e67e22; }
 
-  /* ===== كروت الطلاب والأجهزة ===== */
   .list-card {
     background: var(--white); border: 2px solid var(--line); border-radius: 16px;
     padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
@@ -101,7 +101,6 @@
   .badge-pending { background: #ffebee; color: #b91c1c; }
   .badge-approved { background: #e8f5e9; color: #1f6b45; }
 
-  /* المودال */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
   .modal-box { background: var(--white); border-radius: 24px 24px 0 0; width: 100%; padding: 25px 20px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s ease; }
@@ -162,7 +161,7 @@
   <!-- قائمة الطلاب -->
   <div id="studentsContainer" style="display:none;"></div>
 
-  <!-- قائمة الأجهزة المعلقة -->
+  <!-- قائمة الأجهزة -->
   <div id="devicesContainer" style="display:none;"></div>
 </div>
 
@@ -218,7 +217,7 @@
 
 <script type="module">
 import { db, onAuth, isAdmin, goTo, showToast, signOutUser } from "./shared.js";
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let treeData = [];
 let allStudents = [];
@@ -230,22 +229,18 @@ onAuth((user, userData) => {
   if (!user || !isAdmin(userData)) { goTo("index.html"); return; } 
   loadTree(); 
   loadStudents();
-  loadDevices();
 });
 
 window.doLogout = async () => { await signOutUser(); goTo("index.html"); };
 
-// ===== التنقل بين التبويبات (مع أنيميشن) =====
+// ===== التنقل بين التبويبات =====
 window.switchTab = function(tab, el) {
-  // تحديث الأزرار
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   
-  // تحديث الشريحة المتحركة
   const slider = document.getElementById('navSlider');
   const tabIndex = Array.from(el.parentNode.children).indexOf(el);
-  const totalTabs = 3; // المحتوى، الطلاب، الأجهزة
-  const tabWidth = 100 / totalTabs;
+  const tabWidth = 100 / 3;
   
   slider.style.right = `calc(${tabIndex * tabWidth}% + 8px)`;
   slider.style.width = `calc(${tabWidth}% - 10px)`;
@@ -254,7 +249,6 @@ window.switchTab = function(tab, el) {
   else if(tab === 'students') slider.style.background = 'var(--accent)';
   else slider.style.background = '#2980b9';
 
-  // إظهار وإخفاء المحتوى
   document.getElementById('treeContainer').style.display = tab === 'tree' ? 'block' : 'none';
   document.getElementById('studentsContainer').style.display = tab === 'students' ? 'block' : 'none';
   document.getElementById('devicesContainer').style.display = tab === 'devices' ? 'block' : 'none';
@@ -267,6 +261,7 @@ async function loadStudents() {
     const snap = await getDocs(collection(db, "users"));
     allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderStudents();
+    loadDevices(); // تحميل الأجهزة بعد ما نعرف مين الطلاب
   } catch (e) {
     document.getElementById("studentsContainer").innerHTML = `<p style="color:red;">خطأ: ${e.message}</p>`;
   }
@@ -303,7 +298,6 @@ async function loadDevices() {
   container.innerHTML = `<p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">جاري تحميل الأجهزة...</p>`;
   
   allDevices = [];
-  // بنلف على كل الطلاب ونجيب أجهزتهم
   for(let student of allStudents) {
     const snap = await getDocs(collection(db, "devices", student.id, "list"));
     snap.forEach(d => {
@@ -321,7 +315,6 @@ async function loadDevices() {
     return;
   }
 
-  // نرتب الأجهزة: المعلقة الأول
   allDevices.sort((a, b) => (a.status === 'pending' ? -1 : 1));
 
   let html = '';
@@ -375,8 +368,7 @@ window.deleteDevice = async function(studentId, deviceId) {
   } catch(e) { showToast("خطأ", "error"); }
 }
 
-
-// ===== شجرة المحتوى (نفس الكود القديم) =====
+// ===== شجرة المحتوى =====
 async function loadTree() {
   try {
     const snap = await getDocs(collection(db, "content_tree"));
