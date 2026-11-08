@@ -32,6 +32,22 @@
 <!-- ===== MAIN ===== -->
 <main class="app-main">
 
+  <!-- الشاشة اللي بتظهر لو الجهاز مش متوافق -->
+  <div id="deviceBlockView" class="view" style="display:none;">
+    <div class="content-wrap">
+      <div class="empty-state" style="padding: 40px 20px;">
+        <i class="fas fa-mobile-alt" style="font-size: 70px; color: var(--accent); margin-bottom: 20px;"></i>
+        <h3 style="font-size: 22px; margin-bottom: 10px;">جهاز جديد!</h3>
+        <p style="font-size: 15px; line-height: 1.8;">لقد حاولت الدخول من جهاز جديد. من أجل حماية حسابك، يرجى الانتظار حتى يقوم الأدمن بمراجعة هذا الجهاز والموافقة عليه.</p>
+        <div style="margin-top: 30px; padding: 15px; background: #fdfaf3; border: 1px solid #c9a44a; border-radius: 10px; font-size: 13px;">
+          <strong>معرف الجهاز:</strong><br>
+          <span id="blockedDeviceId" style="font-family: monospace; direction: ltr; display: block; margin-top: 5px; color: #a8741a;">...</span>
+        </div>
+        <button class="btn-primary" style="margin-top: 20px; background: #b91c1c;" onclick="doLogout()">تسجيل الخروج</button>
+      </div>
+    </div>
+  </div>
+
   <!-- HOME VIEW -->
   <section class="view active" id="homeView">
     <div class="content-wrap">
@@ -201,20 +217,29 @@
 </div>
 
 <script type="module">
-import { db, onAuth, isAdmin, goTo, showToast, signOutUser } from "./shared.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db, onAuth, isAdmin, goTo, showToast, signOutUser, getDeviceFingerprint } from "./shared.js";
+import { collection, getDocs, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ===== STATE =====
 let currentUser = null;
 let currentUserData = null;
 let treeData = [];
-let currentView = 'home';
 
-// ===== AUTH =====
-onAuth((user, userData) => {
+// ===== AUTH & DEVICE CHECK =====
+onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
   currentUser = user;
   currentUserData = userData;
+  
+  // 1. فحص الجهاز
+  const isDeviceOk = await checkDeviceStatus(user.uid);
+  if (!isDeviceOk) {
+    document.getElementById("homeView").style.display = "none";
+    document.querySelectorAll('.nav-item').forEach(n => n.style.display = 'none');
+    document.getElementById("deviceBlockView").style.display = "block";
+    return;
+  }
+
+  // 2. تجهيز الواجهة
   const displayName = userData?.name || user.email.split('@')[0];
   const initial = displayName.charAt(0).toUpperCase();
   document.getElementById("topAvatar").textContent = initial;
@@ -223,8 +248,37 @@ onAuth((user, userData) => {
   document.getElementById("profileName").textContent = displayName;
   document.getElementById("profileEmail").textContent = user.email;
   document.getElementById("profileRole").textContent = getRoleText(userData?.role);
+  
   loadTreeData();
 });
+
+async function checkDeviceStatus(uid) {
+  const fingerprint = await getDeviceFingerprint();
+  const deviceRef = doc(db, "devices", uid, "list", fingerprint);
+  const snap = await getDoc(deviceRef);
+
+  if (!snap.exists()) {
+    // جهاز جديد: نسجله كـ pending ونمنعه
+    await setDoc(deviceRef, {
+      deviceId: fingerprint,
+      userAgent: navigator.userAgent,
+      status: "pending",
+      createdAt: serverTimestamp(),
+      lastSeen: serverTimestamp()
+    });
+    document.getElementById("blockedDeviceId").textContent = fingerprint;
+    return false;
+  }
+
+  if (snap.data().status !== "approved") {
+    document.getElementById("blockedDeviceId").textContent = fingerprint;
+    return false;
+  }
+
+  // تحديث آخر ظهور
+  await setDoc(deviceRef, { lastSeen: serverTimestamp() }, { merge: true });
+  return true;
+}
 
 function getRoleText(role) {
   if (role === 'admin') return 'أدمن';
@@ -243,14 +297,12 @@ window.doLogout = async () => {
 
 // ===== VIEW SWITCHING =====
 window.switchView = function(view) {
-  currentView = view;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(view + 'View').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => {
     n.classList.toggle('active', n.dataset.view === view);
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
-
   if (view === 'home') renderHome();
   if (view === 'content') renderLevel('root');
 };
@@ -258,29 +310,21 @@ window.switchView = function(view) {
 // ===== GREETING =====
 function updateGreeting() {
   const hour = new Date().getHours();
-  let small, msg;
-  if (hour < 12) { small = 'صباح الخير ☀️'; msg = 'يومك سعيد ومليان إنجاز!'; }
-  else if (hour < 18) { small = 'مساء النور 🌤️'; msg = 'خلصت مشاغلك؟ وقت المذاكرة!'; }
-  else { small = 'مساء الخير 🌙'; msg = 'وقت هادي ومثالي للمراجعة'; }
+  let small;
+  if (hour < 12) { small = 'صباح الخير ☀️'; }
+  else if (hour < 18) { small = 'مساء النور 🌤️'; }
+  else { small = 'مساء الخير 🌙'; }
   document.getElementById('greetSmall').textContent = small;
 }
 
 // ===== HOME =====
 function renderHome() {
   updateGreeting();
-  const points = currentUserData?.totalPoints || 0;
-  document.getElementById('statPoints').textContent = points;
-
-  const days = currentUserData?.createdAt
-    ? Math.floor((Date.now() - new Date(currentUserData.createdAt).getTime()) / (1000 * 60 * 60 * 24)) + 1
-    : 1;
+  document.getElementById('statPoints').textContent = currentUserData?.totalPoints || 0;
+  const days = currentUserData?.createdAt ? Math.floor((Date.now() - new Date(currentUserData.createdAt).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 1;
   document.getElementById('statDays').textContent = days;
-
-  const completedCount = currentUserData?.completedLessons
-    ? Object.keys(currentUserData.completedLessons).length : 0;
-  document.getElementById('statLessons').textContent = completedCount;
+  document.getElementById('statLessons').textContent = currentUserData?.completedLessons ? Object.keys(currentUserData.completedLessons).length : 0;
   document.getElementById('statAvailable').textContent = treeData.filter(n => n.type.startsWith('module_')).length;
-
   renderSuggested();
 }
 
@@ -294,8 +338,7 @@ function renderSuggested() {
   const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
   grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
   grid.querySelectorAll('[data-node]').forEach(el => {
-    const id = el.dataset.node;
-    const node = treeData.find(n => n.id === id);
+    const node = treeData.find(n => n.id === el.dataset.node);
     el.onclick = () => handleNodeClick(node);
   });
 }
@@ -325,8 +368,7 @@ function renderLevel(parentId) {
 
   container.innerHTML = nodes.map(node => renderCard(node)).join('');
   container.querySelectorAll('[data-node]').forEach(el => {
-    const id = el.dataset.node;
-    const node = nodes.find(n => n.id === id);
+    const node = nodes.find(n => n.id === el.dataset.node);
     el.onclick = () => handleNodeClick(node);
   });
 }
@@ -355,6 +397,7 @@ function renderCard(node) {
   `;
 }
 
+// ===== FIXED: Breadcrumbs Click (Use Event Delegation) =====
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
     openPlayer(node);
@@ -363,7 +406,8 @@ function handleNodeClick(node) {
   }
 }
 
-// ===== BREADCRUMBS =====
+window.renderLevel = renderLevel; // ربط الدالة عشان تتشاف من الـ HTML
+
 function updateBreadcrumbs(parentId) {
   const bc = document.getElementById('breadcrumbs');
   bc.innerHTML = `<span class="crumb" onclick="renderLevel('root')"><i class="fas fa-home"></i> الرئيسية</span>`;
@@ -396,7 +440,7 @@ window.closePlayer = function() {
   document.getElementById('playerFrame').srcdoc = '';
 };
 
-// ===== NOTIFICATIONS (placeholder) =====
+// ===== NOTIFICATIONS =====
 window.showNotifications = function() {
   showToast('قريباً: صفحة الإشعارات');
 };
