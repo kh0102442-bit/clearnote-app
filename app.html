@@ -9,13 +9,23 @@
 </head>
 <body>
 
+<!-- شاشة حماية الجهاز (بتظهر لو الجهاز جديد) -->
+<div id="deviceBlockOverlay" style="display:none; position:fixed; inset:0; background:#f4f6f8; z-index:99999; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center;">
+  <i class="fas fa-mobile-alt" style="font-size:80px; color:#a8741a; margin-bottom:20px;"></i>
+  <h2 style="color:#152741; font-size:24px; margin-bottom:10px;">جهاز جديد!</h2>
+  <p style="color:#5b6472; font-size:16px; line-height:1.8; max-width:400px;">لقد حاولت الدخول من جهاز جديد. من أجل حماية حسابك، يرجى الانتظار حتى يقوم الأدمن بمراجعة هذا الجهاز والموافقة عليه.</p>
+  <div style="margin-top:30px; padding:15px; background:#fff; border:1px solid #e9ecef; border-radius:10px; width:100%; max-width:400px; font-size:13px;">
+    <strong>معرف الجهاز:</strong><br>
+    <span id="blockedDeviceId" style="font-family:monospace; direction:ltr; display:block; margin-top:5px; color:#a8741a;">...</span>
+  </div>
+  <button onclick="doLogout()" style="margin-top:30px; padding:14px 30px; background:#b91c1c; color:white; border:none; border-radius:10px; font-weight:bold; font-size:16px; cursor:pointer;">تسجيل الخروج</button>
+</div>
+
 <!-- ===== TOP NAVBAR ===== -->
 <nav class="top-navbar">
   <div class="brand">CLEAR<span>NOTE</span></div>
   <div class="spacer"></div>
-  <button class="icon-btn" onclick="showNotifications()">
-    <i class="far fa-bell"></i>
-  </button>
+  <button class="icon-btn" onclick="showNotifications()"><i class="far fa-bell"></i></button>
   <div class="top-avatar" id="topAvatar" onclick="switchView('profile')">U</div>
 </nav>
 
@@ -28,132 +38,55 @@
   <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
 </aside>
 
-<!-- ===== MAIN ===== -->
 <main class="app-main">
-
-  <!-- شاشة حظر الجهاز -->
-  <div id="deviceBlockView" class="view" style="display:none;">
-    <div class="content-wrap">
-      <div class="empty-state" style="padding: 40px 20px;">
-        <i class="fas fa-mobile-alt" style="font-size: 70px; color: var(--accent); margin-bottom: 20px;"></i>
-        <h3 style="font-size: 22px; margin-bottom: 10px;">جهاز جديد!</h3>
-        <p style="font-size: 15px; line-height: 1.8;">لقد حاولت الدخول من جهاز جديد. من أجل حماية حسابك، يرجى الانتظار حتى يقوم الأدمن بمراجعة هذا الجهاز والموافقة عليه.</p>
-        <div style="margin-top: 30px; padding: 15px; background: #fdfaf3; border: 1px solid #c9a44a; border-radius: 10px; font-size: 13px;">
-          <strong>معرف الجهاز:</strong><br>
-          <span id="blockedDeviceId" style="font-family: monospace; direction: ltr; display: block; margin-top: 5px; color: #a8741a;">...</span>
-        </div>
-        <button class="btn-primary" style="margin-top: 20px; background: #b91c1c;" onclick="doLogout()">تسجيل الخروج</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- HOME VIEW -->
   <section class="view active" id="homeView">
     <div class="content-wrap">
       <div class="greeting-card">
         <div class="greet-small" id="greetSmall">صباح الخير ☀️</div>
         <h1 class="greet-name">أهلاً، <span id="greetName">...</span></h1>
         <p class="greet-sub">جاهز تكمل مذاكرتك النهاردة؟</p>
-        <button class="greet-cta" onclick="switchView('content')">
-          <i class="fas fa-play"></i> ابدأ المذاكرة
-        </button>
+        <button class="greet-cta" onclick="switchView('content')"><i class="fas fa-play"></i> ابدأ المذاكرة</button>
       </div>
-
       <div class="section">
         <h2 class="section-title"><i class="fas fa-chart-line"></i> إحصائياتك</h2>
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon pts"><i class="fas fa-star"></i></div>
-            <div class="stat-value" id="statPoints">0</div>
-            <div class="stat-label">نقطة</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon days"><i class="fas fa-calendar"></i></div>
-            <div class="stat-value" id="statDays">0</div>
-            <div class="stat-label">يوم معانا</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon lessons"><i class="fas fa-check-circle"></i></div>
-            <div class="stat-value" id="statLessons">0</div>
-            <div class="stat-label">درس مكتمل</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon available"><i class="fas fa-book"></i></div>
-            <div class="stat-value" id="statAvailable">0</div>
-            <div class="stat-label">درس متاح</div>
-          </div>
+          <div class="stat-card"><div class="stat-icon pts"><i class="fas fa-star"></i></div><div class="stat-value" id="statPoints">0</div><div class="stat-label">نقطة</div></div>
+          <div class="stat-card"><div class="stat-icon days"><i class="fas fa-calendar"></i></div><div class="stat-value" id="statDays">0</div><div class="stat-label">يوم معانا</div></div>
+          <div class="stat-card"><div class="stat-icon lessons"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statLessons">0</div><div class="stat-label">درس مكتمل</div></div>
+          <div class="stat-card"><div class="stat-icon available"><i class="fas fa-book"></i></div><div class="stat-value" id="statAvailable">0</div><div class="stat-label">درس متاح</div></div>
         </div>
       </div>
-
       <div class="section">
         <h2 class="section-title"><i class="fas fa-bolt"></i> إجراءات سريعة</h2>
         <div class="quick-grid">
-          <div class="quick-card" onclick="switchView('content')">
-            <div class="quick-icon" style="background:linear-gradient(135deg,#2980b9,#5dade2)"><i class="fas fa-book-open"></i></div>
-            <div class="quick-label">تصفح المحتوى</div>
-          </div>
-          <div class="quick-card" onclick="showToast('قريباً: طلب محتوى مخصوص')">
-            <div class="quick-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-magic"></i></div>
-            <div class="quick-label">طلب مخصوص</div>
-          </div>
-          <div class="quick-card" onclick="switchView('pomodoro')">
-            <div class="quick-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)"><i class="fas fa-clock"></i></div>
-            <div class="quick-label">بومودورو</div>
-          </div>
-          <div class="quick-card" onclick="switchView('chats')">
-            <div class="quick-icon" style="background:linear-gradient(135deg,#1f6b45,#27ae60)"><i class="fas fa-comments"></i></div>
-            <div class="quick-label">الدردشات</div>
-          </div>
+          <div class="quick-card" onclick="switchView('content')"><div class="quick-icon" style="background:linear-gradient(135deg,#2980b9,#5dade2)"><i class="fas fa-book-open"></i></div><div class="quick-label">تصفح المحتوى</div></div>
+          <div class="quick-card" onclick="showToast('قريباً: طلب محتوى مخصوص')"><div class="quick-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-magic"></i></div><div class="quick-label">طلب مخصوص</div></div>
+          <div class="quick-card" onclick="switchView('pomodoro')"><div class="quick-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)"><i class="fas fa-clock"></i></div><div class="quick-label">بومودورو</div></div>
+          <div class="quick-card" onclick="switchView('chats')"><div class="quick-icon" style="background:linear-gradient(135deg,#1f6b45,#27ae60)"><i class="fas fa-comments"></i></div><div class="quick-label">الدردشات</div></div>
         </div>
       </div>
-
       <div class="section">
-        <h2 class="section-title">
-          <i class="fas fa-lightbulb"></i> مقترح ليك
-          <span class="see-all" onclick="switchView('content')">عرض الكل ←</span>
-        </h2>
-        <div class="content-grid" id="suggestedGrid">
-          <div class="skeleton-card skeleton"></div>
-          <div class="skeleton-card skeleton"></div>
-        </div>
+        <h2 class="section-title"><i class="fas fa-lightbulb"></i> مقترح ليك <span class="see-all" onclick="switchView('content')">عرض الكل ←</span></h2>
+        <div class="content-grid" id="suggestedGrid"></div>
       </div>
     </div>
   </section>
 
-  <!-- CONTENT VIEW -->
   <section class="view" id="contentView">
     <div class="content-wrap">
       <div class="breadcrumbs" id="breadcrumbs"></div>
-      <div class="content-grid" id="cardsContainer">
-        <div class="skeleton-card skeleton"></div>
-        <div class="skeleton-card skeleton"></div>
-      </div>
+      <div class="content-grid" id="cardsContainer"></div>
     </div>
   </section>
 
-  <!-- CHATS VIEW -->
   <section class="view" id="chatsView">
-    <div class="content-wrap">
-      <div class="empty-state">
-        <i class="fas fa-comments"></i>
-        <h3>الدردشات قريباً</h3>
-        <p>هتقدر تتواصل مع زمايلك، وتنشئ غرف مذاكرة، وتنضم لقنوات المواد.</p>
-      </div>
-    </div>
+    <div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3>الدردشات قريباً</h3><p>هتقدر تتواصل مع زمايلك، وتنشئ غرف مذاكرة، وتنضم لقنوات المواد.</p></div></div>
   </section>
 
-  <!-- POMODORO VIEW -->
   <section class="view" id="pomodoroView">
-    <div class="content-wrap">
-      <div class="empty-state">
-        <i class="fas fa-clock"></i>
-        <h3>مؤقت بومودورو قريباً</h3>
-        <p>هنساعدك تذاكر بـ 25 دقيقة تركيز + 5 دقايق راحة، ونحسبلك ساعات مذاكرتك.</p>
-      </div>
-    </div>
+    <div class="content-wrap"><div class="empty-state"><i class="fas fa-clock"></i><h3>مؤقت بومودورو قريباً</h3><p>هنساعدك تذاكر بـ 25 دقيقة تركيز + 5 دقايق راحة.</p></div></div>
   </section>
 
-  <!-- PROFILE VIEW -->
   <section class="view" id="profileView">
     <div class="content-wrap">
       <div class="profile-header">
@@ -162,40 +95,17 @@
         <div class="profile-email" id="profileEmail">...</div>
         <span class="profile-role-badge" id="profileRole">طالب</span>
       </div>
-
       <div class="profile-list">
-        <div class="profile-item" onclick="showToast('قريباً: الإعدادات')">
-          <div class="pi-icon"><i class="fas fa-cog"></i></div>
-          <div class="pi-text">الإعدادات</div>
-          <i class="fas fa-chevron-left pi-arrow"></i>
-        </div>
-        <div class="profile-item" onclick="showToast('قريباً: تعديل الملف')">
-          <div class="pi-icon"><i class="fas fa-user-edit"></i></div>
-          <div class="pi-text">تعديل الملف الشخصي</div>
-          <i class="fas fa-chevron-left pi-arrow"></i>
-        </div>
-        <div class="profile-item" onclick="showToast('قريباً: الاشتراكات')">
-          <div class="pi-icon"><i class="fas fa-crown"></i></div>
-          <div class="pi-text">اشتراكاتي</div>
-          <i class="fas fa-chevron-left pi-arrow"></i>
-        </div>
-        <div class="profile-item" onclick="showToast('قريباً: الأجهزة')">
-          <div class="pi-icon"><i class="fas fa-mobile-alt"></i></div>
-          <div class="pi-text">أجهزتي</div>
-          <i class="fas fa-chevron-left pi-arrow"></i>
-        </div>
-        <div class="profile-item danger" onclick="doLogout()">
-          <div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div>
-          <div class="pi-text">تسجيل الخروج</div>
-          <i class="fas fa-chevron-left pi-arrow"></i>
-        </div>
+        <div class="profile-item" onclick="showToast('قريباً: الإعدادات')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showToast('قريباً: تعديل الملف')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف الشخصي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showToast('قريباً: الاشتراكات')"><div class="pi-icon"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showToast('قريباً: الأجهزة')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
       </div>
     </div>
   </section>
-
 </main>
 
-<!-- ===== BOTTOM NAV ===== -->
 <nav class="bottom-nav">
   <button class="nav-item active" data-view="home" onclick="switchView('home')"><i class="fas fa-home"></i><span>الرئيسية</span></button>
   <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
@@ -204,13 +114,10 @@
   <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
 </nav>
 
-<!-- ===== LESSON PLAYER ===== -->
 <div id="lessonPlayer">
   <div class="player-header">
     <h2 class="player-title" id="playerTitle">المحتوى</h2>
-    <button class="player-close" onclick="closePlayer()">
-      <i class="fas fa-times"></i> خروج
-    </button>
+    <button class="player-close" onclick="closePlayer()"><i class="fas fa-times"></i> خروج</button>
   </div>
   <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
 </div>
@@ -219,59 +126,52 @@
 import { db, onAuth, isAdmin, goTo, showToast, signOutUser, getDeviceFingerprint } from "./shared.js";
 import { collection, getDocs, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-let currentUser = null;
-let currentUserData = null;
-let treeData = [];
+let currentUser, currentUserData, treeData = [];
 
-// ===== AUTH & DEVICE CHECK =====
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
-  currentUser = user;
-  currentUserData = userData;
+  currentUser = user; currentUserData = userData;
+  
+  // 1. فحص الجهاز
+  const isOk = await checkDevice(user.uid);
+  if (!isOk) return; // لو الجهاز جديد، هنوقف هنا وهتظهر شاشة الحظر
 
-  const isDeviceOk = await checkDeviceStatus(user.uid);
-  if (!isDeviceOk) {
-    document.getElementById("homeView").style.display = "none";
-    document.querySelectorAll('.nav-item').forEach(n => n.style.display = 'none');
-    document.getElementById("deviceBlockView").style.display = "block";
-    return;
-  }
-
-  const displayName = userData?.name || user.email.split('@')[0];
-  const initial = displayName.charAt(0).toUpperCase();
+  // 2. تجهيز الواجهة
+  const name = userData?.name || user.email.split('@')[0];
+  const initial = name.charAt(0).toUpperCase();
   document.getElementById("topAvatar").textContent = initial;
   document.getElementById("profileAvatar").textContent = initial;
-  document.getElementById("greetName").textContent = displayName;
-  document.getElementById("profileName").textContent = displayName;
+  document.getElementById("greetName").textContent = name;
+  document.getElementById("profileName").textContent = name;
   document.getElementById("profileEmail").textContent = user.email;
   document.getElementById("profileRole").textContent = getRoleText(userData?.role);
+  
   loadTreeData();
 });
 
-async function checkDeviceStatus(uid) {
-  const fingerprint = await getDeviceFingerprint();
-  const deviceRef = doc(db, "devices", uid, "list", fingerprint);
-  const snap = await getDoc(deviceRef);
+async function checkDevice(uid) {
+  try {
+    const fingerprint = await getDeviceFingerprint();
+    const deviceRef = doc(db, "devices", uid, "list", fingerprint);
+    const snap = await getDoc(deviceRef);
 
-  if (!snap.exists()) {
-    await setDoc(deviceRef, {
-      deviceId: fingerprint,
-      userAgent: navigator.userAgent,
-      status: "pending",
-      createdAt: serverTimestamp(),
-      lastSeen: serverTimestamp()
-    });
-    document.getElementById("blockedDeviceId").textContent = fingerprint;
-    return false;
+    if (!snap.exists()) {
+      await setDoc(deviceRef, { deviceId: fingerprint, userAgent: navigator.userAgent, status: "pending", createdAt: serverTimestamp(), lastSeen: serverTimestamp() });
+      document.getElementById("blockedDeviceId").textContent = fingerprint;
+      document.getElementById("deviceBlockOverlay").style.display = "flex";
+      return false;
+    }
+    if (snap.data().status !== "approved") {
+      document.getElementById("blockedDeviceId").textContent = fingerprint;
+      document.getElementById("deviceBlockOverlay").style.display = "flex";
+      return false;
+    }
+    await setDoc(deviceRef, { lastSeen: serverTimestamp() }, { merge: true });
+    return true;
+  } catch(e) {
+    console.error(e);
+    return true; // لو حصل خطأ في الفحص، سيب الطالب يدخل أحسن ما نعلقه
   }
-
-  if (snap.data().status !== "approved") {
-    document.getElementById("blockedDeviceId").textContent = fingerprint;
-    return false;
-  }
-
-  await setDoc(deviceRef, { lastSeen: serverTimestamp() }, { merge: true });
-  return true;
 }
 
 function getRoleText(role) {
@@ -281,37 +181,23 @@ function getRoleText(role) {
   return 'طالب';
 }
 
-// ===== LOGOUT =====
-window.doLogout = async () => {
-  if (confirm('تسجيل الخروج؟')) {
-    await signOutUser();
-    goTo("index.html");
-  }
-};
+window.doLogout = async () => { if (confirm('تسجيل الخروج؟')) { await signOutUser(); goTo("index.html"); } };
 
-// ===== VIEW SWITCHING =====
 window.switchView = function(view) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(view + 'View').classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => {
-    n.classList.toggle('active', n.dataset.view === view);
-  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (view === 'home') renderHome();
   if (view === 'content') renderLevel('root');
 };
 
-// ===== GREETING =====
 function updateGreeting() {
   const hour = new Date().getHours();
-  let small;
-  if (hour < 12) { small = 'صباح الخير ☀️'; }
-  else if (hour < 18) { small = 'مساء النور 🌤️'; }
-  else { small = 'مساء الخير 🌙'; }
+  let small = hour < 12 ? 'صباح الخير ☀️' : (hour < 18 ? 'مساء النور 🌤️' : 'مساء الخير 🌙');
   document.getElementById('greetSmall').textContent = small;
 }
 
-// ===== HOME =====
 function renderHome() {
   updateGreeting();
   document.getElementById('statPoints').textContent = currentUserData?.totalPoints || 0;
@@ -326,44 +212,36 @@ function renderSuggested() {
   const grid = document.getElementById('suggestedGrid');
   const modules = treeData.filter(n => n.type.startsWith('module_'));
   if (modules.length === 0) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:var(--sp-6)"><i class="fas fa-inbox"></i><h3>لا يوجد محتوى بعد</h3><p>المحتوى هيتضاف قريباً.</p></div>`;
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-inbox"></i><h3>لا يوجد محتوى بعد</h3></div>`;
     return;
   }
   const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
   grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
   grid.querySelectorAll('[data-node]').forEach(el => {
-    const node = treeData.find(n => n.id === el.dataset.node);
-    el.onclick = () => handleNodeClick(node);
+    el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node));
   });
 }
 
-// ===== LOAD CONTENT TREE =====
 async function loadTreeData() {
   try {
     const snap = await getDocs(collection(db, "content_tree"));
     treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderHome();
-  } catch (e) {
-    document.getElementById('cardsContainer').innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>خطأ في التحميل</h3><p>${e.message}</p></div>`;
-  }
+  } catch (e) { document.getElementById('cardsContainer').innerHTML = `<p>خطأ: ${e.message}</p>`; }
 }
 
-// ===== RENDER LEVEL =====
 function renderLevel(parentId) {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '';
   updateBreadcrumbs(parentId);
   const nodes = treeData.filter(n => n.parentId === parentId);
-
   if (nodes.length === 0) {
-    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-folder-open"></i><h3>لا يوجد محتوى هنا</h3><p>المحتوى هيتضاف قريباً.</p></div>`;
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-folder-open"></i><h3>لا يوجد محتوى هنا</h3></div>`;
     return;
   }
-
   container.innerHTML = nodes.map(node => renderCard(node)).join('');
   container.querySelectorAll('[data-node]').forEach(el => {
-    const node = nodes.find(n => n.id === el.dataset.node);
-    el.onclick = () => handleNodeClick(node);
+    el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
   });
 }
 
@@ -378,65 +256,36 @@ function renderCard(node) {
   else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
   else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
   else { typeLabel = 'تصنيف'; icon = ''; }
-
-  const titleHtml = `${icon}${node.title}`;
   const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
-
-  return `
-    <div class="card-item ${node.type}" data-node="${node.id}">
-      <div class="card-type">${typeLabel}</div>
-      <h3 class="card-title">${titleHtml}</h3>
-      ${descHtml}
-    </div>
-  `;
+  return `<div class="card-item ${node.type}" data-node="${node.id}"><div class="card-type">${typeLabel}</div><h3 class="card-title">${icon}${node.title}</h3>${descHtml}</div>`;
 }
 
 function handleNodeClick(node) {
-  if (node.type === 'content' || node.type.startsWith('module_')) {
-    openPlayer(node);
-  } else {
-    renderLevel(node.id);
-  }
+  if (node.type === 'content' || node.type.startsWith('module_')) openPlayer(node);
+  else renderLevel(node.id);
 }
 
-// ===== BREADCRUMBS =====
-window.renderLevel = renderLevel; // Needed for inline onclick
+window.renderLevel = renderLevel;
 
 function updateBreadcrumbs(parentId) {
   const bc = document.getElementById('breadcrumbs');
   bc.innerHTML = `<span class="crumb" onclick="renderLevel('root')"><i class="fas fa-home"></i> الرئيسية</span>`;
   if (parentId === 'root') return;
-
-  let path = [];
-  let current = treeData.find(n => n.id === parentId);
-  while (current) {
-    path.unshift(current);
-    current = treeData.find(n => n.id === current.parentId);
-  }
-  path.forEach(p => {
-    bc.innerHTML += ` <i class="fas fa-chevron-left"></i> <span class="crumb" onclick="renderLevel('${p.id}')">${p.title}</span>`;
-  });
+  let path = [], current = treeData.find(n => n.id === parentId);
+  while (current) { path.unshift(current); current = treeData.find(n => n.id === current.parentId); }
+  path.forEach(p => { bc.innerHTML += ` <i class="fas fa-chevron-left"></i> <span class="crumb" onclick="renderLevel('${p.id}')">${p.title}</span>`; });
 }
 
-// ===== PLAYER =====
 function openPlayer(node) {
   document.getElementById('playerTitle').textContent = node.title;
   document.getElementById('lessonPlayer').classList.add('active');
   const iframe = document.getElementById('playerFrame');
-
-  const htmlContent = node.htmlContent || '<div style="text-align:center;padding:50px;font-family:sans-serif"><h2>لا يوجد محتوى مرفق بعد</h2></div>';
-  const fullHTML = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;font-family:'Cairo',system-ui,sans-serif;font-size:16px;line-height:1.8;background:#fff;color:#1a1a1a}img{max-width:100%;height:auto;border-radius:8px}p{margin:8px 0}</style><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"></head><body><div style="padding:16px">${htmlContent}</div></body></html>`;
-  iframe.srcdoc = fullHTML;
+  const html = node.htmlContent || '<div style="text-align:center;padding:50px;font-family:sans-serif"><h2>لا يوجد محتوى مرفق بعد</h2></div>';
+  iframe.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;font-family:'Cairo',sans-serif;font-size:16px;line-height:1.8;background:#fff;color:#1a1a1a}img{max-width:100%;height:auto;border-radius:8px}p{margin:8px 0}</style><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"></head><body><div style="padding:16px">${html}</div></body></html>`;
 }
 
-window.closePlayer = function() {
-  document.getElementById('lessonPlayer').classList.remove('active');
-  document.getElementById('playerFrame').srcdoc = '';
-};
-
-window.showNotifications = function() {
-  showToast('قريباً: صفحة الإشعارات');
-};
+window.closePlayer = function() { document.getElementById('lessonPlayer').classList.remove('active'); document.getElementById('playerFrame').srcdoc = ''; };
+window.showNotifications = function() { showToast('قريباً: صفحة الإشعارات'); };
 
 renderHome();
 </script>
