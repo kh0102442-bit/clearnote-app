@@ -19,10 +19,10 @@ html, body {
   color: var(--ink);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  font-size: 18px;
+  font-size: 16px; /* الحجم المثالي للقراءة على الموبايل */
 }
 
-/* ===== Auth Screen ===== */
+/* ===== شاشة الدخول ===== */
 .auth-screen {
   min-height: 100vh;
   display: flex;
@@ -35,25 +35,25 @@ html, body {
 .auth-box {
   background: var(--white);
   border-radius: 16px;
-  padding: 35px 25px;
+  padding: 30px 20px;
   width: 100%;
-  max-width: 450px;
+  max-width: 420px;
   box-shadow: 0 10px 40px rgba(0,0,0,.4);
 }
 
-.brand { text-align: center; margin-bottom: 25px; }
-.brand-name { font-family: Georgia, serif; font-size: 32px; font-weight: 700; letter-spacing: 3px; color: var(--navy); }
+.brand { text-align: center; margin-bottom: 20px; }
+.brand-name { font-family: Georgia, serif; font-size: 26px; font-weight: 700; letter-spacing: 2px; color: var(--navy); }
 .brand-name span { color: var(--accent); }
-.brand-sub { font-size: 12px; letter-spacing: 3px; color: var(--muted); margin-top: 5px; }
+.brand-sub { font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-top: 4px; }
 
 .auth-tabs {
-  display: flex; gap: 5px; background: #f0f2f5; padding: 6px;
-  border-radius: 12px; margin-bottom: 25px;
+  display: flex; gap: 4px; background: #f0f2f5; padding: 4px;
+  border-radius: 10px; margin-bottom: 20px;
 }
 .auth-tab {
-  flex: 1; padding: 14px; border: none; background: transparent;
-  border-radius: 8px; font-size: 17px; font-family: inherit;
-  color: var(--muted); cursor: pointer; transition: all .2s; font-weight: 700;
+  flex: 1; padding: 10px; border: none; background: transparent;
+  border-radius: 8px; font-size: 15px; font-family: inherit;
+  color: var(--muted); cursor: pointer; transition: all .2s; font-weight: 600;
 }
 .auth-tab.active { background: var(--navy); color: white; box-shadow: 0 2px 8px rgba(21,39,65,.2); }
 
@@ -61,57 +61,57 @@ html, body {
 .auth-form.active { display: block; }
 
 .auth-form label {
-  display: block; font-size: 15px; color: var(--navy);
-  font-weight: 800; margin-bottom: 8px; margin-top: 18px;
+  display: block; font-size: 13px; color: var(--navy);
+  font-weight: 700; margin-bottom: 6px; margin-top: 14px;
 }
 
 .auth-form input, .auth-form select {
-  width: 100%; padding: 16px; border: 2px solid var(--line);
-  border-radius: 12px; font-size: 17px; font-family: inherit;
-  margin-bottom: 5px; transition: border-color .2s; background: #fafbfc;
+  width: 100%; padding: 12px 14px; border: 2px solid var(--line);
+  border-radius: 10px; font-size: 15px; font-family: inherit;
+  margin-bottom: 4px; transition: border-color .2s; background: #fafbfc;
 }
 .auth-form input:focus, .auth-form select:focus { outline: none; border-color: var(--navy); background: #fff; }
 
 .btn-primary {
-  width: 100%; padding: 18px; background: var(--navy); color: white;
-  border: none; border-radius: 12px; font-size: 18px; font-weight: 800;
-  font-family: inherit; cursor: pointer; margin-top: 25px; transition: all .2s;
+  width: 100%; padding: 14px; background: var(--navy); color: white;
+  border: none; border-radius: 10px; font-size: 16px; font-weight: 700;
+  font-family: inherit; cursor: pointer; margin-top: 20px; transition: all .2s;
   box-shadow: 0 4px 12px rgba(21,39,65,.2);
 }
 .btn-primary:hover, .btn-primary:active { background: var(--navy-dark); transform: translateY(-1px); }
 .btn-primary:disabled { opacity: .6; cursor: wait; transform: none; }
 
-.status-msg { font-size: 16px; min-height: 20px; margin: 10px 0; text-align: center; font-weight: 700; }
+.status-msg { font-size: 14px; min-height: 20px; margin: 8px 0; text-align: center; font-weight: 600; }
 .status-msg.err { color: #b91c1c; }
 .status-msg.ok { color: var(--green); }
 
-.auth-foot { text-align: center; font-size: 14px; color: var(--muted); margin-top: 25px; letter-spacing: 1px; }
+.auth-foot { text-align: center; font-size: 12px; color: var(--muted); margin-top: 20px; letter-spacing: 1px; }
 
-/* ===== Welcome Screen ===== */
+/* ===== شاشة الترحيب ===== */
 .welcome-screen {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, #152741 0%, #0a0c0f 100%); padding: 15px;
 }
 .welcome-box {
   background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15);
-  border-radius: 20px; padding: 35px 25px; width: 100%; max-width: 460px;
+  border-radius: 16px; padding: 30px 20px; width: 100%; max-width: 420px;
   color: white; text-align: center; backdrop-filter: blur(10px);
 }
-.welcome-box h2 { font-size: 26px; margin: 0 0 10px; font-family: Georgia, serif; color: #fff; }
-.welcome-sub { color: rgba(255,255,255,.65); font-size: 17px; margin: 0 0 25px; }
-.welcome-info { background: rgba(0,0,0,.25); border-radius: 14px; padding: 20px; margin-bottom: 25px; text-align: right; }
-.info-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.welcome-box h2 { font-size: 22px; margin: 0 0 6px; font-family: Georgia, serif; color: #fff; }
+.welcome-sub { color: rgba(255,255,255,.65); font-size: 14px; margin: 0 0 20px; }
+.welcome-info { background: rgba(0,0,0,.25); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: right; }
+.info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
 .info-row:last-child { border-bottom: none; }
 .info-row span { color: rgba(255,255,255,.6); }
-.info-row b { color: #c9a44a; font-size: 17px; }
+.info-row b { color: #c9a44a; font-size: 15px; }
 
 @keyframes cnToastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
-/* ===== Multi-step Signup ===== */
+/* ===== خطوات التسجيل ===== */
 .signup-step { display: none; animation: slideIn .3s ease; }
 .signup-step.active { display: block; }
 @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-.step-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 20px; text-align: center; }
-.step-progress { height: 6px; background: #e9ecef; border-radius: 3px; margin-bottom: 25px; overflow: hidden; }
+.step-title { font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 15px; text-align: center; }
+.step-progress { height: 4px; background: #e9ecef; border-radius: 2px; margin-bottom: 20px; overflow: hidden; }
 .step-progress-bar { height: 100%; background: var(--accent); width: 33%; transition: width .3s ease; }
