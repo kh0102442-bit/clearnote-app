@@ -12,11 +12,11 @@
   }
   html, body {
     max-width: 100vw; overflow-x: hidden; margin: 0; padding: 0;
-    background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); font-family: 'Cairo', system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent; padding-bottom: 30px; font-size: 16px;
   }
 
-  /* شريط التنقل العلوي */
+  /* الهيدر */
   .admin-header {
     background: var(--navy); color: white; padding: 15px 18px;
     display: flex; justify-content: space-between; align-items: center;
@@ -24,36 +24,60 @@
   }
   .admin-brand { font-family: Georgia, serif; font-size: 22px; font-weight: bold; }
   .admin-brand span { color: var(--accent); }
-  
-  /* أزرار التنقل */
-  .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; padding: 0 15px; }
-  .nav-tab { flex: 1; background: var(--white); border: 2px solid var(--line); padding: 12px; border-radius: 12px; font-size: 16px; font-weight: bold; color: var(--muted); cursor: pointer; text-align: center; transition: 0.2s; }
-  .nav-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
-
-  /* الأزرار الأساسية */
   .btn-add-main { background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: 10px; font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
   .btn-logout { background: rgba(255,255,255,0.1); color: white; border: none; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+
+  /* التبويبات (شكل جديد وأنيميشن) */
+  .admin-nav {
+    display: flex;
+    background: var(--white);
+    padding: 8px;
+    margin: 0 15px 20px;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    position: relative;
+    gap: 5px;
+  }
+  .nav-tab {
+    flex: 1; padding: 10px; border-radius: 10px;
+    font-size: 15px; font-weight: bold; color: var(--muted);
+    cursor: pointer; text-align: center;
+    position: relative; z-index: 2;
+    transition: color 0.3s ease;
+  }
+  .nav-tab.active { color: white; }
+  
+  /* الخلفية المتحركة (الشريحة) */
+  .nav-slider {
+    position: absolute;
+    top: 8px; bottom: 8px;
+    background: var(--navy);
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 1;
+    width: calc(50% - 10px); /* عشان التبويبين */
+    right: 8px; /* البداية */
+  }
+  .nav-tab:nth-child(2).active ~ .nav-slider {
+    transform: translateX(-100%); /* الحركة */
+    background: var(--accent);
+  }
 
   .admin-container { padding: 0 15px; width: 100%; box-sizing: border-box; }
 
   /* ===== شجرة المحتوى ===== */
   .tree-group { margin-bottom: 15px; width: 100%; box-sizing: border-box; }
-  .node-card {
-    background: var(--white); border: 2px solid var(--line); border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03); width: 100%; box-sizing: border-box; overflow: hidden;
-  }
+  .node-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); width: 100%; box-sizing: border-box; overflow: hidden; }
   .node-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--white); }
   .node-title-area { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
   .node-icon { width: 45px; height: 45px; border-radius: 12px; background: #eef2fa; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .node-text { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 4px; }
   .node-title { font-weight: 800; color: var(--navy); font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .node-type { font-size: 12px; color: var(--accent); font-weight: 700; }
-
   .node-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .action-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid var(--line); background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 16px; cursor: pointer; }
   .action-btn.manage { color: #1f6b45; border-color: #c9d6ee; background: #eef2fa; }
   .action-btn.danger { color: #b91c1c; background: #fbeaea; border-color: #fbeaea; }
-
   .children-area { display: none; padding: 12px; background: #fafbfc; border-top: 2px solid var(--line); }
   .children-area.active { display: block; }
   
@@ -63,17 +87,20 @@
   .node-card[data-type="module_summary"] .node-icon { background: #f3e5f5; color: #9b59b6; }
   .node-card[data-type="module_terms"] .node-icon { background: #fff3e0; color: #e67e22; }
 
-  /* ===== كروت الطلاب ===== */
-  .student-card {
+  /* ===== كروت الطلاب والأجهزة ===== */
+  .list-card {
     background: var(--white); border: 2px solid var(--line); border-radius: 16px;
     padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   }
-  .student-info { display: flex; flex-direction: column; gap: 4px; }
-  .student-name { font-weight: bold; color: var(--navy); font-size: 17px; }
-  .student-email { font-size: 13px; color: var(--muted); }
-  .student-role { font-size: 12px; background: #f4f6f8; padding: 2px 8px; border-radius: 10px; width: max-content; font-weight: bold; color: var(--accent); }
+  .list-info { display: flex; flex-direction: column; gap: 4px; }
+  .list-title { font-weight: bold; color: var(--navy); font-size: 17px; }
+  .list-sub { font-size: 13px; color: var(--muted); }
+  .list-badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; width: max-content; font-weight: bold; }
   
+  .badge-pending { background: #ffebee; color: #b91c1c; }
+  .badge-approved { background: #e8f5e9; color: #1f6b45; }
+
   /* المودال */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
@@ -106,7 +133,6 @@
   .icon-questions { background: #3498db; }
   .icon-summary { background: #9b59b6; }
   .icon-terms { background: #e67e22; }
-    body { font-family: 'Cairo', system-ui, sans-serif; }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -121,8 +147,10 @@
 </div>
 
 <div class="admin-nav">
-  <div class="nav-tab active" onclick="switchTab('tree')">شجرة المحتوى</div>
-  <div class="nav-tab" onclick="switchTab('students')">الطلاب</div>
+  <div class="nav-tab active" onclick="switchTab('tree', this)">المحتوى</div>
+  <div class="nav-tab" onclick="switchTab('students', this)">الطلاب</div>
+  <div class="nav-tab" onclick="switchTab('devices', this)">الأجهزة</div>
+  <div class="nav-slider" id="navSlider"></div>
 </div>
 
 <div class="admin-container">
@@ -132,9 +160,10 @@
   </div>
 
   <!-- قائمة الطلاب -->
-  <div id="studentsContainer" style="display:none;">
-    <p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">جاري تحميل الطلاب...</p>
-  </div>
+  <div id="studentsContainer" style="display:none;"></div>
+
+  <!-- قائمة الأجهزة المعلقة -->
+  <div id="devicesContainer" style="display:none;"></div>
 </div>
 
 <!-- مودال الإضافة -->
@@ -189,11 +218,11 @@
 
 <script type="module">
 import { db, onAuth, isAdmin, goTo, showToast, signOutUser } from "./shared.js";
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let treeData = [];
 let allStudents = [];
-let currentTab = 'tree';
+let allDevices = [];
 
 const NODE_TYPES = { year: { label: 'سنة دراسية', icon: 'fa-calendar-alt' }, program: { label: 'برنامج', icon: 'fa-graduation-cap' }, subject: { label: 'مادة', icon: 'fa-book' }, custom: { label: 'تبويب', icon: 'fa-folder' }, module_explain: { label: 'شرح', icon: 'fa-file-alt' }, module_video: { label: 'فيديو', icon: 'fa-video' }, module_questions: { label: 'أسئلة', icon: 'fa-question-circle' }, module_summary: { label: 'ملخص', icon: 'fa-clipboard-list' }, module_terms: { label: 'مصطلحات', icon: 'fa-book' } };
 
@@ -201,27 +230,35 @@ onAuth((user, userData) => {
   if (!user || !isAdmin(userData)) { goTo("index.html"); return; } 
   loadTree(); 
   loadStudents();
+  loadDevices();
 });
 
 window.doLogout = async () => { await signOutUser(); goTo("index.html"); };
 
-// ===== التنقل بين التبويبات =====
-window.switchTab = function(tab) {
-  currentTab = tab;
+// ===== التنقل بين التبويبات (مع أنيميشن) =====
+window.switchTab = function(tab, el) {
+  // تحديث الأزرار
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => {
-    if(t.innerText.includes(tab === 'tree' ? 'شجرة' : 'الطلاب')) t.classList.add('active');
-  });
+  el.classList.add('active');
   
-  if(tab === 'tree') {
-    document.getElementById('treeContainer').style.display = 'block';
-    document.getElementById('studentsContainer').style.display = 'none';
-    document.getElementById('addBtn').style.display = 'flex';
-  } else {
-    document.getElementById('treeContainer').style.display = 'none';
-    document.getElementById('studentsContainer').style.display = 'block';
-    document.getElementById('addBtn').style.display = 'none';
-  }
+  // تحديث الشريحة المتحركة
+  const slider = document.getElementById('navSlider');
+  const tabIndex = Array.from(el.parentNode.children).indexOf(el);
+  const totalTabs = 3; // المحتوى، الطلاب، الأجهزة
+  const tabWidth = 100 / totalTabs;
+  
+  slider.style.right = `calc(${tabIndex * tabWidth}% + 8px)`;
+  slider.style.width = `calc(${tabWidth}% - 10px)`;
+  
+  if(tab === 'tree') slider.style.background = 'var(--navy)';
+  else if(tab === 'students') slider.style.background = 'var(--accent)';
+  else slider.style.background = '#2980b9';
+
+  // إظهار وإخفاء المحتوى
+  document.getElementById('treeContainer').style.display = tab === 'tree' ? 'block' : 'none';
+  document.getElementById('studentsContainer').style.display = tab === 'students' ? 'block' : 'none';
+  document.getElementById('devicesContainer').style.display = tab === 'devices' ? 'block' : 'none';
+  document.getElementById('addBtn').style.display = tab === 'tree' ? 'flex' : 'none';
 };
 
 // ===== تحميل الطلاب =====
@@ -231,7 +268,7 @@ async function loadStudents() {
     allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderStudents();
   } catch (e) {
-    document.getElementById("studentsContainer").innerHTML = `<p style="color:red;">خطأ في تحميل الطلاب: ${e.message}</p>`;
+    document.getElementById("studentsContainer").innerHTML = `<p style="color:red;">خطأ: ${e.message}</p>`;
   }
 }
 
@@ -248,20 +285,96 @@ function renderStudents() {
     let roleColor = student.role === 'admin' ? '#b91c1c' : (student.role === 'ta' ? '#3498db' : (student.role === 'doctor' ? '#27ae60' : 'var(--accent)'));
     
     html += `
-      <div class="student-card">
-        <div class="student-info">
-          <div class="student-name">${student.name || 'بدون اسم'}</div>
-          <div class="student-email">${student.email || ''}</div>
-          <div class="student-role" style="color:${roleColor};">${roleText}</div>
-        </div>
-        <div>
-          <button class="action-btn" onclick="alert('قريباً: تفاصيل الطالب')" style="background:#eef2fa; color:#1f6b45;"><i class="fas fa-eye"></i></button>
+      <div class="list-card">
+        <div class="list-info">
+          <div class="list-title">${student.name || 'بدون اسم'}</div>
+          <div class="list-sub">${student.email || ''}</div>
+          <div class="list-badge" style="background:#f4f6f8; color:${roleColor};">${roleText}</div>
         </div>
       </div>
     `;
   });
   container.innerHTML = html;
 }
+
+// ===== تحميل الأجهزة المعلقة =====
+async function loadDevices() {
+  const container = document.getElementById('devicesContainer');
+  container.innerHTML = `<p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">جاري تحميل الأجهزة...</p>`;
+  
+  allDevices = [];
+  // بنلف على كل الطلاب ونجيب أجهزتهم
+  for(let student of allStudents) {
+    const snap = await getDocs(collection(db, "devices", student.id, "list"));
+    snap.forEach(d => {
+      allDevices.push({ 
+        studentId: student.id, 
+        studentName: student.name, 
+        deviceId: d.id, 
+        ...d.data() 
+      });
+    });
+  }
+  
+  if(allDevices.length === 0) {
+    container.innerHTML = `<p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">لا توجد أجهزة مسجلة حتى الآن.</p>`;
+    return;
+  }
+
+  // نرتب الأجهزة: المعلقة الأول
+  allDevices.sort((a, b) => (a.status === 'pending' ? -1 : 1));
+
+  let html = '';
+  allDevices.forEach(device => {
+    let statusBadge = device.status === 'approved' 
+      ? `<span class="list-badge badge-approved">موافق عليه</span>` 
+      : `<span class="list-badge badge-pending">قيد المراجعة</span>`;
+
+    let actionButtons = '';
+    if(device.status !== 'approved') {
+      actionButtons = `
+        <button class="action-btn" style="background:#e8f5e9; color:#1f6b45; border-color:#c9d6ee; width: auto; padding: 0 12px; font-size: 14px;" onclick="approveDevice('${device.studentId}', '${device.deviceId}')">موافقة <i class="fas fa-check"></i></button>
+        <button class="action-btn danger" style="width: auto; padding: 0 12px; font-size: 14px;" onclick="deleteDevice('${device.studentId}', '${device.deviceId}')">رفض <i class="fas fa-times"></i></button>
+      `;
+    } else {
+      actionButtons = `
+        <button class="action-btn danger" style="width: auto; padding: 0 12px; font-size: 14px;" onclick="deleteDevice('${device.studentId}', '${device.deviceId}')">حذف <i class="fas fa-trash"></i></button>
+      `;
+    }
+
+    html += `
+      <div class="list-card">
+        <div class="list-info">
+          <div class="list-title">${device.studentName}</div>
+          <div class="list-sub" style="font-family:monospace; direction:ltr; text-align:right;">ID: ${device.deviceId}</div>
+          ${statusBadge}
+        </div>
+        <div style="display:flex; gap:6px;">
+          ${actionButtons}
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+window.approveDevice = async function(studentId, deviceId) {
+  try {
+    await updateDoc(doc(db, "devices", studentId, "list", deviceId), { status: "approved" });
+    showToast("تمت الموافقة على الجهاز");
+    loadDevices();
+  } catch(e) { showToast("خطأ", "error"); }
+}
+
+window.deleteDevice = async function(studentId, deviceId) {
+  if(!confirm("هل أنت متأكد من حذف/رفض هذا الجهاز؟")) return;
+  try {
+    await deleteDoc(doc(db, "devices", studentId, "list", deviceId));
+    showToast("تم الحذف");
+    loadDevices();
+  } catch(e) { showToast("خطأ", "error"); }
+}
+
 
 // ===== شجرة المحتوى (نفس الكود القديم) =====
 async function loadTree() {
