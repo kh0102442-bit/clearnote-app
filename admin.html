@@ -94,4 +94,366 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   }
   .list-info { display: flex; flex-direction: column; gap: 4px; }
-  .
+  .list-title { font-weight: bold; color: var(--navy); font-size: 17px; }
+  .list-sub { font-size: 13px; color: var(--muted); }
+  .list-badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; width: max-content; font-weight: bold; }
+  
+  .badge-pending { background: #ffebee; color: #b91c1c; }
+  .badge-approved { background: #e8f5e9; color: #1f6b45; }
+
+  /* المودال */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
+  .modal-overlay.active { display: flex; }
+  .modal-box { background: var(--white); border-radius: 24px 24px 0 0; width: 100%; padding: 25px 20px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  
+  .modal-box h3 { margin: 0 0 12px; color: var(--navy); font-size: 20px; text-align: center; }
+  .modal-box p { margin: 0 0 20px; color: var(--muted); font-size: 15px; text-align: center; }
+  
+  .form-group { margin-bottom: 18px; width: 100%; }
+  .form-group label { display: block; font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: 14px; border: 2px solid var(--line); border-radius: 10px;
+    font-family: inherit; font-size: 16px; box-sizing: border-box; background: #fafbfc;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--navy); }
+  
+  .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
+  .btn-save { flex: 1; background: var(--navy); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; }
+  .btn-cancel { flex: 1; background: #e9ecef; color: var(--muted); border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; }
+
+  .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .module-item { background: #f8f9fa; border: 2px solid var(--line); border-radius: 14px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
+  .module-item:active { background: #eef2fa; border-color: var(--navy); }
+  .module-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
+  .module-title { font-size: 16px; font-weight: 800; color: var(--navy); }
+  
+  .icon-explain { background: #27ae60; }
+  .icon-video { background: #e74c3c; }
+  .icon-questions { background: #3498db; }
+  .icon-summary { background: #9b59b6; }
+  .icon-terms { background: #e67e22; }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="admin-header">
+  <div class="admin-brand">CLEAR<span>NOTE</span></div>
+  <div style="display:flex; gap:12px;">
+    <button class="btn-add-main" id="addBtn" onclick="openAddModal(null, 'root')"><i class="fas fa-plus"></i> سنة</button>
+    <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i></button>
+  </div>
+</div>
+
+<div class="admin-nav">
+  <div class="nav-tab active" onclick="switchTab('tree', this)">المحتوى</div>
+  <div class="nav-tab" onclick="switchTab('students', this)">الطلاب</div>
+  <div class="nav-tab" onclick="switchTab('devices', this)">الأجهزة</div>
+  <div class="nav-slider" id="navSlider"></div>
+</div>
+
+<div class="admin-container">
+  <!-- شجرة المحتوى -->
+  <div id="treeContainer">
+    <p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">جاري التحميل...</p>
+  </div>
+
+  <!-- قائمة الطلاب -->
+  <div id="studentsContainer" style="display:none;"></div>
+
+  <!-- قائمة الأجهزة المعلقة -->
+  <div id="devicesContainer" style="display:none;"></div>
+</div>
+
+<!-- مودال الإضافة -->
+<div class="modal-overlay" id="nodeModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">إضافة</h3>
+    <p id="modalDesc"></p>
+    <input type="hidden" id="nodeParentId">
+    <input type="hidden" id="nodeType">
+    <div class="form-group" id="titleGroup">
+      <label>العنوان</label>
+      <input type="text" id="nodeTitle" placeholder="اكتب هنا...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('nodeModal')">إلغاء</button>
+      <button class="btn-save" onclick="saveNode()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="manageModal">
+  <div class="modal-box">
+    <h3 id="manageTitle">إدارة محتوى</h3>
+    <p>اختر الجزء لإضافة الكود الخاص به:</p>
+    <div class="modules-grid">
+      <div class="module-item" onclick="openCodeEditor('explain', 'الشرح')"><div class="module-icon icon-explain"><i class="fas fa-file-alt"></i></div><div class="module-title">الشرح</div></div>
+      <div class="module-item" onclick="openCodeEditor('video', 'فيديو')"><div class="module-icon icon-video"><i class="fas fa-video"></i></div><div class="module-title">فيديو</div></div>
+      <div class="module-item" onclick="openCodeEditor('questions', 'أسئلة')"><div class="module-icon icon-questions"><i class="fas fa-question-circle"></i></div><div class="module-title">أسئلة</div></div>
+      <div class="module-item" onclick="openCodeEditor('summary', 'ملخص')"><div class="module-icon icon-summary"><i class="fas fa-clipboard-list"></i></div><div class="module-title">ملخص</div></div>
+      <div class="module-item" onclick="openCodeEditor('terms', 'مصطلحات')"><div class="module-icon icon-terms"><i class="fas fa-book"></i></div><div class="module-title">مصطلحات</div></div>
+    </div>
+    <button class="btn-cancel" style="width:100%;" onclick="closeModal('manageModal')">إغلاق</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="codeModal">
+  <div class="modal-box">
+    <h3 id="codeTitle">إضافة كود</h3>
+    <input type="hidden" id="currentNodeId">
+    <input type="hidden" id="currentModuleKey">
+    <div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput"></div>
+    <div class="form-group"><label>وصف المحتوى</label><input type="text" id="moduleDescInput"></div>
+    <div class="form-group"><label>المصادر (اختياري)</label><input type="text" id="moduleSourcesInput"></div>
+    <div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div>
+    <div class="form-group"><label>كود HTML</label><textarea id="moduleCode" rows="6" style="font-family: monospace;"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button>
+      <button class="btn-save" onclick="saveModuleCode()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { db, onAuth, isAdmin, goTo, showToast, signOutUser } from "./shared.js";
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+let treeData = [];
+let allStudents = [];
+let allDevices = [];
+
+const NODE_TYPES = { year: { label: 'سنة دراسية', icon: 'fa-calendar-alt' }, program: { label: 'برنامج', icon: 'fa-graduation-cap' }, subject: { label: 'مادة', icon: 'fa-book' }, custom: { label: 'تبويب', icon: 'fa-folder' }, module_explain: { label: 'شرح', icon: 'fa-file-alt' }, module_video: { label: 'فيديو', icon: 'fa-video' }, module_questions: { label: 'أسئلة', icon: 'fa-question-circle' }, module_summary: { label: 'ملخص', icon: 'fa-clipboard-list' }, module_terms: { label: 'مصطلحات', icon: 'fa-book' } };
+
+onAuth((user, userData) => { 
+  if (!user || !isAdmin(userData)) { goTo("index.html"); return; } 
+  loadTree(); 
+  loadStudents();
+  loadDevices();
+});
+
+window.doLogout = async () => { await signOutUser(); goTo("index.html"); };
+
+// ===== التنقل بين التبويبات (مع أنيميشن) =====
+window.switchTab = function(tab, el) {
+  // تحديث الأزرار
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  
+  // تحديث الشريحة المتحركة
+  const slider = document.getElementById('navSlider');
+  const tabIndex = Array.from(el.parentNode.children).indexOf(el);
+  const totalTabs = 3; // المحتوى، الطلاب، الأجهزة
+  const tabWidth = 100 / totalTabs;
+  
+  slider.style.right = `calc(${tabIndex * tabWidth}% + 8px)`;
+  slider.style.width = `calc(${tabWidth}% - 10px)`;
+  
+  if(tab === 'tree') slider.style.background = 'var(--navy)';
+  else if(tab === 'students') slider.style.background = 'var(--accent)';
+  else slider.style.background = '#2980b9';
+
+  // إظهار وإخفاء المحتوى
+  document.getElementById('treeContainer').style.display = tab === 'tree' ? 'block' : 'none';
+  document.getElementById('studentsContainer').style.display = tab === 'students' ? 'block' : 'none';
+  document.getElementById('devicesContainer').style.display = tab === 'devices' ? 'block' : 'none';
+  document.getElementById('addBtn').style.display = tab === 'tree' ? 'flex' : 'none';
+};
+
+// ===== تحميل الطلاب =====
+async function loadStudents() {
+  try {
+    const snap = await getDocs(collection(db, "users"));
+    allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderStudents();
+  } catch (e) {
+    document.getElementById("studentsContainer").innerHTML = `<p style="color:red;">خطأ: ${e.message}</p>`;
+  }
+}
+
+function renderStudents() {
+  const container = document.getElementById('studentsContainer');
+  if(allStudents.length === 0) {
+    container.innerHTML = `<p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">لا يوجد طلاب مسجلون حتى الآن.</p>`;
+    return;
+  }
+  
+  let html = '';
+  allStudents.forEach(student => {
+    let roleText = student.role === 'admin' ? 'أدمن' : (student.role === 'ta' ? 'معيد' : (student.role === 'doctor' ? 'دكتور' : 'طالب'));
+    let roleColor = student.role === 'admin' ? '#b91c1c' : (student.role === 'ta' ? '#3498db' : (student.role === 'doctor' ? '#27ae60' : 'var(--accent)'));
+    
+    html += `
+      <div class="list-card">
+        <div class="list-info">
+          <div class="list-title">${student.name || 'بدون اسم'}</div>
+          <div class="list-sub">${student.email || ''}</div>
+          <div class="list-badge" style="background:#f4f6f8; color:${roleColor};">${roleText}</div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+// ===== تحميل الأجهزة المعلقة =====
+async function loadDevices() {
+  const container = document.getElementById('devicesContainer');
+  container.innerHTML = `<p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">جاري تحميل الأجهزة...</p>`;
+  
+  allDevices = [];
+  // بنلف على كل الطلاب ونجيب أجهزتهم
+  for(let student of allStudents) {
+    const snap = await getDocs(collection(db, "devices", student.id, "list"));
+    snap.forEach(d => {
+      allDevices.push({ 
+        studentId: student.id, 
+        studentName: student.name, 
+        deviceId: d.id, 
+        ...d.data() 
+      });
+    });
+  }
+  
+  if(allDevices.length === 0) {
+    container.innerHTML = `<p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">لا توجد أجهزة مسجلة حتى الآن.</p>`;
+    return;
+  }
+
+  // نرتب الأجهزة: المعلقة الأول
+  allDevices.sort((a, b) => (a.status === 'pending' ? -1 : 1));
+
+  let html = '';
+  allDevices.forEach(device => {
+    let statusBadge = device.status === 'approved' 
+      ? `<span class="list-badge badge-approved">موافق عليه</span>` 
+      : `<span class="list-badge badge-pending">قيد المراجعة</span>`;
+
+    let actionButtons = '';
+    if(device.status !== 'approved') {
+      actionButtons = `
+        <button class="action-btn" style="background:#e8f5e9; color:#1f6b45; border-color:#c9d6ee; width: auto; padding: 0 12px; font-size: 14px;" onclick="approveDevice('${device.studentId}', '${device.deviceId}')">موافقة <i class="fas fa-check"></i></button>
+        <button class="action-btn danger" style="width: auto; padding: 0 12px; font-size: 14px;" onclick="deleteDevice('${device.studentId}', '${device.deviceId}')">رفض <i class="fas fa-times"></i></button>
+      `;
+    } else {
+      actionButtons = `
+        <button class="action-btn danger" style="width: auto; padding: 0 12px; font-size: 14px;" onclick="deleteDevice('${device.studentId}', '${device.deviceId}')">حذف <i class="fas fa-trash"></i></button>
+      `;
+    }
+
+    html += `
+      <div class="list-card">
+        <div class="list-info">
+          <div class="list-title">${device.studentName}</div>
+          <div class="list-sub" style="font-family:monospace; direction:ltr; text-align:right;">ID: ${device.deviceId}</div>
+          ${statusBadge}
+        </div>
+        <div style="display:flex; gap:6px;">
+          ${actionButtons}
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+window.approveDevice = async function(studentId, deviceId) {
+  try {
+    await updateDoc(doc(db, "devices", studentId, "list", deviceId), { status: "approved" });
+    showToast("تمت الموافقة على الجهاز");
+    loadDevices();
+  } catch(e) { showToast("خطأ", "error"); }
+}
+
+window.deleteDevice = async function(studentId, deviceId) {
+  if(!confirm("هل أنت متأكد من حذف/رفض هذا الجهاز؟")) return;
+  try {
+    await deleteDoc(doc(db, "devices", studentId, "list", deviceId));
+    showToast("تم الحذف");
+    loadDevices();
+  } catch(e) { showToast("خطأ", "error"); }
+}
+
+
+// ===== شجرة المحتوى (نفس الكود القديم) =====
+async function loadTree() {
+  try {
+    const snap = await getDocs(collection(db, "content_tree"));
+    treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTree();
+  } catch (e) { document.getElementById("treeContainer").innerHTML = `<p style="color:red;">خطأ: ${e.message}</p>`; }
+}
+
+function renderTree() {
+  const container = document.getElementById("treeContainer");
+  const rootNodes = treeData.filter(n => n.parentId === "root");
+  if (rootNodes.length === 0) { container.innerHTML = `<p style="text-align:center; color:var(--muted); padding: 20px; font-size:16px;">لا يوجد محتوى.</p>`; return; }
+  container.innerHTML = buildHTML(rootNodes);
+}
+
+function buildHTML(nodes) {
+  let html = "";
+  nodes.sort((a, b) => { if (a.type.startsWith('module_') && !b.type.startsWith('module_')) return -1; if (!a.type.startsWith('module_') && b.type.startsWith('module_')) return 1; return 0; });
+  nodes.forEach(node => {
+    const children = treeData.filter(n => n.parentId === node.id);
+    const typeInfo = NODE_TYPES[node.type] || NODE_TYPES.custom;
+    const isModule = node.type.startsWith('module_');
+    let actionsHtml = isModule ? `<button class="action-btn" onclick="editModule('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>` : `<button class="action-btn manage" onclick="openManage('${node.id}', '${node.title}')"><i class="fas fa-cog"></i></button><button class="action-btn" onclick="openAddModal('${node.id}', '${node.type}')"><i class="fas fa-plus"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`;
+    let extraInfo = isModule && node.description ? `<div style="font-size:13px; color:var(--muted); margin-top:4px;">${node.description}</div>` : "";
+    html += `<div class="tree-group"><div class="node-card" data-type="${node.type}"><div class="node-header"><div class="node-title-area" onclick="toggleChildren('${node.id}')"><div class="node-icon"><i class="fas ${typeInfo.icon}"></i></div><div class="node-text"><div class="node-title">${node.title}</div><div class="node-type">${typeInfo.label}</div>${extraInfo}</div></div><div class="node-actions">${actionsHtml}</div></div>${!isModule ? `<div class="children-area" id="children-${node.id}">${children.length > 0 ? buildHTML(children) : '<div style="text-align:center; color:#aaa; font-size:14px; padding:10px;">لا يوجد فروع</div>'}</div>` : ''}</div></div>`;
+  });
+  return html;
+}
+
+window.toggleChildren = function(id) { const el = document.getElementById(`children-${id}`); if (el) el.classList.toggle('active'); };
+
+window.openAddModal = function(parentId, parentType) {
+  let newType = "custom"; let title = "إضافة تبويب"; let desc = "";
+  if (parentType === 'root') { newType = 'year'; title = "إضافة سنة"; desc = "مثل: الفرقة الأولى"; }
+  else if (parentType === 'year') { newType = 'program'; title = "إضافة برنامج"; desc = "مثل: برنامج عام"; }
+  else if (parentType === 'program') { newType = 'subject'; title = "إضافة مادة"; desc = "مثل: Anatomy"; }
+  document.getElementById("modalTitle").textContent = title; document.getElementById("modalDesc").textContent = desc; document.getElementById("nodeParentId").value = parentId || "root"; document.getElementById("nodeType").value = newType; document.getElementById("nodeTitle").value = ""; document.getElementById("nodeModal").classList.add("active");
+};
+
+window.saveNode = async function() {
+  const parentId = document.getElementById("nodeParentId").value; const type = document.getElementById("nodeType").value; const title = document.getElementById("nodeTitle").value.trim();
+  if (!title) { showToast("أدخل العنوان", "error"); return; }
+  try { await addDoc(collection(db, "content_tree"), { parentId, type, title, updatedAt: serverTimestamp(), createdAt: serverTimestamp() }); showToast("تمت الإضافة"); closeModal('nodeModal'); loadTree(); } catch (e) { showToast("خطأ", "error"); }
+};
+
+window.openManage = function(nodeId, nodeTitle) { document.getElementById("manageTitle").textContent = `إدارة: ${nodeTitle}`; document.getElementById("manageModal").dataset.currentNodeId = nodeId; document.getElementById("manageModal").classList.add("active"); };
+
+window.openCodeEditor = function(moduleKey, moduleTitle) {
+  const nodeId = document.getElementById("manageModal").dataset.currentNodeId; document.getElementById("codeTitle").textContent = `إعداد ${moduleTitle}`; document.getElementById("currentNodeId").value = nodeId; document.getElementById("currentModuleKey").value = moduleKey;
+  const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_' + moduleKey);
+  document.getElementById("moduleTitleInput").value = existing ? existing.title : moduleTitle; document.getElementById("moduleDescInput").value = existing ? (existing.description || '') : ''; document.getElementById("moduleSourcesInput").value = existing ? (existing.sources || '') : ''; document.getElementById("moduleAccessInput").value = existing ? (existing.access || 'public') : 'public'; document.getElementById("moduleCode").value = existing ? (existing.htmlContent || '') : '';
+  closeModal('manageModal'); document.getElementById("codeModal").classList.add("active");
+};
+
+window.saveModuleCode = async function() {
+  const nodeId = document.getElementById("currentNodeId").value; const moduleKey = document.getElementById("currentModuleKey").value; const title = document.getElementById("moduleTitleInput").value.trim(); const description = document.getElementById("moduleDescInput").value.trim(); const sources = document.getElementById("moduleSourcesInput").value.trim(); const access = document.getElementById("moduleAccessInput").value; const code = document.getElementById("moduleCode").value;
+  if (!title) { showToast("أدخل العنوان", "error"); return; }
+  try {
+    const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_' + moduleKey);
+    const data = { title, description, sources, access, htmlContent: code, updatedAt: serverTimestamp() };
+    if (existing) { await updateDoc(doc(db, "content_tree", existing.id), data); } else { data.parentId = nodeId; data.type = 'module_' + moduleKey; data.createdAt = serverTimestamp(); await addDoc(collection(db, "content_tree"), data); }
+    showToast("تم الحفظ"); closeModal('codeModal'); setTimeout(() => { const el = document.getElementById(`children-${nodeId}`); if (el) el.classList.add('active'); }, 500); loadTree();
+  } catch (e) { showToast("خطأ", "error"); }
+};
+
+window.editModule = async function(nodeId) {
+  const node = treeData.find(n => n.id === nodeId); if (!node) return;
+  document.getElementById("codeTitle").textContent = `تعديل ${node.title}`; document.getElementById("currentNodeId").value = node.parentId; document.getElementById("currentModuleKey").value = node.type.replace('module_', ''); document.getElementById("moduleTitleInput").value = node.title || ''; document.getElementById("moduleDescInput").value = node.description || ''; document.getElementById("moduleSourcesInput").value = node.sources || ''; document.getElementById("moduleAccessInput").value = node.access || 'public'; document.getElementById("moduleCode").value = node.htmlContent || ''; document.getElementById("codeModal").classList.add("active");
+};
+
+window.deleteNode = async function(id) {
+  if (treeData.some(n => n.parentId === id)) { showToast("احذف الفروع أولاً!", "error"); return; }
+  if (!confirm("هل أنت متأكد من الحذف؟")) return;
+  try { await deleteDoc(doc(db, "content_tree", id)); showToast("تم الحذف"); loadTree(); } catch (e) { showToast("خطأ", "error"); }
+};
+
+window.closeModal = function(id) { document.getElementById(id).classList.remove("active"); };
+</script>
+</body>
+</html>
