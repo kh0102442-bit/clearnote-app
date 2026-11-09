@@ -204,7 +204,6 @@
 import { db, onAuth, isAdmin, goTo, showToast, signOutUser } from "./shared.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ===== STATE =====
 let currentUser = null;
 let currentUserData = null;
 let treeData = [];
@@ -258,10 +257,10 @@ window.switchView = function(view) {
 // ===== GREETING =====
 function updateGreeting() {
   const hour = new Date().getHours();
-  let small, msg;
-  if (hour < 12) { small = 'صباح الخير ☀️'; msg = 'يومك سعيد ومليان إنجاز!'; }
-  else if (hour < 18) { small = 'مساء النور 🌤️'; msg = 'خلصت مشاغلك؟ وقت المذاكرة!'; }
-  else { small = 'مساء الخير 🌙'; msg = 'وقت هادي ومثالي للمراجعة'; }
+  let small;
+  if (hour < 12) { small = 'صباح الخير ☀️'; }
+  else if (hour < 18) { small = 'مساء النور 🌤️'; }
+  else { small = 'مساء الخير 🌙'; }
   document.getElementById('greetSmall').textContent = small;
 }
 
@@ -363,20 +362,39 @@ function handleNodeClick(node) {
   }
 }
 
-// ===== BREADCRUMBS =====
+// ===== BREADCRUMBS (تم إصلاحها هنا) =====
 function updateBreadcrumbs(parentId) {
   const bc = document.getElementById('breadcrumbs');
-  bc.innerHTML = `<span class="crumb" onclick="renderLevel('root')"><i class="fas fa-home"></i> الرئيسية</span>`;
+  bc.innerHTML = '';
+  
+  // زر الرئيسية
+  const homeSpan = document.createElement('span');
+  homeSpan.className = 'crumb';
+  homeSpan.innerHTML = '<i class="fas fa-home"></i> الرئيسية';
+  homeSpan.onclick = () => renderLevel('root'); 
+  bc.appendChild(homeSpan);
+  
   if (parentId === 'root') return;
 
+  // بناء المسار
   let path = [];
   let current = treeData.find(n => n.id === parentId);
   while (current) {
     path.unshift(current);
     current = treeData.find(n => n.id === current.parentId);
   }
+  
+  // إضافة الأسهم والمستويات
   path.forEach(p => {
-    bc.innerHTML += ` <i class="fas fa-chevron-left"></i> <span class="crumb" onclick="renderLevel('${p.id}')">${p.title}</span>`;
+    const arrow = document.createElement('i');
+    arrow.className = 'fas fa-chevron-left';
+    bc.appendChild(arrow);
+    
+    const crumb = document.createElement('span');
+    crumb.className = 'crumb';
+    crumb.textContent = p.title;
+    crumb.onclick = () => renderLevel(p.id);
+    bc.appendChild(crumb);
   });
 }
 
