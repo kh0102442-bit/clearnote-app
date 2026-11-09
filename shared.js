@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyCHspBBXBG8DmLPOfKcqE8H8SmAjw5HGpQ",
@@ -19,7 +19,7 @@ export const ROLES = { ADMIN: "admin", STUDENT: "student", TA: "ta", DOCTOR: "do
 
 export function showToast(msg, type = "success") {
   const toast = document.createElement("div");
-  toast.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:${type === "error" ? "#b91c1c" : "#1f6b45"};color:white;padding:14px 28px;border-radius:10px;font-family:sans-serif;font-size:16px;font-weight:bold;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.25);`;
+  toast.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:${type === "error" ? "#b91c1c" : "#1f6b45"};color:white;padding:14px 28px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:bold;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.25);`;
   toast.textContent = msg; document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3500);
 }
@@ -58,3 +58,48 @@ export function onAuth(callback) {
 
 export function isAdmin(userData) { return userData && userData.role === 'admin'; }
 export function goTo(page) { window.location.href = page; }
+
+// ===== DEVICE FINGERPRINT LOGIC =====
+export async function getDeviceFingerprint() {
+  const raw = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width + "x" + screen.height,
+    new Date().getTimezoneOffset()
+  ].join("|");
+  
+  const buf = new TextEncoder().encode(raw);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 24);
+}
+
+export async function checkDeviceStatus(uid) {
+  const fp = await getDeviceFingerprint();
+  const devRef = doc(db, 'devices', uid, 'list', fp);
+  const devSnap = await getDoc(devRef);
+
+  if (devSnap.exists()) {
+    const data = devSnap.data();
+    // تحديث آخر ظهور
+    await updateDoc(devRef, { lastSeen: serverTimestamp() });
+    return { status: data.status, fp };
+  }
+
+  // جهاز جديد
+  const snap = await getDocs(collection(db, 'devices', uid, 'list'));
+  const approvedCount = snap.docs.filter(d => d.data().status === 'approved').length;
+  const isFirstDevice = snap.docs.length === 0;
+
+  // أول جهاز بيتوافق تلقائياً، الباقي بيحتاج موافقة الأدمن
+  const newStatus = isFirstDevice ? 'approved' : 'pending';
+
+  await setDoc(devRef, {
+    deviceId: fp,
+    userAgent: navigator.userAgent,
+    status: newStatus,
+    createdAt: serverTimestamp(),
+    lastSeen: serverTimestamp()
+  });
+
+  return { status: newStatus, fp };
+}
