@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* ستايل شاشة قفل الجهاز */
   .device-lock-overlay {
     position: fixed; inset: 0; background: var(--navy);
     z-index: 99999; display: none; flex-direction: column;
@@ -27,7 +26,6 @@
 </head>
 <body>
 
-<!-- شاشة قفل الجهاز -->
 <div class="device-lock-overlay" id="deviceLock">
   <div class="lock-icon"><i class="fas fa-shield-alt"></i></div>
   <h2>جهاز جديد!</h2>
@@ -35,7 +33,6 @@
   <button class="btn-logout-lock" onclick="doLogout()">تسجيل الخروج</button>
 </div>
 
-<!-- ===== TOP NAVBAR ===== -->
 <nav class="top-navbar">
   <div class="brand">CLEAR<span>NOTE</span></div>
   <div class="spacer"></div>
@@ -45,7 +42,6 @@
   <div class="top-avatar" id="topAvatar" onclick="switchView('profile')">U</div>
 </nav>
 
-<!-- ===== SIDE NAV ===== -->
 <aside class="side-nav">
   <button class="nav-item active" data-view="home" onclick="switchView('home')"><i class="fas fa-home"></i><span>الرئيسية</span></button>
   <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
@@ -54,9 +50,7 @@
   <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
 </aside>
 
-<!-- ===== MAIN ===== -->
 <main class="app-main" id="appMain">
-  <!-- HOME VIEW -->
   <section class="view active" id="homeView">
     <div class="content-wrap">
       <div class="greeting-card">
@@ -65,7 +59,6 @@
         <p class="greet-sub">جاهز تكمل مذاكرتك النهاردة؟</p>
         <button class="greet-cta" onclick="switchView('content')"><i class="fas fa-play"></i> ابدأ المذاكرة</button>
       </div>
-      <!-- إحصائيات وإجراءات سريعة (نفس الكود السابق) -->
       <div class="section">
         <h2 class="section-title"><i class="fas fa-chart-line"></i> إحصائياتك</h2>
         <div class="stats-grid">
@@ -91,7 +84,6 @@
     </div>
   </section>
 
-  <!-- CONTENT VIEW -->
   <section class="view" id="contentView">
     <div class="content-wrap">
       <div class="breadcrumbs" id="breadcrumbs"></div>
@@ -99,12 +91,9 @@
     </div>
   </section>
 
-  <!-- CHATS VIEW -->
   <section class="view" id="chatsView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3>الدردشات قريباً</h3></div></div></section>
-  <!-- POMODORO VIEW -->
   <section class="view" id="pomodoroView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-clock"></i><h3>بومودورو قريباً</h3></div></div></section>
 
-  <!-- PROFILE VIEW -->
   <section class="view" id="profileView">
     <div class="content-wrap">
       <div class="profile-header">
@@ -147,12 +136,10 @@ import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/
 let currentUserData = null;
 let treeData = [];
 
-// ===== AUTH & DEVICE CHECK =====
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
   currentUserData = userData;
   
-  // فحص الجهاز
   const dev = await checkDeviceStatus(user.uid);
   
   if (dev.status === 'pending') {
@@ -166,7 +153,6 @@ onAuth(async (user, userData) => {
     return;
   }
 
-  // لو الجهاز متوافق، نكمل عادي
   document.getElementById('deviceLock').classList.remove('active');
   document.getElementById('appMain').style.display = 'block';
 
@@ -204,13 +190,13 @@ function renderHome() {
   document.getElementById('statPoints').textContent = currentUserData?.totalPoints || 0;
   document.getElementById('statDays').textContent = currentUserData?.createdAt ? Math.floor((Date.now() - new Date(currentUserData.createdAt).getTime()) / 86400000) + 1 : 1;
   document.getElementById('statLessons').textContent = currentUserData?.completedLessons ? Object.keys(currentUserData.completedLessons).length : 0;
-  document.getElementById('statAvailable').textContent = treeData.filter(n => n.type.startsWith('module_')).length;
+  document.getElementById('statAvailable').textContent = treeData.filter(n => n.type && n.type.startsWith('module_')).length;
   renderSuggested();
 }
 
 function renderSuggested() {
   const grid = document.getElementById('suggestedGrid');
-  const modules = treeData.filter(n => n.type.startsWith('module_'));
+  const modules = treeData.filter(n => n.type && n.type.startsWith('module_'));
   if (modules.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>لا يوجد محتوى بعد</p></div>`; return; }
   const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
   grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
@@ -240,19 +226,33 @@ function renderLevel(parentId) {
 }
 
 function renderCard(node) {
-  let typeLabel, icon;
-  if (node.type === 'year') typeLabel = 'سنة دراسية';
-  else if (node.type === 'program') typeLabel = 'برنامج';
-  else if (node.type === 'subject') typeLabel = 'مادة';
-  else if (node.type === 'module_explain') { typeLabel = 'الشرح'; icon = '<i class="fas fa-file-alt" style="color:#27ae60;margin-left:6px"></i>'; }
-  else if (node.type === 'module_video') { typeLabel = 'فيديو'; icon = '<i class="fas fa-video" style="color:#e74c3c;margin-left:6px"></i>'; }
-  else if (node.type === 'module_questions') { typeLabel = 'أسئلة'; icon = '<i class="fas fa-question-circle" style="color:#2980b9;margin-left:6px"></i>'; }
-  else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
-  else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
-  return `<div class="card-item ${node.type}" data-node="${node.id}"><div class="card-type">${typeLabel}</div><h3 class="card-title">${icon}${node.title}</h3></div>`;
+  const type = node.type || 'custom'; 
+  let typeLabel = "تبويب فرعي"; 
+  let icon = '';
+
+  if (type === 'year') { typeLabel = 'سنة دراسية'; }
+  else if (type === 'program') { typeLabel = 'برنامج'; }
+  else if (type === 'subject') { typeLabel = 'مادة'; }
+  else if (type === 'module_explain') { typeLabel = 'الشرح'; icon = '<i class="fas fa-file-alt" style="color:#27ae60;margin-left:6px"></i>'; }
+  else if (type === 'module_video') { typeLabel = 'فيديو'; icon = '<i class="fas fa-video" style="color:#e74c3c;margin-left:6px"></i>'; }
+  else if (type === 'module_questions') { typeLabel = 'أسئلة'; icon = '<i class="fas fa-question-circle" style="color:#2980b9;margin-left:6px"></i>'; }
+  else if (type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
+  else if (type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
+
+  const safeTitle = node.title || 'بدون عنوان';
+  const titleHtml = `${icon}${safeTitle}`;
+  const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
+
+  return `
+    <div class="card-item ${type}" data-node="${node.id}">
+      <div class="card-type">${typeLabel}</div>
+      <h3 class="card-title">${titleHtml}</h3>
+      ${descHtml}
+    </div>
+  `;
 }
 
-function handleNodeClick(node) { if (node.type === 'content' || node.type.startsWith('module_')) openPlayer(node); else renderLevel(node.id); }
+function handleNodeClick(node) { if (node.type === 'content' || (node.type && node.type.startsWith('module_'))) openPlayer(node); else renderLevel(node.id); }
 
 function updateBreadcrumbs(parentId) {
   const bc = document.getElementById('breadcrumbs'); bc.innerHTML = '';
