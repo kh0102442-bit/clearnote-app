@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* نفس الستايلات السابقة تماماً */
   :root { --navy: #152741; --accent: #a8741a; --bg: #f4f6f8; --white: #ffffff; --text: #1a1a1a; --muted: #5b6472; --line: #e9ecef; }
   html, body { max-width: 100vw; overflow-x: hidden; margin: 0; padding: 0; background: var(--bg); font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 30px; font-size: 16px; }
   .admin-header { background: var(--navy); color: white; padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
@@ -20,7 +19,6 @@
   .nav-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
   .admin-container { padding: 0 15px; width: 100%; box-sizing: border-box; }
   
-  /* شجرة المحتوى */
   .tree-group { margin-bottom: 15px; } .node-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden; }
   .node-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
   .node-title-area { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -35,19 +33,16 @@
   .children-area { display: none; padding: 12px; background: #fafbfc; border-top: 2px solid var(--line); }
   .children-area.active { display: block; }
   
-  /* الطلاب */
   .student-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
   .student-info { display: flex; flex-direction: column; gap: 4px; }
   .student-name { font-weight: bold; color: var(--navy); font-size: 17px; }
   .student-email { font-size: 13px; color: var(--muted); }
   
-  /* طلبات الاشتراك */
   .request-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; padding: 15px; margin-bottom: 12px; }
   .request-title { font-weight: 800; color: var(--navy); font-size: 16px; margin-bottom: 5px; }
   .request-sub { font-size: 14px; color: var(--accent); margin-bottom: 5px; }
   .request-notes { font-size: 13px; color: var(--muted); margin-bottom: 15px; }
   
-  /* المودال */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
   .modal-box { background: var(--white); border-radius: 24px 24px 0 0; width: 100%; padding: 25px 20px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s ease; }
@@ -88,18 +83,10 @@
   <div id="requestsContainer" style="display:none;"></div>
 </div>
 
-<!-- Modal إدارة الأجهزة -->
-<div class="modal-overlay" id="deviceModal">
-  <div class="modal-box">
-    <h3>أجهزة الطالب: <span id="devStudentName" style="color:var(--accent)"></span></h3>
-    <div id="deviceList" style="margin-top:20px;"></div>
-    <button class="btn-cancel" style="width:100%; margin-top:20px;" onclick="closeModal('deviceModal')">إغلاق</button>
-  </div>
-</div>
-
+<div class="modal-overlay" id="deviceModal"><div class="modal-box"><h3>الأجهزة</h3><div id="deviceList" style="margin-top:20px;"></div><button class="btn-cancel" style="width:100%; margin-top:20px;" onclick="closeModal('deviceModal')">إغلاق</button></div></div>
 <div class="modal-overlay" id="nodeModal"><div class="modal-box"><h3 id="modalTitle">إضافة</h3><p id="modalDesc"></p><input type="hidden" id="nodeParentId"><input type="hidden" id="nodeType"><div class="form-group" id="titleGroup"><label>العنوان</label><input type="text" id="nodeTitle"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('nodeModal')">إلغاء</button><button class="btn-save" onclick="saveNode()">حفظ</button></div></div></div>
 <div class="modal-overlay" id="manageModal"><div class="modal-box"><h3 id="manageTitle">إدارة محتوى</h3><p>اختر الجزء:</p><div class="modules-grid"><div class="module-item" onclick="openCodeEditor('explain', 'الشرح')"><div class="module-icon icon-explain"><i class="fas fa-file-alt"></i></div><div class="module-title">الشرح</div></div><div class="module-item" onclick="openCodeEditor('video', 'فيديو')"><div class="module-icon icon-video"><i class="fas fa-video"></i></div><div class="module-title">فيديو</div></div><div class="module-item" onclick="openCodeEditor('questions', 'أسئلة')"><div class="module-icon icon-questions"><i class="fas fa-question-circle"></i></div><div class="module-title">أسئلة</div></div><div class="module-item" onclick="openCodeEditor('summary', 'ملخص')"><div class="module-icon icon-summary"><i class="fas fa-clipboard-list"></i></div><div class="module-title">ملخص</div></div><div class="module-item" onclick="openCodeEditor('terms', 'مصطلحات')"><div class="module-icon icon-terms"><i class="fas fa-book"></i></div><div class="module-title">مصطلحات</div></div></div><button class="btn-cancel" style="width:100%;" onclick="closeModal('manageModal')">إغلاق</button></div></div>
-<div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>وصف المحتوى</label><input type="text" id="moduleDescInput"></div><div class="form-group"><label>المصادر (اختياري)</label><input type="text" id="moduleSourcesInput"></div><div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div class="form-group"><label>كود HTML</label><textarea id="moduleCode" rows="6" style="font-family: monospace;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
+<div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div class="form-group"><label>كود HTML</label><textarea id="moduleCode" rows="6" style="font-family: monospace;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
 
 <script type="module">
 import { db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription } from "./shared.js";
@@ -128,7 +115,6 @@ async function loadAllData() {
   renderTree(); renderStudents(); renderRequests();
 }
 
-// ===== طلبات الاشتراك =====
 function renderRequests() {
   const container = document.getElementById('requestsContainer');
   const pending = allRequests.filter(r => r.status === 'pending');
@@ -164,7 +150,6 @@ window.rejectSub = async function(reqId) {
   } catch(e) { showToast('خطأ', 'error'); }
 };
 
-// ===== الطلاب =====
 function renderStudents() {
   const container = document.getElementById('studentsContainer');
   if(allStudents.length === 0) { container.innerHTML = `<p style="text-align:center; padding:20px;">لا يوجد طلاب.</p>`; return; }
@@ -180,18 +165,12 @@ function renderStudents() {
 }
 
 window.openDevices = async function(uid, name) {
-  document.getElementById('devStudentName').textContent = name;
   document.getElementById('deviceList').innerHTML = '<p>جاري التحميل...</p>';
   document.getElementById('deviceModal').classList.add('active');
-
   const snap = await getDocs(collection(db, 'devices', uid, 'list'));
   const devices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  if(devices.length === 0) {
-    document.getElementById('deviceList').innerHTML = '<p style="text-align:center; color:var(--muted)">لا يوجد أجهزة مسجلة.</p>';
-    return;
-  }
-
+  if(devices.length === 0) { document.getElementById('deviceList').innerHTML = '<p style="text-align:center;">لا يوجد أجهزة.</p>'; return; }
+  
   document.getElementById('deviceList').innerHTML = devices.map(dev => `
     <div style="background:#fafbfc; border:1px solid var(--line); padding:12px; border-radius:10px; margin-bottom:10px;">
       <div style="font-size:12px; color:var(--muted); direction:ltr; text-align:left;">${dev.userAgent}</div>
@@ -209,22 +188,15 @@ window.openDevices = async function(uid, name) {
 window.updateDevice = async function(uid, devId, status) {
   await updateDoc(doc(db, 'devices', uid, 'list', devId), { status: status });
   showToast('تم التحديث');
-  openDevices(uid, document.getElementById('devStudentName').textContent);
+  openDevices(uid, '');
 };
 
 window.deleteDevice = async function(uid, devId) {
   if(!confirm('حذف هذا الجهاز؟')) return;
   await deleteDoc(doc(db, 'devices', uid, 'list', devId));
   showToast('تم الحذف');
-  openDevices(uid, document.getElementById('devStudentName').textContent);
+  openDevices(uid, '');
 };
-
-// ===== شجرة المحتوى =====
-async function loadTree() {
-  const snap = await getDocs(collection(db, "content_tree"));
-  treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderTree();
-}
 
 function renderTree() {
   const container = document.getElementById("treeContainer");
