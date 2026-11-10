@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="section">
-        <h2 class="section-title"><i class="fas fa-lightbulb"></i> مقترح ليك <span class="see-all" onclick="switchView('content')">عرض الكل ←</span></h2>
+        <h2 class="section-title"><i class="fas fa-lightbulb"></i> مقترح ليك <span class="see-all" onclick="switchView('content')">عرض9 الكل ←</span></h2>
         <div class="content-grid" id="suggestedGrid"></div>
       </div>
     </div>
@@ -201,7 +201,7 @@ window.switchView = function(view) {
 
 function renderHome() {
   const hour = new Date().getHours();
-  document.getElementById('greetSmall').textContent = hour < 12 ? 'صباح الخير ☀️' : (hour < 18 ? 'مساء النور 🌤️' : 'مساء الخير 🌙');
+  document.getElementById('greetSmall').textContent = hour < 12 ? 'صباح الخير ☀️' : (hour < 18 ? 'مساء النور 🌤️' : 'مساء ا9لخير99 🌙');
   document.getElementById('statPoints').textContent = currentUserData?.totalPoints || 0;
   document.getElementById('statDays').textContent = currentUserData?.createdAt ? Math.floor((Date.now() - new Date(currentUserData.createdAt).getTime()) / 86400000) + 1 : 1;
   document.getElementById('statLessons').textContent = currentUserData?.completedLessons ? Object.keys(currentUserData.completedLessons).length : 0;
