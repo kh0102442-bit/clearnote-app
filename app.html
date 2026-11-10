@@ -277,15 +277,13 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // حل المشكلة: لو مش متسجل، هنعتبره مدفوع مؤقتاً عشان نختبر الأقفال
-    if (node.access === 'paid' || node.access === undefined) {
-      const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId) {
-        if (userSubs[subjectId]) {
-          isUnlocked = true;
-        } else {
-          isLocked = true;
-        }
+    // === التعديل الجذري: كل حاجة مقفولة افتراضياً ===
+    const subjectId = getSubjectIdFromNode(node.id);
+    if (subjectId) {
+      if (userSubs[subjectId]) {
+        isUnlocked = true; // لو عنده اشتراك، يفتح
+      } else {
+        isLocked = true; // لو معندوش، يتقفل
       }
     }
   }
@@ -309,16 +307,15 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    if (node.access === 'paid' || node.access === undefined) {
-      const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId && !userSubs[subjectId]) {
-        const subject = treeData.find(n => n.id === subjectId);
-        document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
-        document.getElementById('subModal').dataset.subjectId = subjectId;
-        document.getElementById('subNotes').value = '';
-        document.getElementById('subModal').classList.add('active');
-        return;
-      }
+    // === التعديل الجذري: التحقق من القفل قبل الفتح ===
+    const subjectId = getSubjectIdFromNode(node.id);
+    if (subjectId && !userSubs[subjectId]) {
+      const subject = treeData.find(n => n.id === subjectId);
+      document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
+      document.getElementById('subModal').dataset.subjectId = subjectId;
+      document.getElementById('subNotes').value = '';
+      document.getElementById('subModal').classList.add('active');
+      return;
     }
     openPlayer(node);
   } else {
