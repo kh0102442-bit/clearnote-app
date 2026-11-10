@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>ClearNote — منصة المذاكرة</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -21,16 +21,14 @@
     </div>
     <div class="status-msg" id="statusMsg"></div>
 
-    <!-- Login -->
     <div id="loginForm" class="auth-form active">
-      <label>البريد الإلكتروني أو الهاتف أو الرقم القومي</label>
+      <label>البريد الإلكتروني أو الهاتف</label>
       <input type="text" id="loginEmail" placeholder="أدخل بيانات الدخول" dir="ltr" style="text-align: right;">
       <label>كلمة المرور</label>
       <input type="password" id="loginPassword" placeholder="••••••••">
       <button class="btn-primary" id="loginBtn" onclick="doLogin()">دخول</button>
     </div>
 
-    <!-- Signup -->
     <div id="signupForm" class="auth-form">
       <div class="step-progress"><div class="step-progress-bar" id="stepProgress"></div></div>
       
@@ -154,9 +152,7 @@ window.doSignup = async function () {
   btn.disabled = true; btn.textContent = "جاري الإنشاء…"; setStatus("");
 
   try {
-    await signUp(uniEmail, password, name, {
-      nationalId, phone, uniEmail, university, role
-    });
+    await signUp(uniEmail, password, name, { nationalId, phone, uniEmail, university, role });
     setStatus("✅ تم إنشاء الحساب!", "ok");
   } catch (err) {
     setStatus(err.message);
