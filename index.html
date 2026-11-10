@@ -6,276 +6,119 @@
 <title>ClearNote — منصة المذاكرة</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  .device-lock-overlay {
-    position: fixed; inset: 0; background: var(--navy);
-    z-index: 99999; display: none; flex-direction: column;
-    align-items: center; justify-content: center; padding: 24px; text-align: center; color: white;
-  }
-  .device-lock-overlay.active { display: flex; }
-  .lock-icon {
-    width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1);
-    display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent);
-    margin-bottom: 20px; animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(168,116,26,.4); } 70% { box-shadow: 0 0 0 20px rgba(168,116,26,0); } 100% { box-shadow: 0 0 0 0 rgba(168,116,26,0); } }
-  .device-lock-overlay h2 { font-size: 22px; margin: 0 0 10px; }
-  .device-lock-overlay p { color: rgba(255,255,255,.7); font-size: 15px; line-height: 1.6; max-width: 300px; margin-bottom: 30px; }
-  .btn-logout-lock { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.3); padding: 12px 24px; border-radius: 10px; font-family: inherit; font-size: 16px; cursor: pointer; }
-</style>
 </head>
 <body>
 
-<div class="device-lock-overlay" id="deviceLock">
-  <div class="lock-icon"><i class="fas fa-shield-alt"></i></div>
-  <h2>جهاز جديد!</h2>
-  <p>لقد حاولت الدخول من جهاز جديد. تم إرسال طلب للإدارة للموافقة عليه.<br>حاول الدخول مرة أخرى لاحقاً.</p>
-  <button class="btn-logout-lock" onclick="doLogout()">تسجيل الخروج</button>
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <div class="brand">
+      <div class="brand-name">CLEAR<span>NOTE</span></div>
+      <div class="brand-sub">STUDY PLATFORM</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">دخول</button>
+      <button class="auth-tab" onclick="switchTab('signup')">إنشاء حساب</button>
+    </div>
+    <div class="status-msg" id="statusMsg"></div>
+
+    <div id="loginForm" class="auth-form active">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="loginEmail" placeholder="أدخل بريدك" dir="ltr" style="text-align: right;">
+      <label>كلمة المرور</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+      <button class="btn-primary" id="loginBtn" onclick="doLogin()">دخول</button>
+    </div>
+
+    <div id="signupForm" class="auth-form">
+      <label>الاسم</label>
+      <input type="text" id="su_name" placeholder="اسمك الكامل">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="su_email" placeholder="student@university.edu" dir="ltr" style="text-align: right;">
+      <label>كلمة المرور</label>
+      <input type="password" id="su_password" placeholder="6 أحرف على الأقل">
+      <button class="btn-primary" id="signupBtn" onclick="doSignup()">إنشاء الحساب</button>
+    </div>
+
+    <div class="auth-foot">ClearNote · v1.0</div>
+  </div>
 </div>
 
-<nav class="top-navbar">
-  <div class="brand">CLEAR<span>NOTE</span></div>
-  <div class="spacer"></div>
-  <button class="icon-btn" onclick="showNotifications()">
-    <i class="far fa-bell"></i>
-  </button>
-  <div class="top-avatar" id="topAvatar" onclick="switchView('profile')">U</div>
-</nav>
-
-<aside class="side-nav">
-  <button class="nav-item active" data-view="home" onclick="switchView('home')"><i class="fas fa-home"></i><span>الرئيسية</span></button>
-  <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
-  <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>الدردشات</span></button>
-  <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
-  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
-</aside>
-
-<main class="app-main" id="appMain">
-  <section class="view active" id="homeView">
-    <div class="content-wrap">
-      <div class="greeting-card">
-        <div class="greet-small" id="greetSmall">صباح الخير ☀️</div>
-        <h1 class="greet-name">أهلاً، <span id="greetName">...</span></h1>
-        <p class="greet-sub">جاهز تكمل مذاكرتك النهاردة؟</p>
-        <button class="greet-cta" onclick="switchView('content')"><i class="fas fa-play"></i> ابدأ المذاكرة</button>
-      </div>
-      <div class="section">
-        <h2 class="section-title"><i class="fas fa-chart-line"></i> إحصائياتك</h2>
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-icon pts"><i class="fas fa-star"></i></div><div class="stat-value" id="statPoints">0</div><div class="stat-label">نقطة</div></div>
-          <div class="stat-card"><div class="stat-icon days"><i class="fas fa-calendar"></i></div><div class="stat-value" id="statDays">0</div><div class="stat-label">يوم معانا</div></div>
-          <div class="stat-card"><div class="stat-icon lessons"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statLessons">0</div><div class="stat-label">درس مكتمل</div></div>
-          <div class="stat-card"><div class="stat-icon available"><i class="fas fa-book"></i></div><div class="stat-value" id="statAvailable">0</div><div class="stat-label">درس متاح</div></div>
-        </div>
-      </div>
-      <div class="section">
-        <h2 class="section-title"><i class="fas fa-bolt"></i> إجراءات سريعة</h2>
-        <div class="quick-grid">
-          <div class="quick-card" onclick="switchView('content')"><div class="quick-icon" style="background:linear-gradient(135deg,#2980b9,#5dade2)"><i class="fas fa-book-open"></i></div><div class="quick-label">تصفح المحتوى</div></div>
-          <div class="quick-card" onclick="showToast('قريباً')"><div class="quick-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-magic"></i></div><div class="quick-label">طلب مخصوص</div></div>
-          <div class="quick-card" onclick="switchView('pomodoro')"><div class="quick-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)"><i class="fas fa-clock"></i></div><div class="quick-label">بومودورو</div></div>
-          <div class="quick-card" onclick="switchView('chats')"><div class="quick-icon" style="background:linear-gradient(135deg,#1f6b45,#27ae60)"><i class="fas fa-comments"></i></div><div class="quick-label">الدردشات</div></div>
-        </div>
-      </div>
-      <div class="section">
-        <h2 class="section-title"><i class="fas fa-lightbulb"></i> مقترح ليك <span class="see-all" onclick="switchView('content')">عرض الكل ←</span></h2>
-        <div class="content-grid" id="suggestedGrid"></div>
-      </div>
+<div id="welcomeScreen" class="welcome-screen" style="display:none">
+  <div class="welcome-box">
+    <div class="brand" style="margin-bottom:20px">
+      <div class="brand-name" style="color:#fff">CLEAR<span style="color:#c9a44a">NOTE</span></div>
     </div>
-  </section>
-
-  <section class="view" id="contentView">
-    <div class="content-wrap">
-      <div class="breadcrumbs" id="breadcrumbs"></div>
-      <div class="content-grid" id="cardsContainer"></div>
-    </div>
-  </section>
-
-  <section class="view" id="chatsView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3>الدردشات قريباً</h3></div></div></section>
-  <section class="view" id="pomodoroView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-clock"></i><h3>بومودورو قريباً</h3></div></div></section>
-
-  <section class="view" id="profileView">
-    <div class="content-wrap">
-      <div class="profile-header">
-        <div class="profile-avatar" id="profileAvatar">U</div>
-        <h2 class="profile-name" id="profileName">...</h2>
-        <div class="profile-email" id="profileEmail">...</div>
-        <span class="profile-role-badge" id="profileRole">طالب</span>
-      </div>
-      <div class="profile-list">
-        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<nav class="bottom-nav">
-  <button class="nav-item active" data-view="home" onclick="switchView('home')"><i class="fas fa-home"></i><span>الرئيسية</span></button>
-  <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
-  <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>دردشات</span></button>
-  <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
-  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
-</nav>
-
-<div id="lessonPlayer">
-  <div class="player-header">
-    <h2 class="player-title" id="playerTitle">المحتوى</h2>
-    <button class="player-close" onclick="closePlayer()"><i class="fas fa-times"></i> خروج</button>
+    <h2>أهلاً بك، <span id="welcomeName">—</span></h2>
+    <p class="welcome-sub">تم تسجيل الدخول بنجاح.</p>
+    
+    <button class="btn-primary" id="studentBtn" style="background:#152741; margin-bottom:12px;" onclick="window.location.href='app.html'">الدخول إلى المنصة</button>
+    <button class="btn-primary" id="adminBtn" style="display:none; background:#1f6b45; margin-bottom:12px;" onclick="window.location.href='admin.html'">لوحة التحكم</button>
+    <button class="btn-primary" onclick="doLogout()">تسجيل الخروج</button>
   </div>
-  <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
 </div>
 
 <script type="module">
-import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus } from "./shared.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth, signIn, signUp, signOutUser, onAuth, isAdmin, goTo } from "./shared.js";
 
-let currentUserData = null;
-let treeData = [];
-
-onAuth(async (user, userData) => {
-  if (!user) { goTo("index.html"); return; }
-  currentUserData = userData;
-  
-  const dev = await checkDeviceStatus(user.uid);
-  
-  if (dev.status === 'pending') {
-    document.getElementById('deviceLock').classList.add('active');
-    document.getElementById('appMain').style.display = 'none';
-    return;
-  } else if (dev.status === 'blocked') {
-    alert('تم حظر هذا الجهاز من قبل الإدارة.');
-    await signOutUser();
-    goTo("index.html");
-    return;
-  }
-
-  document.getElementById('deviceLock').classList.remove('active');
-  document.getElementById('appMain').style.display = 'block';
-
-  const displayName = userData?.name || user.email.split('@')[0];
-  const initial = displayName.charAt(0).toUpperCase();
-  document.getElementById("topAvatar").textContent = initial;
-  document.getElementById("profileAvatar").textContent = initial;
-  document.getElementById("greetName").textContent = displayName;
-  document.getElementById("profileName").textContent = displayName;
-  document.getElementById("profileEmail").textContent = user.email;
-  document.getElementById("profileRole").textContent = userData?.role === 'admin' ? 'أدمن' : 'طالب';
-  
-  loadTreeData();
-});
-
-window.doLogout = async () => {
-  if (confirm('تسجيل الخروج؟')) {
-    await signOutUser();
-    goTo("index.html");
-  }
+window.switchTab = function (tab) {
+  document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".auth-form").forEach(f => f.classList.remove("active"));
+  document.getElementById(tab + "Form").classList.add("active");
+  document.getElementById("statusMsg").textContent = "";
 };
 
-window.switchView = function(view) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(view + 'View').classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (view === 'home') renderHome();
-  if (view === 'content') renderLevel('root');
-};
-
-function renderHome() {
-  const hour = new Date().getHours();
-  document.getElementById('greetSmall').textContent = hour < 12 ? 'صباح الخير ☀️' : (hour < 18 ? 'مساء النور 🌤️' : 'مساء الخير 🌙');
-  document.getElementById('statPoints').textContent = currentUserData?.totalPoints || 0;
-  document.getElementById('statDays').textContent = currentUserData?.createdAt ? Math.floor((Date.now() - new Date(currentUserData.createdAt).getTime()) / 86400000) + 1 : 1;
-  document.getElementById('statLessons').textContent = currentUserData?.completedLessons ? Object.keys(currentUserData.completedLessons).length : 0;
-  document.getElementById('statAvailable').textContent = treeData.filter(n => n.type && n.type.startsWith('module_')).length;
-  renderSuggested();
+function setStatus(msg) {
+  document.getElementById("statusMsg").textContent = msg;
 }
 
-function renderSuggested() {
-  const grid = document.getElementById('suggestedGrid');
-  const modules = treeData.filter(n => n.type && n.type.startsWith('module_'));
-  if (modules.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>لا يوجد محتوى بعد</p></div>`; return; }
-  const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
-  grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
-  grid.querySelectorAll('[data-node]').forEach(el => {
-    el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node));
-  });
-}
-
-async function loadTreeData() {
+window.doLogin = async function () {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const btn = document.getElementById("loginBtn");
+  if (!email || !password) { setStatus("أدخل البيانات"); return; }
+  btn.disabled = true; btn.textContent = "جاري الدخول…"; setStatus("");
   try {
-    const snap = await getDocs(collection(db, "content_tree"));
-    treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderHome();
-  } catch (e) { document.getElementById('cardsContainer').innerHTML = `<p>خطأ: ${e.message}</p>`; }
-}
+    await signIn(email, password);
+  } catch (err) {
+    setStatus(err.message);
+    btn.disabled = false; btn.textContent = "دخول";
+  }
+};
 
-function renderLevel(parentId) {
-  const container = document.getElementById('cardsContainer');
-  container.innerHTML = '';
-  updateBreadcrumbs(parentId);
-  const nodes = treeData.filter(n => n.parentId === parentId);
-  if (nodes.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>فارغ</h3></div>`; return; }
-  container.innerHTML = nodes.map(node => renderCard(node)).join('');
-  container.querySelectorAll('[data-node]').forEach(el => {
-    el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
-  });
-}
+window.doSignup = async function () {
+  const name = document.getElementById("su_name").value.trim();
+  const email = document.getElementById("su_email").value.trim();
+  const password = document.getElementById("su_password").value;
+  const btn = document.getElementById("signupBtn");
+  if (!name || !email || !password) { setStatus("أدخل كل الحقول"); return; }
+  btn.disabled = true; btn.textContent = "جاري الإنشاء…"; setStatus("");
+  try {
+    await signUp(email, password, name);
+    setStatus("✅ تم إنشاء الحساب!");
+  } catch (err) {
+    setStatus(err.message);
+    btn.disabled = false; btn.textContent = "إنشاء الحساب";
+  }
+};
 
-function renderCard(node) {
-  const type = node.type || 'custom'; 
-  let typeLabel = "تبويب فرعي"; 
-  let icon = '';
+window.doLogout = async function () { await signOutUser(); };
 
-  if (type === 'year') { typeLabel = 'سنة دراسية'; }
-  else if (type === 'program') { typeLabel = 'برنامج'; }
-  else if (type === 'subject') { typeLabel = 'مادة'; }
-  else if (type === 'module_explain') { typeLabel = 'الشرح'; icon = '<i class="fas fa-file-alt" style="color:#27ae60;margin-left:6px"></i>'; }
-  else if (type === 'module_video') { typeLabel = 'فيديو'; icon = '<i class="fas fa-video" style="color:#e74c3c;margin-left:6px"></i>'; }
-  else if (type === 'module_questions') { typeLabel = 'أسئلة'; icon = '<i class="fas fa-question-circle" style="color:#2980b9;margin-left:6px"></i>'; }
-  else if (type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
-  else if (type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
-
-  const safeTitle = node.title || 'بدون عنوان';
-  const titleHtml = `${icon}${safeTitle}`;
-  const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
-
-  return `
-    <div class="card-item ${type}" data-node="${node.id}">
-      <div class="card-type">${typeLabel}</div>
-      <h3 class="card-title">${titleHtml}</h3>
-      ${descHtml}
-    </div>
-  `;
-}
-
-function handleNodeClick(node) { if (node.type === 'content' || (node.type && node.type.startsWith('module_'))) openPlayer(node); else renderLevel(node.id); }
-
-function updateBreadcrumbs(parentId) {
-  const bc = document.getElementById('breadcrumbs'); bc.innerHTML = '';
-  const homeSpan = document.createElement('span'); homeSpan.className = 'crumb'; homeSpan.innerHTML = '<i class="fas fa-home"></i> الرئيسية'; homeSpan.onclick = () => renderLevel('root'); bc.appendChild(homeSpan);
-  if (parentId === 'root') return;
-  let path = []; let current = treeData.find(n => n.id === parentId);
-  while (current) { path.unshift(current); current = treeData.find(n => n.id === current.parentId); }
-  path.forEach(p => {
-    const arrow = document.createElement('i'); arrow.className = 'fas fa-chevron-left'; bc.appendChild(arrow);
-    const crumb = document.createElement('span'); crumb.className = 'crumb'; crumb.textContent = p.title; crumb.onclick = () => renderLevel(p.id); bc.appendChild(crumb);
-  });
-}
-
-function openPlayer(node) {
-  document.getElementById('playerTitle').textContent = node.title;
-  document.getElementById('lessonPlayer').classList.add('active');
-  const iframe = document.getElementById('playerFrame');
-  const htmlContent = node.htmlContent || '<div style="text-align:center;padding:50px;"><h2>لا يوجد محتوى</h2></div>';
-  iframe.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{font-family:'Cairo',sans-serif;padding:16px;line-height:1.8}</style></head><body>${htmlContent}</body></html>`;
-}
-
-window.closePlayer = function() { document.getElementById('lessonPlayer').classList.remove('active'); document.getElementById('playerFrame').srcdoc = ''; };
-window.showNotifications = function() { showToast('قريباً'); };
+onAuth((user, userData) => {
+  if (!user) {
+    document.getElementById("authScreen").style.display = "flex";
+    document.getElementById("welcomeScreen").style.display = "none";
+    document.getElementById("loginBtn").disabled = false;
+    document.getElementById("loginBtn").textContent = "دخول";
+    return;
+  }
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("welcomeScreen").style.display = "flex";
+  document.getElementById("welcomeName").textContent = userData?.name || user.email;
+  
+  if (isAdmin(userData)) {
+    document.getElementById("adminBtn").style.display = "block";
+  }
+});
 </script>
 </body>
 </html>
