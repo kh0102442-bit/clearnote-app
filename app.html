@@ -7,27 +7,40 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  .device-lock-overlay { position: fixed; inset: 0; background: var(--navy); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white; }
+  /* نفس الستايلات السابقة تماماً */
+  .device-lock-overlay {
+    position: fixed; inset: 0; background: var(--navy);
+    z-index: 99999; display: none; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px; text-align: center; color: white;
+  }
   .device-lock-overlay.active { display: flex; }
-  .lock-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent); margin-bottom: 20px; animation: pulse 2s infinite; }
+  .lock-icon {
+    width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent);
+    margin-bottom: 20px; animation: pulse 2s infinite;
+  }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(168,116,26,.4); } 70% { box-shadow: 0 0 0 20px rgba(168,116,26,0); } 100% { box-shadow: 0 0 0 0 rgba(168,116,26,0); } }
   .device-lock-overlay h2 { font-size: 22px; margin: 0 0 10px; }
   .device-lock-overlay p { color: rgba(255,255,255,.7); font-size: 15px; line-height: 1.6; max-width: 300px; margin-bottom: 30px; }
   .btn-logout-lock { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.3); padding: 12px 24px; border-radius: 10px; font-family: inherit; font-size: 16px; cursor: pointer; }
-  
-  .lock-badge { position: absolute; top: 12px; left: 12px; color: var(--red); font-size: 16px; }
 
   /* ستايل مودال الاشتراك */
   .sub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
   .sub-overlay.active { display: flex; }
-  .sub-box { background: white; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; text-align: center; }
+  .sub-box { background: var(--card); border-radius: var(--r-lg); padding: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--sh-lg); }
   .sub-box h3 { margin: 0 0 10px; color: var(--navy); }
-  .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-  .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 10px; margin-bottom: 15px; font-family: inherit; }
+  .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
+  
+  /* ستايل القفل */
+  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; }
+  .lock-badge.locked { color: var(--red); }
+  .lock-badge.unlocked { color: var(--green); }
 </style>
 </head>
 <body>
 
+<!-- شاشة قفل الجهاز -->
 <div class="device-lock-overlay" id="deviceLock">
   <div class="lock-icon"><i class="fas fa-shield-alt"></i></div>
   <h2>جهاز جديد!</h2>
@@ -51,34 +64,66 @@
 </aside>
 
 <main class="app-main" id="appMain">
+  <!-- HOME VIEW -->
   <section class="view active" id="homeView">
     <div class="content-wrap">
       <div class="greeting-card">
         <div class="greet-small" id="greetSmall">صباح الخير ☀️</div>
         <h1 class="greet-name">أهلاً، <span id="greetName">...</span></h1>
+        <p class="greet-sub">جاهز تكمل مذاكرتك النهاردة؟</p>
         <button class="greet-cta" onclick="switchView('content')"><i class="fas fa-play"></i> ابدأ المذاكرة</button>
       </div>
-      <div class="section"><h2 class="section-title"><i class="fas fa-chart-line"></i> إحصائياتك</h2><div class="stats-grid"><div class="stat-card"><div class="stat-icon pts"><i class="fas fa-star"></i></div><div class="stat-value" id="statPoints">0</div><div class="stat-label">نقطة</div></div><div class="stat-card"><div class="stat-icon days"><i class="fas fa-calendar"></i></div><div class="stat-value" id="statDays">0</div><div class="stat-label">يوم معانا</div></div><div class="stat-card"><div class="stat-icon lessons"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statLessons">0</div><div class="stat-label">درس مكتمل</div></div><div class="stat-card"><div class="stat-icon available"><i class="fas fa-book"></i></div><div class="stat-value" id="statAvailable">0</div><div class="stat-label">درس متاح</div></div></div></div>
-      <div class="section"><h2 class="section-title"><i class="fas fa-lightbulb"></i> مقترح ليك <span class="see-all" onclick="switchView('content')">عرض الكل ←</span></h2><div class="content-grid" id="suggestedGrid"></div></div>
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-chart-line"></i> إحصائياتك</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon pts"><i class="fas fa-star"></i></div><div class="stat-value" id="statPoints">0</div><div class="stat-label">نقطة</div></div>
+          <div class="stat-card"><div class="stat-icon days"><i class="fas fa-calendar"></i></div><div class="stat-value" id="statDays">0</div><div class="stat-label">يوم معانا</div></div>
+          <div class="stat-card"><div class="stat-icon lessons"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statLessons">0</div><div class="stat-label">درس مكتمل</div></div>
+          <div class="stat-card"><div class="stat-icon available"><i class="fas fa-book"></i></div><div class="stat-value" id="statAvailable">0</div><div class="stat-label">درس متاح</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-bolt"></i> إجراءات سريعة</h2>
+        <div class="quick-grid">
+          <div class="quick-card" onclick="switchView('content')"><div class="quick-icon" style="background:linear-gradient(135deg,#2980b9,#5dade2)"><i class="fas fa-book-open"></i></div><div class="quick-label">تصفح المحتوى</div></div>
+          <div class="quick-card" onclick="showToast('قريباً')"><div class="quick-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-magic"></i></div><div class="quick-label">طلب مخصوص</div></div>
+          <div class="quick-card" onclick="switchView('pomodoro')"><div class="quick-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)"><i class="fas fa-clock"></i></div><div class="quick-label">بومودورو</div></div>
+          <div class="quick-card" onclick="switchView('chats')"><div class="quick-icon" style="background:linear-gradient(135deg,#1f6b45,#27ae60)"><i class="fas fa-comments"></i></div><div class="quick-label">الدردشات</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-lightbulb"></i> مقترح ليك <span class="see-all" onclick="switchView('content')">عرض الكل ←</span></h2>
+        <div class="content-grid" id="suggestedGrid"></div>
+      </div>
     </div>
   </section>
-  <section class="view" id="contentView"><div class="content-wrap"><div class="breadcrumbs" id="breadcrumbs"></div><div class="content-grid" id="cardsContainer"></div></div></section>
+
+  <!-- CONTENT VIEW -->
+  <section class="view" id="contentView">
+    <div class="content-wrap">
+      <div class="breadcrumbs" id="breadcrumbs"></div>
+      <div class="content-grid" id="cardsContainer"></div>
+    </div>
+  </section>
+
+  <!-- CHATS VIEW -->
   <section class="view" id="chatsView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3>الدردشات قريباً</h3></div></div></section>
+  <!-- POMODORO VIEW -->
   <section class="view" id="pomodoroView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-clock"></i><h3>بومودورو قريباً</h3></div></div></section>
 
+  <!-- PROFILE VIEW -->
   <section class="view" id="profileView">
     <div class="content-wrap">
       <div class="profile-header">
         <div class="profile-avatar" id="profileAvatar">U</div>
         <h2 class="profile-name" id="profileName">...</h2>
         <div class="profile-email" id="profileEmail">...</div>
+        <span class="profile-role-badge" id="profileRole">طالب</span>
       </div>
       <div class="profile-list">
-        <div class="profile-item" onclick="showMySubs()">
-          <div class="pi-icon" style="background:#fdfaf3; color:var(--accent)"><i class="fas fa-crown"></i></div>
-          <div class="pi-text">اشتراكاتي</div>
-          <i class="fas fa-chevron-left pi-arrow"></i>
-        </div>
+        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showMySubs()"><div class="pi-icon" style="background:#fdfaf3;color:var(--accent)"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
         <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
         <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
       </div>
@@ -95,7 +140,10 @@
 </nav>
 
 <div id="lessonPlayer">
-  <div class="player-header"><h2 class="player-title" id="playerTitle">المحتوى</h2><button class="player-close" onclick="closePlayer()"><i class="fas fa-times"></i> خروج</button></div>
+  <div class="player-header">
+    <h2 class="player-title" id="playerTitle">المحتوى</h2>
+    <button class="player-close" onclick="closePlayer()"><i class="fas fa-times"></i> خروج</button>
+  </div>
   <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
 </div>
 
@@ -125,34 +173,55 @@ let userSubs = {}; // لتخزين اشتراكات الطالب
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
   currentUserData = userData;
-  const dev = await checkDeviceStatus(user.uid);
-  if (dev.status === 'pending') { document.getElementById('deviceLock').classList.add('active'); document.getElementById('appMain').style.display = 'none'; return; }
   
+  const dev = await checkDeviceStatus(user.uid);
+  
+  if (dev.status === 'pending') {
+    document.getElementById('deviceLock').classList.add('active');
+    document.getElementById('appMain').style.display = 'none';
+    return;
+  } else if (dev.status === 'blocked') {
+    alert('تم حظر هذا الجهاز من قبل الإدارة.');
+    await signOutUser();
+    goTo("index.html");
+    return;
+  }
+
   document.getElementById('deviceLock').classList.remove('active');
   document.getElementById('appMain').style.display = 'block';
 
-  document.getElementById("topAvatar").textContent = (userData.name || user.email).charAt(0).toUpperCase();
-  document.getElementById("profileAvatar").textContent = (userData.name || user.email).charAt(0).toUpperCase();
-  document.getElementById("greetName").textContent = userData.name || user.email.split('@')[0];
-  document.getElementById("profileName").textContent = userData.name || user.email.split('@')[0];
+  const displayName = userData?.name || user.email.split('@')[0];
+  const initial = displayName.charAt(0).toUpperCase();
+  document.getElementById("topAvatar").textContent = initial;
+  document.getElementById("profileAvatar").textContent = initial;
+  document.getElementById("greetName").textContent = displayName;
+  document.getElementById("profileName").textContent = displayName;
   document.getElementById("profileEmail").textContent = user.email;
+  document.getElementById("profileRole").textContent = userData?.role === 'admin' ? 'أدمن' : 'طالب';
   
-  // تحميل المحتوى والاشتراكات
   await loadTreeData();
   await loadMySubscriptions();
 });
 
-window.doLogout = async () => { if (confirm('تسجيل الخروج؟')) { await signOutUser(); goTo("index.html"); } };
+window.doLogout = async () => {
+  if (confirm('تسجيل الخروج؟')) {
+    await signOutUser();
+    goTo("index.html");
+  }
+};
 
 window.switchView = function(view) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(view + 'View').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (view === 'home') renderHome();
   if (view === 'content') renderLevel('root');
 };
 
 function renderHome() {
+  const hour = new Date().getHours();
+  document.getElementById('greetSmall').textContent = hour < 12 ? 'صباح الخير ☀️' : (hour < 18 ? 'مساء النور 🌤️' : 'مساء الخير 🌙');
   document.getElementById('statPoints').textContent = currentUserData?.totalPoints || 0;
   document.getElementById('statDays').textContent = currentUserData?.createdAt ? Math.floor((Date.now() - new Date(currentUserData.createdAt).getTime()) / 86400000) + 1 : 1;
   document.getElementById('statLessons').textContent = currentUserData?.completedLessons ? Object.keys(currentUserData.completedLessons).length : 0;
@@ -166,14 +235,17 @@ function renderSuggested() {
   if (modules.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>لا يوجد محتوى بعد</p></div>`; return; }
   const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
   grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
-  grid.querySelectorAll('[data-node]').forEach(el => { el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node)); });
+  grid.querySelectorAll('[data-node]').forEach(el => {
+    el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node));
+  });
 }
 
 async function loadTreeData() {
   try {
     const snap = await getDocs(collection(db, "content_tree"));
     treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) { console.error(e); }
+    renderHome();
+  } catch (e) { document.getElementById('cardsContainer').innerHTML = `<p>خطأ: ${e.message}</p>`; }
 }
 
 // دالة لجلب اشتراكات الطالب
@@ -182,7 +254,7 @@ async function loadMySubscriptions() {
   userSubs = {};
   snap.docs.forEach(d => {
     const data = d.data();
-    if(data.uid === currentUserData.uid && data.status === 'active') {
+    if(data.uid === currentUserData.uid && data.status === 'active' && data.expiresAt.toDate() > new Date()) {
       userSubs[data.subjectId] = data;
     }
   });
@@ -195,7 +267,7 @@ function renderLevel(parentId) {
   const nodes = treeData.filter(n => n.parentId === parentId);
   if (nodes.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>فارغ</h3></div>`; return; }
   
-  // تمرير لون الموضوع للدالة عشان نعرف نتحقق من الاشتراك
+  // تمرير ID المادة للدالة عشان نعرف نتحقق من الاشتراك
   let currentSubjectId = null;
   if(parentId !== 'root') {
     let current = treeData.find(n => n.id === parentId);
@@ -215,6 +287,7 @@ function renderCard(node, currentSubjectId) {
   let typeLabel = 'تبويب';
   let icon = '';
   let isLocked = false;
+  let isUnlocked = false;
 
   if (node.type === 'year') typeLabel = 'سنة دراسية';
   else if (node.type === 'program') typeLabel = 'برنامج';
@@ -227,21 +300,35 @@ function renderCard(node, currentSubjectId) {
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
     // التحقق من الصلاحية: لو مدفوع والطالب مش مشترك
-    if (node.access === 'paid' && !userSubs[currentSubjectId]) {
-      isLocked = true;
+    if (node.access === 'paid' && currentSubjectId) {
+      if (userSubs[currentSubjectId]) {
+        isUnlocked = true;
+      } else {
+        isLocked = true;
+      }
     }
   }
 
-  const lockIcon = isLocked ? '<span class="lock-badge"><i class="fas fa-lock"></i></span>' : '';
+  const lockIcon = isLocked 
+    ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' 
+    : (isUnlocked ? '<span class="lock-badge unlocked"><i class="fas fa-lock-open"></i></span>' : '');
+
   const titleHtml = `${icon}${node.title}`;
-  
-  return `<div class="card-item ${node.type || 'custom'}" data-node="${node.id}">${lockIcon}<div class="card-type">${typeLabel}</div><h3 class="card-title">${titleHtml}</h3></div>`;
+  const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
+
+  return `
+    <div class="card-item ${node.type || 'custom'}" data-node="${node.id}">
+      ${lockIcon}
+      <div class="card-type">${typeLabel}</div>
+      <h3 class="card-title">${titleHtml}</h3>
+      ${descHtml}
+    </div>
+  `;
 }
 
 function handleNodeClick(node, currentSubjectId) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    // لو العنصر مقفول
-    if (node.access === 'paid' && !userSubs[currentSubjectId]) {
+    if (node.access === 'paid' && currentSubjectId && !userSubs[currentSubjectId]) {
       const subject = treeData.find(n => n.id === currentSubjectId);
       document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
       document.getElementById('subModal').dataset.subjectId = currentSubjectId;
@@ -270,22 +357,16 @@ window.submitSubRequest = async function() {
 };
 
 window.showMySubs = function() {
-  let html = '<h3 style="text-align:center;color:var(--navy);margin-bottom:20px;">اشتراكاتي</h3>';
+  let msg = 'اشتراكاتك النشطة:\n';
   let count = 0;
   for(let subId in userSubs) {
     const subject = treeData.find(n => n.id === subId);
     const exp = userSubs[subId].expiresAt.toDate().toLocaleDateString('ar-EG');
-    html += `<div style="background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:15px;margin-bottom:10px;">
-      <div style="font-weight:bold;color:var(--navy);margin-bottom:5px;">${subject?.title || 'مادة'}</div>
-      <div style="font-size:12px;color:var(--green);">نشط حتى: ${exp}</div>
-    </div>`;
+    msg += `- ${subject?.title || 'مادة'}: ينتهي في ${exp}\n`;
     count++;
   }
-  if(count === 0) html += '<p style="text-align:center;color:var(--muted)">لا يوجد اشتراكات نشطة.</p>';
-  
-  // عرض HTML كـ Toast مؤقت (أو مودال)
-  alert('يمكنك رؤية تفاصيل الاشتراكات قريباً في صفحة مخصصة.'); 
-  // ملاحظة: للسرعة سنستخدم alert هنا، لكن الأفضل مودال. لو عايز مودال كامل قولي.
+  if(count === 0) msg = 'لا يوجد اشتراكات نشطة حالياً.';
+  alert(msg);
 };
 
 function updateBreadcrumbs(parentId) {
