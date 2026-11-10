@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs, addDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyCHspBBXBG8DmLPOfKcqE8H8SmAjw5HGpQ",
@@ -27,11 +27,7 @@ export function showToast(msg, type = "success") {
 export async function signUp(email, password, name, extraData = {}) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await setDoc(doc(db, "users", cred.user.uid), { 
-    uid: cred.user.uid, 
-    email, 
-    name, 
-    ...extraData,
-    createdAt: serverTimestamp() 
+    uid: cred.user.uid, email, name, ...extraData, createdAt: serverTimestamp() 
   });
   return cred.user;
 }
@@ -59,15 +55,9 @@ export function onAuth(callback) {
 export function isAdmin(userData) { return userData && userData.role === 'admin'; }
 export function goTo(page) { window.location.href = page; }
 
-// ===== DEVICE FINGERPRINT LOGIC =====
+// ===== DEVICE FINGERPRINT =====
 export async function getDeviceFingerprint() {
-  const raw = [
-    navigator.userAgent,
-    navigator.language,
-    screen.width + "x" + screen.height,
-    new Date().getTimezoneOffset()
-  ].join("|");
-  
+  const raw = [navigator.userAgent, navigator.language, screen.width + "x" + screen.height, new Date().getTimezoneOffset()].join("|");
   const buf = new TextEncoder().encode(raw);
   const hash = await crypto.subtle.digest("SHA-256", buf);
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 24);
@@ -80,26 +70,41 @@ export async function checkDeviceStatus(uid) {
 
   if (devSnap.exists()) {
     const data = devSnap.data();
-    // تحديث آخر ظهور
     await updateDoc(devRef, { lastSeen: serverTimestamp() });
     return { status: data.status, fp };
   }
 
-  // جهاز جديد
   const snap = await getDocs(collection(db, 'devices', uid, 'list'));
-  const approvedCount = snap.docs.filter(d => d.data().status === 'approved').length;
   const isFirstDevice = snap.docs.length === 0;
-
-  // أول جهاز بيتوافق تلقائياً، الباقي بيحتاج موافقة الأدمن
   const newStatus = isFirstDevice ? 'approved' : 'pending';
 
-  await setDoc(devRef, {
-    deviceId: fp,
-    userAgent: navigator.userAgent,
-    status: newStatus,
-    createdAt: serverTimestamp(),
-    lastSeen: serverTimestamp()
-  });
-
+  await setDoc(devRef, { deviceId: fp, userAgent: navigator.userAgent, status: newStatus, createdAt: serverTimestamp(), lastSeen: serverTimestamp() });
   return { status: newStatus, fp };
+}
+
+// ===== SUBSCRIPTIONS =====
+export async function checkSubscription(uid, subjectId) {
+  const snap = await getDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`));
+  if (!snap.exists()) return false;
+  const data = snap.data();
+  if (data.status !== 'active') return false;
+  if (data.expiresAt.toDate() < new Date()) return false; // expired
+  return true;
+}
+
+export async function requestSubscription(uid, userName, subjectId, subjectName, notes) {
+  const reqRef = doc(collection(db, 'subscription_requests'));
+  await setDoc(reqRef, {
+    id: reqRef.id, uid, userName, subjectId, subjectName, notes,
+    status: 'pending', createdAt: serverTimestamp()
+  });
+  return reqRef.id;
+}
+
+export async function activateSubscription(uid, subjectId, durationDays = 30) {
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + durationDays);
+  await setDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`), {
+    uid, subjectId, status: 'active', createdAt: serverTimestamp(), expiresAt: expiresAt
+  });
 }
