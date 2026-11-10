@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs, addDoc, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyCHspBBXBG8DmLPOfKcqE8H8SmAjw5HGpQ",
@@ -55,7 +55,7 @@ export function onAuth(callback) {
 export function isAdmin(userData) { return userData && userData.role === 'admin'; }
 export function goTo(page) { window.location.href = page; }
 
-// ===== DEVICE FINGERPRINT =====
+// ===== DEVICE FINGERPRINT LOGIC =====
 export async function getDeviceFingerprint() {
   const raw = [navigator.userAgent, navigator.language, screen.width + "x" + screen.height, new Date().getTimezoneOffset()].join("|");
   const buf = new TextEncoder().encode(raw);
@@ -69,16 +69,18 @@ export async function checkDeviceStatus(uid) {
   const devSnap = await getDoc(devRef);
 
   if (devSnap.exists()) {
-    const data = devSnap.data();
     await updateDoc(devRef, { lastSeen: serverTimestamp() });
-    return { status: data.status, fp };
+    return { status: devSnap.data().status, fp };
   }
 
   const snap = await getDocs(collection(db, 'devices', uid, 'list'));
   const isFirstDevice = snap.docs.length === 0;
   const newStatus = isFirstDevice ? 'approved' : 'pending';
 
-  await setDoc(devRef, { deviceId: fp, userAgent: navigator.userAgent, status: newStatus, createdAt: serverTimestamp(), lastSeen: serverTimestamp() });
+  await setDoc(devRef, {
+    deviceId: fp, userAgent: navigator.userAgent, status: newStatus, createdAt: serverTimestamp(), lastSeen: serverTimestamp()
+  });
+
   return { status: newStatus, fp };
 }
 
@@ -88,7 +90,7 @@ export async function checkSubscription(uid, subjectId) {
   if (!snap.exists()) return false;
   const data = snap.data();
   if (data.status !== 'active') return false;
-  if (data.expiresAt.toDate() < new Date()) return false; // expired
+  if (data.expiresAt.toDate() < new Date()) return false;
   return true;
 }
 
