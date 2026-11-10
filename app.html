@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* نفس الستايلات السابقة */
   .device-lock-overlay { position: fixed; inset: 0; background: var(--navy); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white; }
   .device-lock-overlay.active { display: flex; }
   .lock-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent); margin-bottom: 20px; animation: pulse 2s infinite; }
@@ -30,7 +29,6 @@
 </head>
 <body>
 
-<!-- شاشة قفل الجهاز -->
 <div class="device-lock-overlay" id="deviceLock">
   <div class="lock-icon"><i class="fas fa-shield-alt"></i></div>
   <h2>جهاز جديد!</h2>
@@ -132,7 +130,6 @@
   <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
 </div>
 
-<!-- مودال الاشتراك -->
 <div class="sub-overlay" id="subModal">
   <div class="sub-box">
     <h3>تفعيل الاشتراك</h3>
@@ -218,7 +215,6 @@ function renderSuggested() {
   if (modules.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>لا يوجد محتوى بعد</p></div>`; return; }
   const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
   
-  // لا نمرر أي باراميتر إضافي، الدالة ذكية وتعرف تجيب المادة
   grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
   grid.querySelectorAll('[data-node]').forEach(el => {
     el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node));
@@ -232,7 +228,6 @@ async function loadTreeData() {
   } catch (e) { console.error(e); }
 }
 
-// دالة ذكية للبحث عن المادة الأم لأي عنصر
 function getSubjectIdFromNode(nodeId) {
   let current = treeData.find(n => n.id === nodeId);
   while(current) {
@@ -260,7 +255,6 @@ function renderLevel(parentId) {
   const nodes = treeData.filter(n => n.parentId === parentId);
   if (nodes.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>فارغ</h3></div>`; return; }
   
-  // لا نمرر أي باراميتر إضافي
   container.innerHTML = nodes.map(node => renderCard(node)).join('');
   container.querySelectorAll('[data-node]').forEach(el => {
     el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
@@ -283,8 +277,8 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // التحقق الذكي من الصلاحية
-    if (node.access === 'paid') {
+    // حل المشكلة: لو مش متسجل، هنعتبره مدفوع مؤقتاً عشان نختبر الأقفال
+    if (node.access === 'paid' || node.access === undefined) {
       const subjectId = getSubjectIdFromNode(node.id);
       if (subjectId) {
         if (userSubs[subjectId]) {
@@ -315,7 +309,7 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    if (node.access === 'paid') {
+    if (node.access === 'paid' || node.access === undefined) {
       const subjectId = getSubjectIdFromNode(node.id);
       if (subjectId && !userSubs[subjectId]) {
         const subject = treeData.find(n => n.id === subjectId);
