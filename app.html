@@ -238,9 +238,11 @@ function renderLevel(parentId) {
     el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
   });
 }
-
 function renderCard(node) {
-  let typeLabel, icon;
+  // الحل: إعطاء قيم افتراضية عشان ميبقاش undefined
+  let typeLabel = 'تبويب';
+  let icon = '';
+
   if (node.type === 'year') typeLabel = 'سنة دراسية';
   else if (node.type === 'program') typeLabel = 'برنامج';
   else if (node.type === 'subject') typeLabel = 'مادة';
@@ -249,9 +251,18 @@ function renderCard(node) {
   else if (node.type === 'module_questions') { typeLabel = 'أسئلة'; icon = '<i class="fas fa-question-circle" style="color:#2980b9;margin-left:6px"></i>'; }
   else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
   else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
-  return `<div class="card-item ${node.type}" data-node="${node.id}"><div class="card-type">${typeLabel}</div><h3 class="card-title">${icon}${node.title}</h3></div>`;
-}
 
+  const titleHtml = `${icon}${node.title}`;
+  const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
+
+  return `
+    <div class="card-item ${node.type || 'custom'}" data-node="${node.id}">
+      <div class="card-type">${typeLabel}</div>
+      <h3 class="card-title">${titleHtml}</h3>
+      ${descHtml}
+    </div>
+  `;
+}
 function handleNodeClick(node) { if (node.type === 'content' || node.type.startsWith('module_')) openPlayer(node); else renderLevel(node.id); }
 
 function updateBreadcrumbs(parentId) {
