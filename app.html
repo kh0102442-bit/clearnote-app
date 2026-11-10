@@ -7,24 +7,15 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* نفس الستايلات السابقة تماماً */
-  .device-lock-overlay {
-    position: fixed; inset: 0; background: var(--navy);
-    z-index: 99999; display: none; flex-direction: column;
-    align-items: center; justify-content: center; padding: 24px; text-align: center; color: white;
-  }
+  /* نفس الستايلات السابقة */
+  .device-lock-overlay { position: fixed; inset: 0; background: var(--navy); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white; }
   .device-lock-overlay.active { display: flex; }
-  .lock-icon {
-    width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1);
-    display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent);
-    margin-bottom: 20px; animation: pulse 2s infinite;
-  }
+  .lock-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent); margin-bottom: 20px; animation: pulse 2s infinite; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(168,116,26,.4); } 70% { box-shadow: 0 0 0 20px rgba(168,116,26,0); } 100% { box-shadow: 0 0 0 0 rgba(168,116,26,0); } }
   .device-lock-overlay h2 { font-size: 22px; margin: 0 0 10px; }
   .device-lock-overlay p { color: rgba(255,255,255,.7); font-size: 15px; line-height: 1.6; max-width: 300px; margin-bottom: 30px; }
   .btn-logout-lock { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.3); padding: 12px 24px; border-radius: 10px; font-family: inherit; font-size: 16px; cursor: pointer; }
 
-  /* ستايل مودال الاشتراك */
   .sub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
   .sub-overlay.active { display: flex; }
   .sub-box { background: var(--card); border-radius: var(--r-lg); padding: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--sh-lg); }
@@ -32,8 +23,7 @@
   .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
   .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
   
-  /* ستايل القفل */
-  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; }
+  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
   .lock-badge.unlocked { color: var(--green); }
 </style>
@@ -64,7 +54,6 @@
 </aside>
 
 <main class="app-main" id="appMain">
-  <!-- HOME VIEW -->
   <section class="view active" id="homeView">
     <div class="content-wrap">
       <div class="greeting-card">
@@ -98,7 +87,6 @@
     </div>
   </section>
 
-  <!-- CONTENT VIEW -->
   <section class="view" id="contentView">
     <div class="content-wrap">
       <div class="breadcrumbs" id="breadcrumbs"></div>
@@ -106,12 +94,9 @@
     </div>
   </section>
 
-  <!-- CHATS VIEW -->
   <section class="view" id="chatsView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3>الدردشات قريباً</h3></div></div></section>
-  <!-- POMODORO VIEW -->
   <section class="view" id="pomodoroView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-clock"></i><h3>بومودورو قريباً</h3></div></div></section>
 
-  <!-- PROFILE VIEW -->
   <section class="view" id="profileView">
     <div class="content-wrap">
       <div class="profile-header">
@@ -163,12 +148,12 @@
 </div>
 
 <script type="module">
-import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, checkSubscription, requestSubscription } from "./shared.js";
+import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUserData = null;
 let treeData = [];
-let userSubs = {}; // لتخزين اشتراكات الطالب
+let userSubs = {}; 
 
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
@@ -201,13 +186,11 @@ onAuth(async (user, userData) => {
   
   await loadTreeData();
   await loadMySubscriptions();
+  renderHome();
 });
 
 window.doLogout = async () => {
-  if (confirm('تسجيل الخروج؟')) {
-    await signOutUser();
-    goTo("index.html");
-  }
+  if (confirm('تسجيل الخروج؟')) { await signOutUser(); goTo("index.html"); }
 };
 
 window.switchView = function(view) {
@@ -234,6 +217,8 @@ function renderSuggested() {
   const modules = treeData.filter(n => n.type.startsWith('module_'));
   if (modules.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>لا يوجد محتوى بعد</p></div>`; return; }
   const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
+  
+  // لا نمرر أي باراميتر إضافي، الدالة ذكية وتعرف تجيب المادة
   grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
   grid.querySelectorAll('[data-node]').forEach(el => {
     el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node));
@@ -244,11 +229,19 @@ async function loadTreeData() {
   try {
     const snap = await getDocs(collection(db, "content_tree"));
     treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderHome();
-  } catch (e) { document.getElementById('cardsContainer').innerHTML = `<p>خطأ: ${e.message}</p>`; }
+  } catch (e) { console.error(e); }
 }
 
-// دالة لجلب اشتراكات الطالب
+// دالة ذكية للبحث عن المادة الأم لأي عنصر
+function getSubjectIdFromNode(nodeId) {
+  let current = treeData.find(n => n.id === nodeId);
+  while(current) {
+    if(current.type === 'subject') return current.id;
+    current = treeData.find(n => n.id === current.parentId);
+  }
+  return null;
+}
+
 async function loadMySubscriptions() {
   const snap = await getDocs(collection(db, 'subscriptions'));
   userSubs = {};
@@ -267,23 +260,14 @@ function renderLevel(parentId) {
   const nodes = treeData.filter(n => n.parentId === parentId);
   if (nodes.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>فارغ</h3></div>`; return; }
   
-  // تمرير ID المادة للدالة عشان نعرف نتحقق من الاشتراك
-  let currentSubjectId = null;
-  if(parentId !== 'root') {
-    let current = treeData.find(n => n.id === parentId);
-    while(current) {
-      if(current.type === 'subject') { currentSubjectId = current.id; break; }
-      current = treeData.find(n => n.id === current.parentId);
-    }
-  }
-
-  container.innerHTML = nodes.map(node => renderCard(node, currentSubjectId)).join('');
+  // لا نمرر أي باراميتر إضافي
+  container.innerHTML = nodes.map(node => renderCard(node)).join('');
   container.querySelectorAll('[data-node]').forEach(el => {
-    el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node), currentSubjectId);
+    el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
   });
 }
 
-function renderCard(node, currentSubjectId) {
+function renderCard(node) {
   let typeLabel = 'تبويب';
   let icon = '';
   let isLocked = false;
@@ -299,12 +283,15 @@ function renderCard(node, currentSubjectId) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // التحقق من الصلاحية: لو مدفوع والطالب مش مشترك
-    if (node.access === 'paid' && currentSubjectId) {
-      if (userSubs[currentSubjectId]) {
-        isUnlocked = true;
-      } else {
-        isLocked = true;
+    // التحقق الذكي من الصلاحية
+    if (node.access === 'paid') {
+      const subjectId = getSubjectIdFromNode(node.id);
+      if (subjectId) {
+        if (userSubs[subjectId]) {
+          isUnlocked = true;
+        } else {
+          isLocked = true;
+        }
       }
     }
   }
@@ -317,7 +304,7 @@ function renderCard(node, currentSubjectId) {
   const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
 
   return `
-    <div class="card-item ${node.type || 'custom'}" data-node="${node.id}">
+    <div class="card-item ${node.type || 'custom'}" data-node="${node.id}" style="position:relative;">
       ${lockIcon}
       <div class="card-type">${typeLabel}</div>
       <h3 class="card-title">${titleHtml}</h3>
@@ -326,15 +313,18 @@ function renderCard(node, currentSubjectId) {
   `;
 }
 
-function handleNodeClick(node, currentSubjectId) {
+function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    if (node.access === 'paid' && currentSubjectId && !userSubs[currentSubjectId]) {
-      const subject = treeData.find(n => n.id === currentSubjectId);
-      document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
-      document.getElementById('subModal').dataset.subjectId = currentSubjectId;
-      document.getElementById('subNotes').value = '';
-      document.getElementById('subModal').classList.add('active');
-      return;
+    if (node.access === 'paid') {
+      const subjectId = getSubjectIdFromNode(node.id);
+      if (subjectId && !userSubs[subjectId]) {
+        const subject = treeData.find(n => n.id === subjectId);
+        document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
+        document.getElementById('subModal').dataset.subjectId = subjectId;
+        document.getElementById('subNotes').value = '';
+        document.getElementById('subModal').classList.add('active');
+        return;
+      }
     }
     openPlayer(node);
   } else {
@@ -342,18 +332,21 @@ function handleNodeClick(node, currentSubjectId) {
   }
 }
 
-// دالة إرسال طلب الاشتراك
 window.submitSubRequest = async function() {
   const subjectId = document.getElementById('subModal').dataset.subjectId;
   const notes = document.getElementById('subNotes').value.trim();
   if (!notes) { showToast('يرجى إدخال رقم المحفظة أو أي ملاحظات', 'error'); return; }
   
+  const btn = document.querySelector('#subModal .btn-primary');
+  btn.disabled = true; btn.textContent = 'جاري الإرسال...';
+
   const subject = treeData.find(n => n.id === subjectId);
   try {
     await requestSubscription(currentUserData.uid, currentUserData.name, subjectId, subject.title, notes);
     showToast('تم إرسال الطلب بنجاح. سيتم تفعيله بعد المراجعة.');
     document.getElementById('subModal').classList.remove('active');
   } catch(e) { showToast('حدث خطأ', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'إرسال الطلب'; }
 };
 
 window.showMySubs = function() {
