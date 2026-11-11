@@ -15,31 +15,11 @@
   .device-lock-overlay p { color: rgba(255,255,255,.7); font-size: 15px; line-height: 1.6; max-width: 300px; margin-bottom: 30px; }
   .btn-logout-lock { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.3); padding: 12px 24px; border-radius: 10px; font-family: inherit; font-size: 16px; cursor: pointer; }
 
-  .sub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
-  .sub-overlay.active { display: flex; }
-  .sub-box { background: var(--card); border-radius: var(--r-lg); padding: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--sh-lg); }
-  .sub-box h3 { margin: 0 0 10px; color: var(--navy); }
-  .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
-  .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
-  
   .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
-  .lock-badge.unlocked { color: var(--green); }
-
-  /* شاشة الخطأ */
-  .error-overlay { position: fixed; inset: 0; background: #fff; z-index: 99999; display: none; padding: 20px; text-align: center; flex-direction: column; align-items: center; justify-content: center; }
-  .error-overlay.active { display: flex; }
-  .error-title { color: red; font-size: 24px; margin-bottom: 20px; }
-  .error-msg { direction: ltr; text-align: left; font-family: monospace; font-size: 14px; background: #fbeaea; padding: 15px; border-radius: 10px; max-width: 100%; overflow-x: auto; }
 </style>
 </head>
 <body>
-
-<!-- شاشة الخطأ -->
-<div class="error-overlay" id="errorScreen">
-  <div class="error-title">حدث خطأ برمجي:</div>
-  <div class="error-msg" id="errorMsg"></div>
-</div>
 
 <!-- شاشة قفل الجهاز -->
 <div class="device-lock-overlay" id="deviceLock">
@@ -86,7 +66,7 @@
         <h2 class="section-title"><i class="fas fa-bolt"></i> إجراءات سريعة</h2>
         <div class="quick-grid">
           <div class="quick-card" onclick="switchView('content')"><div class="quick-icon" style="background:linear-gradient(135deg,#2980b9,#5dade2)"><i class="fas fa-book-open"></i></div><div class="quick-label">تصفح المحتوى</div></div>
-          <div class="quick-card" onclick="showToast('قريباً')"><div class="quick-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-magic"></i></div><div class="quick-label">طلب مخصوص</div></div>
+          <div class="quick-card" onclick="alert('قريباً')"><div class="quick-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-magic"></i></div><div class="quick-label">طلب مخصوص</div></div>
           <div class="quick-card" onclick="switchView('pomodoro')"><div class="quick-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)"><i class="fas fa-clock"></i></div><div class="quick-label">بومودورو</div></div>
           <div class="quick-card" onclick="switchView('chats')"><div class="quick-icon" style="background:linear-gradient(135deg,#1f6b45,#27ae60)"><i class="fas fa-comments"></i></div><div class="quick-label">الدردشات</div></div>
         </div>
@@ -117,10 +97,10 @@
         <span class="profile-role-badge" id="profileRole">طالب</span>
       </div>
       <div class="profile-list">
-        <div class="profile-item" onclick="showToast('الإعدادات قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showToast('التعديل قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showMySubs()"><div class="pi-icon" style="background:#fdfaf3;color:var(--accent)"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showToast('الأجهزة قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon" style="background:#fdfaf3;color:var(--accent)"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
         <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
       </div>
     </div>
@@ -143,41 +123,12 @@
   <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
 </div>
 
-<div class="sub-overlay" id="subModal">
-  <div class="sub-box">
-    <h3>تفعيل الاشتراك</h3>
-    <p id="subSubjectName"></p>
-    <p style="margin-bottom:10px; font-weight:bold; color:var(--navy)">سعر الاشتراك: 40 جنيه / شهر</p>
-    <p style="font-size:12px">قم بتحويل المبلغ على رقم المحفظة (01xxxxxxxxx) ثم أدخل رقم المحفظة التي حولت منها لتأكيد الطلب.</p>
-    <input type="text" id="subNotes" placeholder="رقم المحفظة أو ملاحظات...">
-    <div style="display:flex; gap:10px;">
-      <button class="btn-primary" style="margin-top:0" onclick="submitSubRequest()">إرسال الطلب</button>
-      <button class="btn-primary" style="margin-top:0; background:#e9ecef; color:var(--muted)" onclick="document.getElementById('subModal').classList.remove('active')">إلغاء</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
-import { db, onAuth, goTo, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
+import { db, onAuth, goTo, signOutUser, checkDeviceStatus } from "./shared.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-// ===== حل مشكلة showToast =====
-function showToast(msg, type = "success") {
-  const toast = document.createElement("div");
-  toast.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:${type === "error" ? "#b91c1c" : "#1f6b45"};color:white;padding:14px 28px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:bold;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.25);`;
-  toast.textContent = msg; document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
-}
-
-// ===== نظام لقط الأخطاء =====
-window.addEventListener('error', function(e) {
-  document.getElementById('errorScreen').classList.add('active');
-  document.getElementById('errorMsg').textContent = e.message;
-});
 
 let currentUserData = null;
 let treeData = [];
-let userSubs = {}; 
 
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
@@ -202,10 +153,8 @@ onAuth(async (user, userData) => {
   document.getElementById("greetName").textContent = displayName;
   document.getElementById("profileName").textContent = displayName;
   document.getElementById("profileEmail").textContent = user.email;
-  document.getElementById("profileRole").textContent = userData?.role === 'admin' ? 'أدمن' : 'طالب';
   
   try { await loadTreeData(); } catch(e) { console.error("Tree error", e); }
-  try { await loadMySubscriptions(); } catch(e) { console.error("Subs error", e); }
   
   renderHome();
 });
@@ -250,30 +199,6 @@ async function loadTreeData() {
   treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-function getSubjectIdFromNode(nodeId) {
-  let current = treeData.find(n => n.id === nodeId);
-  while(current) {
-    if(current.type === 'subject') return current.id;
-    current = treeData.find(n => n.id === current.parentId);
-  }
-  return null;
-}
-
-async function loadMySubscriptions() {
-  const snap = await getDocs(collection(db, 'subscriptions'));
-  userSubs = {};
-  snap.docs.forEach(d => {
-    const data = d.data();
-    let isExpired = false;
-    if(data.expiresAt) {
-      try { isExpired = data.expiresAt.toDate() < new Date(); } catch(e) {}
-    }
-    if(data.uid === currentUserData.uid && data.status === 'active' && !isExpired) {
-      userSubs[data.subjectId] = data;
-    }
-  });
-}
-
 function renderLevel(parentId) {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '';
@@ -287,11 +212,11 @@ function renderLevel(parentId) {
   });
 }
 
+// دالة رسم الكارت مع قفل إجباري لأي محتوى
 function renderCard(node) {
   let typeLabel = 'تبويب';
   let icon = '';
   let isLocked = false;
-  let isUnlocked = false;
 
   if (node.type === 'year') typeLabel = 'سنة دراسية';
   else if (node.type === 'program') typeLabel = 'برنامج';
@@ -303,19 +228,11 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    const subjectId = getSubjectIdFromNode(node.id);
-    if (subjectId) {
-      if (userSubs[subjectId]) {
-        isUnlocked = true; 
-      } else {
-        isLocked = true; 
-      }
-    }
+    // القفل الإجباري: كل حاجة عليها قفل دلوقتي
+    isLocked = true; 
   }
 
-  const lockIcon = isLocked 
-    ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' 
-    : (isUnlocked ? '<span class="lock-badge unlocked"><i class="fas fa-lock-open"></i></span>' : '');
+  const lockIcon = isLocked ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' : '';
 
   const titleHtml = `${icon}${node.title}`;
   const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
@@ -332,51 +249,12 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    const subjectId = getSubjectIdFromNode(node.id);
-    if (subjectId && !userSubs[subjectId]) {
-      const subject = treeData.find(n => n.id === subjectId);
-      document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
-      document.getElementById('subModal').dataset.subjectId = subjectId;
-      document.getElementById('subNotes').value = '';
-      document.getElementById('subModal').classList.add('active');
-      return;
-    }
-    openPlayer(node);
+    // لما يدوس على أي محتوى، هتظهرله رسالة إنه مغلق
+    alert('🔒 هذا المحتوى مغلق للطلاب غير المشتركين. برجاء الاشتراك في المادة أولاً لفتحه.');
   } else {
     renderLevel(node.id);
   }
 }
-
-window.submitSubRequest = async function() {
-  const subjectId = document.getElementById('subModal').dataset.subjectId;
-  const notes = document.getElementById('subNotes').value.trim();
-  if (!notes) { showToast('يرجى إدخال رقم المحفظة أو أي ملاحظات', 'error'); return; }
-  
-  const btn = document.querySelector('#subModal .btn-primary');
-  btn.disabled = true; btn.textContent = 'جاري الإرسال...';
-
-  const subject = treeData.find(n => n.id === subjectId);
-  try {
-    await requestSubscription(currentUserData.uid, currentUserData.name, subjectId, subject.title, notes);
-    showToast('تم إرسال الطلب بنجاح. سيتم تفعيله بعد المراجعة.');
-    document.getElementById('subModal').classList.remove('active');
-  } catch(e) { showToast('حدث خطأ', 'error'); }
-  finally { btn.disabled = false; btn.textContent = 'إرسال الطلب'; }
-};
-
-window.showMySubs = function() {
-  let msg = 'اشتراكاتك النشطة:\n';
-  let count = 0;
-  for(let subId in userSubs) {
-    const subject = treeData.find(n => n.id === subId);
-    let exp = 'غير محدد';
-    try { exp = userSubs[subId].expiresAt.toDate().toLocaleDateString('ar-EG'); } catch(e) {}
-    msg += `- ${subject?.title || 'مادة'}: ينتهي في ${exp}\n`;
-    count++;
-  }
-  if(count === 0) msg = 'لا يوجد اشتراكات نشطة حالياً.';
-  alert(msg);
-};
 
 function updateBreadcrumbs(parentId) {
   const bc = document.getElementById('breadcrumbs'); bc.innerHTML = '';
@@ -399,7 +277,7 @@ function openPlayer(node) {
 }
 
 window.closePlayer = function() { document.getElementById('lessonPlayer').classList.remove('active'); document.getElementById('playerFrame').srcdoc = ''; };
-window.showNotifications = function() { showToast('قريباً'); };
+window.showNotifications = function() { alert('قريباً'); };
 </script>
 </body>
 </html>
