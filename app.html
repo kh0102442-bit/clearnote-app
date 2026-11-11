@@ -117,10 +117,10 @@
         <span class="profile-role-badge" id="profileRole">طالب</span>
       </div>
       <div class="profile-list">
-        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showToast('الإعدادات قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showToast('التعديل قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
         <div class="profile-item" onclick="showMySubs()"><div class="pi-icon" style="background:#fdfaf3;color:var(--accent)"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="showToast('قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showToast('الأجهزة قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
         <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
       </div>
     </div>
@@ -158,13 +158,21 @@
 </div>
 
 <script type="module">
-import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
+import { db, onAuth, goTo, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ===== حل مشكلة showToast =====
+function showToast(msg, type = "success") {
+  const toast = document.createElement("div");
+  toast.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:${type === "error" ? "#b91c1c" : "#1f6b45"};color:white;padding:14px 28px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:bold;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.25);`;
+  toast.textContent = msg; document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
 
 // ===== نظام لقط الأخطاء =====
 window.addEventListener('error', function(e) {
   document.getElementById('errorScreen').classList.add('active');
-  document.getElementById('errorMsg').textContent = e.message + ' at ' + e.filename + ':' + e.lineno;
+  document.getElementById('errorMsg').textContent = e.message;
 });
 
 let currentUserData = null;
@@ -194,8 +202,8 @@ onAuth(async (user, userData) => {
   document.getElementById("greetName").textContent = displayName;
   document.getElementById("profileName").textContent = displayName;
   document.getElementById("profileEmail").textContent = user.email;
+  document.getElementById("profileRole").textContent = userData?.role === 'admin' ? 'أدمن' : 'طالب';
   
-  // تحميل البيانات بحذر
   try { await loadTreeData(); } catch(e) { console.error("Tree error", e); }
   try { await loadMySubscriptions(); } catch(e) { console.error("Subs error", e); }
   
@@ -256,12 +264,10 @@ async function loadMySubscriptions() {
   userSubs = {};
   snap.docs.forEach(d => {
     const data = d.data();
-    // تفادي خطأ التاريخ لو الحقل مش موجود
     let isExpired = false;
     if(data.expiresAt) {
       try { isExpired = data.expiresAt.toDate() < new Date(); } catch(e) {}
     }
-    
     if(data.uid === currentUserData.uid && data.status === 'active' && !isExpired) {
       userSubs[data.subjectId] = data;
     }
@@ -297,7 +303,6 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // القفل الإجباري
     const subjectId = getSubjectIdFromNode(node.id);
     if (subjectId) {
       if (userSubs[subjectId]) {
