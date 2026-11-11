@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title> — منصة المذاكرة</title>
+<title>ClearNote — منصة المذاكرة</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* نفس الستايلات السابقة */
   .device-lock-overlay { position: fixed; inset: 0; background: var(--navy); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white; }
   .device-lock-overlay.active { display: flex; }
   .lock-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent); margin-bottom: 20px; animation: pulse 2s infinite; }
@@ -26,9 +25,21 @@
   .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
   .lock-badge.unlocked { color: var(--green); }
+
+  /* شاشة الخطأ */
+  .error-overlay { position: fixed; inset: 0; background: #fff; z-index: 99999; display: none; padding: 20px; text-align: center; flex-direction: column; align-items: center; justify-content: center; }
+  .error-overlay.active { display: flex; }
+  .error-title { color: red; font-size: 24px; margin-bottom: 20px; }
+  .error-msg { direction: ltr; text-align: left; font-family: monospace; font-size: 14px; background: #fbeaea; padding: 15px; border-radius: 10px; max-width: 100%; overflow-x: auto; }
 </style>
 </head>
 <body>
+
+<!-- شاشة الخطأ -->
+<div class="error-overlay" id="errorScreen">
+  <div class="error-title">حدث خطأ برمجي:</div>
+  <div class="error-msg" id="errorMsg"></div>
+</div>
 
 <!-- شاشة قفل الجهاز -->
 <div class="device-lock-overlay" id="deviceLock">
@@ -58,7 +69,7 @@
     <div class="content-wrap">
       <div class="greeting-card">
         <div class="greet-small" id="greetSmall">صباح الخير ☀️</div>
-        <h1 class="greet-name">انت ياض، <span id="greetName">...</span></h1>
+        <h1 class="greet-name">أهلاً، <span id="greetName">...</span></h1>
         <p class="greet-sub">جاهز تكمل مذاكرتك النهاردة؟</p>
         <button class="greet-cta" onclick="switchView('content')"><i class="fas fa-play"></i> ابدأ المذاكرة</button>
       </div>
@@ -132,7 +143,6 @@
   <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
 </div>
 
-<!-- مودال الاشتراك -->
 <div class="sub-overlay" id="subModal">
   <div class="sub-box">
     <h3>تفعيل الاشتراك</h3>
@@ -151,6 +161,12 @@
 import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// ===== نظام لقط الأخطاء =====
+window.addEventListener('error', function(e) {
+  document.getElementById('errorScreen').classList.add('active');
+  document.getElementById('errorMsg').textContent = e.message + ' at ' + e.filename + ':' + e.lineno;
+});
+
 let currentUserData = null;
 let treeData = [];
 let userSubs = {}; 
@@ -159,18 +175,14 @@ onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
   currentUserData = userData;
   
-  const dev = await checkDeviceStatus(user.uid);
-  
-  if (dev.status === 'pending') {
-    document.getElementById('deviceLock').classList.add('active');
-    document.getElementById('appMain').style.display = 'none';
-    return;
-  } else if (dev.status === 'blocked') {
-    alert('تم حظر هذا الجهاز من قبل الإدارة.');
-    await signOutUser();
-    goTo("index.html");
-    return;
-  }
+  try {
+    const dev = await checkDeviceStatus(user.uid);
+    if (dev.status === 'pending') {
+      document.getElementById('deviceLock').classList.add('active');
+      document.getElementById('appMain').style.display = 'none';
+      return;
+    }
+  } catch(e) { console.error("Device error", e); }
 
   document.getElementById('deviceLock').classList.remove('active');
   document.getElementById('appMain').style.display = 'block';
@@ -182,10 +194,11 @@ onAuth(async (user, userData) => {
   document.getElementById("greetName").textContent = displayName;
   document.getElementById("profileName").textContent = displayName;
   document.getElementById("profileEmail").textContent = user.email;
-  document.getElementById("profileRole").textContent = userData?.role === 'admin' ? 'أدمن' : 'طالب';
   
-  await loadTreeData();
-  await loadMySubscriptions();
+  // تحميل البيانات بحذر
+  try { await loadTreeData(); } catch(e) { console.error("Tree error", e); }
+  try { await loadMySubscriptions(); } catch(e) { console.error("Subs error", e); }
+  
   renderHome();
 });
 
@@ -218,7 +231,6 @@ function renderSuggested() {
   if (modules.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>لا يوجد محتوى بعد</p></div>`; return; }
   const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
   
-  // لا نمرر أي باراميتر إضافي، الدالة ذكية وتعرف تجيب المادة
   grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
   grid.querySelectorAll('[data-node]').forEach(el => {
     el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node));
@@ -226,13 +238,10 @@ function renderSuggested() {
 }
 
 async function loadTreeData() {
-  try {
-    const snap = await getDocs(collection(db, "content_tree"));
-    treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) { console.error(e); }
+  const snap = await getDocs(collection(db, "content_tree"));
+  treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// دالة ذكية للبحث عن المادة الأم لأي عنصر
 function getSubjectIdFromNode(nodeId) {
   let current = treeData.find(n => n.id === nodeId);
   while(current) {
@@ -247,7 +256,13 @@ async function loadMySubscriptions() {
   userSubs = {};
   snap.docs.forEach(d => {
     const data = d.data();
-    if(data.uid === currentUserData.uid && data.status === 'active' && data.expiresAt.toDate() > new Date()) {
+    // تفادي خطأ التاريخ لو الحقل مش موجود
+    let isExpired = false;
+    if(data.expiresAt) {
+      try { isExpired = data.expiresAt.toDate() < new Date(); } catch(e) {}
+    }
+    
+    if(data.uid === currentUserData.uid && data.status === 'active' && !isExpired) {
       userSubs[data.subjectId] = data;
     }
   });
@@ -260,7 +275,6 @@ function renderLevel(parentId) {
   const nodes = treeData.filter(n => n.parentId === parentId);
   if (nodes.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>فارغ</h3></div>`; return; }
   
-  // لا نمرر أي باراميتر إضافي
   container.innerHTML = nodes.map(node => renderCard(node)).join('');
   container.querySelectorAll('[data-node]').forEach(el => {
     el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
@@ -283,15 +297,13 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // التحقق الذكي من الصلاحية
-    if (node.access === 'paid') {
-      const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId) {
-        if (userSubs[subjectId]) {
-          isUnlocked = true;
-        } else {
-          isLocked = true;
-        }
+    // القفل الإجباري
+    const subjectId = getSubjectIdFromNode(node.id);
+    if (subjectId) {
+      if (userSubs[subjectId]) {
+        isUnlocked = true; 
+      } else {
+        isLocked = true; 
       }
     }
   }
@@ -315,16 +327,14 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    if (node.access === 'paid') {
-      const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId && !userSubs[subjectId]) {
-        const subject = treeData.find(n => n.id === subjectId);
-        document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
-        document.getElementById('subModal').dataset.subjectId = subjectId;
-        document.getElementById('subNotes').value = '';
-        document.getElementById('subModal').classList.add('active');
-        return;
-      }
+    const subjectId = getSubjectIdFromNode(node.id);
+    if (subjectId && !userSubs[subjectId]) {
+      const subject = treeData.find(n => n.id === subjectId);
+      document.getElementById('subSubjectName').textContent = `مادة: ${subject?.title || 'غير معروفة'}`;
+      document.getElementById('subModal').dataset.subjectId = subjectId;
+      document.getElementById('subNotes').value = '';
+      document.getElementById('subModal').classList.add('active');
+      return;
     }
     openPlayer(node);
   } else {
@@ -354,7 +364,8 @@ window.showMySubs = function() {
   let count = 0;
   for(let subId in userSubs) {
     const subject = treeData.find(n => n.id === subId);
-    const exp = userSubs[subId].expiresAt.toDate().toLocaleDateString('ar-EG');
+    let exp = 'غير محدد';
+    try { exp = userSubs[subId].expiresAt.toDate().toLocaleDateString('ar-EG'); } catch(e) {}
     msg += `- ${subject?.title || 'مادة'}: ينتهي في ${exp}\n`;
     count++;
   }
