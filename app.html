@@ -25,6 +25,9 @@
   .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
   .lock-badge.unlocked { color: var(--green); }
+
+  .card-item.locked-card { background-color: #fff5f5 !important; border-color: #feb2b2 !important; }
+  .card-item.unlocked-card { background-color: #f0fdf4 !important; border-color: #86efac !important; }
 </style>
 </head>
 <body>
@@ -105,7 +108,7 @@
       </div>
       <div class="profile-list">
         <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="showMySubs()"><div class="pi-icon" style="background:#fdfaf3;color:var(--accent)"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
         <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
       </div>
     </div>
@@ -144,7 +147,7 @@
 
 <script type="module">
 import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUserData = null;
 let treeData = [];
@@ -220,16 +223,6 @@ async function loadTreeData() {
   treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// الدالة السحرية للبحث عن المادة الأم
-function getSubjectIdFromNode(nodeId) {
-  let current = treeData.find(n => n.id === nodeId);
-  while(current) {
-    if(current.type === 'subject') return current.id; // لقينا المادة
-    current = treeData.find(n => n.id === current.parentId); // نطلع مستوى فوق
-  }
-  return null;
-}
-
 async function loadMySubscriptions() {
   const snap = await getDocs(collection(db, 'subscriptions'));
   userSubs = {};
@@ -243,6 +236,16 @@ async function loadMySubscriptions() {
       userSubs[data.subjectId] = data;
     }
   });
+}
+
+// دالة عبقرية للبحث عن المادة الأم لأي عنصر
+function findParentSubject(nodeId) {
+  let current = treeData.find(n => n.id === nodeId);
+  while(current) {
+    if(current.type === 'subject') return current;
+    current = treeData.find(n => n.id === current.parentId);
+  }
+  return null;
 }
 
 function renderLevel(parentId) {
@@ -261,43 +264,39 @@ function renderLevel(parentId) {
 function renderCard(node) {
   let typeLabel = 'تبويب';
   let icon = '';
-  let isLocked = false;
-  let isUnlocked = false;
+  let cardClass = '';
+  let lockIcon = '';
 
   if (node.type === 'year') typeLabel = 'سنة دراسية';
   else if (node.type === 'program') typeLabel = 'برنامج';
-  else if (node.type === 'subject') typeLabel = 'مادة دراسية';
+  else if (node.type === 'subject') typeLabel = 'مادة';
   else if (node.type.startsWith('module_')) {
     if (node.type === 'module_explain') { typeLabel = 'الشرح'; icon = '<i class="fas fa-file-alt" style="color:#27ae60;margin-left:6px"></i>'; }
     else if (node.type === 'module_video') { typeLabel = 'فيديو'; icon = '<i class="fas fa-video" style="color:#e74c3c;margin-left:6px"></i>'; }
     else if (node.type === 'module_questions') { typeLabel = 'أسئلة'; icon = '<i class="fas fa-question-circle" style="color:#2980b9;margin-left:6px"></i>'; }
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
-    
-    // التحقق من الصلاحيات
+
+    // التحقق من الصلاحية بناءً على (access) و (الاشتراك)
     if (node.access === 'paid') {
-      const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId) {
-        if (userSubs[subjectId]) {
-          isUnlocked = true; // مشترك -> قفل أخضر مفتوح
-        } else {
-          isLocked = true; // غير مشترك -> قفل أحمر مقفول
-        }
+      const parentSubject = findParentSubject(node.id);
+      if (parentSubject && userSubs[parentSubject.id]) {
+        // مفعل
+        cardClass = 'unlocked-card';
+        lockIcon = '<span class="lock-badge unlocked"><i class="fas fa-lock-open"></i></span>';
       } else {
-        isLocked = true; // محتوى تايه مش تابع لمادة -> نقفله احتياطي
+        // مقفول
+        cardClass = 'locked-card';
+        lockIcon = '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>';
       }
     }
   }
-
-  const lockIcon = isLocked 
-    ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' 
-    : (isUnlocked ? '<span class="lock-badge unlocked"><i class="fas fa-lock-open"></i></span>' : '');
 
   const titleHtml = `${icon}${node.title}`;
   const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
 
   return `
-    <div class="card-item ${node.type || 'custom'}" data-node="${node.id}" style="position:relative;">
+    <div class="card-item ${node.type || 'custom'} ${cardClass}" data-node="${node.id}" style="position:relative;">
       ${lockIcon}
       <div class="card-type">${typeLabel}</div>
       <h3 class="card-title">${titleHtml}</h3>
@@ -309,12 +308,11 @@ function renderCard(node) {
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
     if (node.access === 'paid') {
-      const subjectId = getSubjectIdFromNode(node.id);
-      if (!subjectId || !userSubs[subjectId]) {
-        // لو مقفول، هنفتح مودال الدفع ونجيب اسم المادة
-        const subject = subjectId ? treeData.find(n => n.id === subjectId) : null;
-        document.getElementById('subSubjectName').textContent = `مادة: ${subject ? subject.title : 'غير معروفة'}`;
-        document.getElementById('subModal').dataset.subjectId = subjectId;
+      const parentSubject = findParentSubject(node.id);
+      if (parentSubject && !userSubs[parentSubject.id]) {
+        // فتح المودال
+        document.getElementById('subSubjectName').textContent = `مادة: ${parentSubject.title}`;
+        document.getElementById('subModal').dataset.subjectId = parentSubject.id;
         document.getElementById('subNotes').value = '';
         document.getElementById('subModal').classList.add('active');
         return;
@@ -329,7 +327,6 @@ function handleNodeClick(node) {
 window.submitSubRequest = async function() {
   const subjectId = document.getElementById('subModal').dataset.subjectId;
   const notes = document.getElementById('subNotes').value.trim();
-  if (!subjectId) { showToast('هذا المحتوى غير مرتبط بمادة، راسل الإدارة.', 'error'); return; }
   if (!notes) { showToast('يرجى إدخال رقم المحفظة أو أي ملاحظات', 'error'); return; }
   
   const btn = document.querySelector('#subModal .btn-primary');
@@ -342,6 +339,20 @@ window.submitSubRequest = async function() {
     document.getElementById('subModal').classList.remove('active');
   } catch(e) { showToast('حدث خطأ', 'error'); }
   finally { btn.disabled = false; btn.textContent = 'إرسال الطلب'; }
+};
+
+window.showMySubs = function() {
+  let msg = 'اشتراكاتك النشطة:\n';
+  let count = 0;
+  for(let subId in userSubs) {
+    const subject = treeData.find(n => n.id === subId);
+    let exp = 'غير محدد';
+    try { exp = userSubs[subId].expiresAt.toDate().toLocaleDateString('ar-EG'); } catch(e) {}
+    msg += `- ${subject?.title || 'مادة'}: ينتهي في ${exp}\n`;
+    count++;
+  }
+  if(count === 0) msg = 'لا يوجد اشتراكات نشطة حالياً.';
+  alert(msg);
 };
 
 function updateBreadcrumbs(parentId) {
