@@ -55,7 +55,7 @@ export function onAuth(callback) {
 export function isAdmin(userData) { return userData && userData.role === 'admin'; }
 export function goTo(page) { window.location.href = page; }
 
-// ===== DEVICE FINGERPRINT LOGIC =====
+// ===== DEVICE FINGERPRINT =====
 export async function getDeviceFingerprint() {
   const raw = [navigator.userAgent, navigator.language, screen.width + "x" + screen.height, new Date().getTimezoneOffset()].join("|");
   const buf = new TextEncoder().encode(raw);
@@ -85,15 +85,6 @@ export async function checkDeviceStatus(uid) {
 }
 
 // ===== SUBSCRIPTIONS =====
-export async function checkSubscription(uid, subjectId) {
-  const snap = await getDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`));
-  if (!snap.exists()) return false;
-  const data = snap.data();
-  if (data.status !== 'active') return false;
-  if (data.expiresAt.toDate() < new Date()) return false;
-  return true;
-}
-
 export async function requestSubscription(uid, userName, subjectId, subjectName, notes) {
   const reqRef = doc(collection(db, 'subscription_requests'));
   await setDoc(reqRef, {
