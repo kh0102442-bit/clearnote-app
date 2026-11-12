@@ -84,11 +84,10 @@
   <div id="requestsContainer" style="display:none;"></div>
 </div>
 
-<!-- Modals -->
 <div class="modal-overlay" id="deviceModal"><div class="modal-box"><h3>الأجهزة</h3><div id="deviceList" style="margin-top:20px;"></div><button class="btn-cancel" style="width:100%; margin-top:20px;" onclick="closeModal('deviceModal')">إغلاق</button></div></div>
 <div class="modal-overlay" id="nodeModal"><div class="modal-box"><h3 id="modalTitle">إضافة</h3><p id="modalDesc"></p><input type="hidden" id="nodeParentId"><input type="hidden" id="nodeType"><div class="form-group" id="titleGroup"><label>العنوان</label><input type="text" id="nodeTitle"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('nodeModal')">إلغاء</button><button class="btn-save" onclick="saveNode()">حفظ</button></div></div></div>
 <div class="modal-overlay" id="manageModal"><div class="modal-box"><h3 id="manageTitle">إدارة محتوى</h3><p>اختر الجزء:</p><div class="modules-grid"><div class="module-item" onclick="openCodeEditor('explain', 'الشرح')"><div class="module-icon icon-explain"><i class="fas fa-file-alt"></i></div><div class="module-title">الشرح</div></div><div class="module-item" onclick="openCodeEditor('video', 'فيديو')"><div class="module-icon icon-video"><i class="fas fa-video"></i></div><div class="module-title">فيديو</div></div><div class="module-item" onclick="openCodeEditor('questions', 'أسئلة')"><div class="module-icon icon-questions"><i class="fas fa-question-circle"></i></div><div class="module-title">أسئلة</div></div><div class="module-item" onclick="openCodeEditor('summary', 'ملخص')"><div class="module-icon icon-summary"><i class="fas fa-clipboard-list"></i></div><div class="module-title">ملخص</div></div><div class="module-item" onclick="openCodeEditor('terms', 'مصطلحات')"><div class="module-icon icon-terms"><i class="fas fa-book"></i></div><div class="module-title">مصطلحات</div></div></div><button class="btn-cancel" style="width:100%;" onclick="closeModal('manageModal')">إغلاق</button></div></div>
-<div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div class="form-group"><label>كود HTML</label><textarea id="moduleCode" rows="6" style="font-family: monospace;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
+<div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام (مجاني)</option><option value="paid">مدفوع (للمشتركين)</option></select></div><div class="form-group"><label>كود HTML</label><textarea id="moduleCode" rows="6" style="font-family: monospace;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
 
 <script type="module">
 import { db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription } from "./shared.js";
@@ -131,20 +130,20 @@ function renderRequests() {
   container.innerHTML = pending.map(req => `
     <div class="request-card">
       <div class="request-title">${req.userName}</div>
-      <div class="request-sub">المحتوى المطلوب: ${req.itemTitle}</div>
+      <div class="request-sub">المادة المطلوبة: ${req.subjectTitle || req.itemTitle}</div>
       <div class="request-notes">ملاحظات الطالب: ${req.notes}</div>
       <div style="display:flex; gap:10px;">
-        <button class="btn-save" style="padding:10px; background:var(--green); font-size:16px;" onclick="approveSub('${req.id}', '${req.uid}', '${req.itemId}')">موافقة وتفعيل</button>
+        <button class="btn-save" style="padding:10px; background:var(--green); font-size:16px;" onclick="approveSub('${req.id}', '${req.uid}', '${req.subjectId || req.itemId}')">موافقة وتفعيل</button>
         <button class="btn-cancel" style="padding:10px; font-size:16px;" onclick="rejectSub('${req.id}')">رفض</button>
       </div>
     </div>
   `).join('');
 }
 
-window.approveSub = async function(reqId, uid, itemId) {
+window.approveSub = async function(reqId, uid, subjectId) {
   try {
-    await activateSubscription(uid, itemId); // تفعيل الاشتراك في قاعدة البيانات
-    await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'approved' }); // تغيير حالة الطلب
+    await activateSubscription(uid, subjectId);
+    await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'approved' });
     showToast('تم تفعيل الاشتراك بنجاح');
     loadAllData();
   } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
