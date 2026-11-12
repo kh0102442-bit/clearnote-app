@@ -14,13 +14,10 @@
   .admin-brand span { color: var(--accent); }
   .btn-add-main { background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: 10px; font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
   .btn-logout { background: rgba(255,255,255,0.1); color: white; border: none; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
-  
   .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; padding: 0 15px; }
   .nav-tab { flex: 1; background: var(--white); border: 2px solid var(--line); padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; color: var(--muted); cursor: pointer; text-align: center; transition: 0.2s; }
   .nav-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
-  
   .admin-container { padding: 0 15px; width: 100%; box-sizing: border-box; }
-  
   .tree-group { margin-bottom: 15px; } .node-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden; }
   .node-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
   .node-title-area { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -34,17 +31,14 @@
   .action-btn.danger { color: var(--red); background: #fbeaea; border-color: #fbeaea; }
   .children-area { display: none; padding: 12px; background: #fafbfc; border-top: 2px solid var(--line); }
   .children-area.active { display: block; }
-  
   .student-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
   .student-info { display: flex; flex-direction: column; gap: 4px; }
   .student-name { font-weight: bold; color: var(--navy); font-size: 17px; }
   .student-email { font-size: 13px; color: var(--muted); }
-  
   .request-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; padding: 15px; margin-bottom: 12px; }
   .request-title { font-weight: 800; color: var(--navy); font-size: 16px; margin-bottom: 5px; }
   .request-sub { font-size: 14px; color: var(--accent); margin-bottom: 5px; }
   .request-notes { font-size: 13px; color: var(--muted); margin-bottom: 15px; background: #fafbfc; padding: 8px; border-radius: 8px; }
-
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
   .modal-box { background: var(--white); border-radius: 24px 24px 0 0; width: 100%; padding: 25px 20px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
@@ -141,6 +135,7 @@ function renderRequests() {
 
 window.approveSub = async function(reqId, uid, subjectId) {
   try {
+    // بنفعل الاشتراك للمادة
     await activateSubscription(uid, subjectId); 
     await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'approved' });
     showToast('تم تفعيل اشتراك المادة بنجاح');
