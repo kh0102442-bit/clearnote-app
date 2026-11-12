@@ -22,18 +22,14 @@
   .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
   .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
   
-  /* أشكال الأقفال */
   .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
   .lock-badge.unlocked { color: var(--green); }
 
-  /* تلوين الكروت */
   .card-item.module_explain, .card-item.module_video, .card-item.module_questions, .card-item.module_summary, .card-item.module_terms {
     background-color: #fff5f5 !important;
     border-color: #feb2b2 !important;
   }
-  
-  /* لو الكارت متفتح، نرجع لونه طبيعي */
   .card-item.unlocked-card {
     background-color: var(--card) !important;
     border-color: var(--line) !important;
@@ -163,7 +159,7 @@ import { collection, getDocs, query, where } from "https://www.gstatic.com/fireb
 
 let currentUserData = null;
 let treeData = [];
-let userSubs = {}; // هنحفظ فيه المحتويات المفتوحة للطالب
+let userSubs = {}; 
 
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
@@ -191,7 +187,7 @@ onAuth(async (user, userData) => {
   
   try { 
     await loadTreeData(); 
-    await loadMySubscriptions(); // بنجيب اشتراكات الطالب
+    await loadMySubscriptions(); 
   } catch(e) { console.error("Data load error", e); }
   
   renderHome();
@@ -237,7 +233,17 @@ async function loadTreeData() {
   treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// بنجيب الاشتراكات اللي الطالب دفعها
+// دالة ذكية للبحث عن "المادة" اللي المحتوى تابع ليها
+function getSubjectFromNode(node) {
+  let current = node;
+  while (current) {
+    if (current.type === 'subject') return current;
+    if (!current.parentId || current.parentId === 'root') break;
+    current = treeData.find(n => n.id === current.parentId);
+  }
+  return null;
+}
+
 async function loadMySubscriptions() {
   userSubs = {};
   const q = query(collection(db, "subscriptions"), where("uid", "==", currentUserData.uid));
@@ -246,8 +252,7 @@ async function loadMySubscriptions() {
   snap.forEach(d => {
     const data = d.data();
     if (data.status === 'active') {
-      // بنحفظ الـ itemId عشان نعرف نفتح المحتوى ده
-      userSubs[data.itemId] = data; 
+      userSubs[data.subjectId] = data; 
     }
   });
 }
@@ -281,11 +286,16 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // هل الطالب ده دفع واشترك في المحتوى ده؟
-    if (userSubs[node.id]) {
-      isUnlocked = true; // مفتوح
-    } else {
-      isLocked = true; // مقفول
+    // هل المحتوى ده "مدفوع"؟
+    if (node.access === 'paid') {
+      const subject = getSubjectFromNode(node);
+      if (subject) {
+        if (userSubs[subject.id]) {
+          isUnlocked = true; // الطالب مشترك في المادة
+        } else {
+          isLocked = true; // الطالب مش مشترك
+        }
+      }
     }
   }
 
@@ -293,7 +303,6 @@ function renderCard(node) {
     ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' 
     : (isUnlocked ? '<span class="lock-badge unlocked"><i class="fas fa-lock-open"></i></span>' : '');
 
-  // لو متفتح، هنشيل كلاس التلوين الأحمر
   const cardClass = isUnlocked ? `card-item ${node.type || 'custom'} unlocked-card` : `card-item ${node.type || 'custom'}`;
 
   const titleHtml = `${icon}${node.title}`;
@@ -311,34 +320,38 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    if (userSubs[node.id]) {
-      // الطالب مشترك، افتح المحتوى فوراً
-      openPlayer(node);
-    } else {
-      // الطالب مش مشترك، افتح مودال الدفع
-      document.getElementById('subSubjectName').textContent = `المحتوى المطلوب: ${node.title}`;
-      document.getElementById('subModal').dataset.subjectId = node.id;
-      document.getElementById('subNotes').value = '';
-      document.getElementById('subModal').classList.add('active');
+    
+    // لو المحتوى "مدفوع" والطالب مش مشترك
+    if (node.access === 'paid') {
+      const subject = getSubjectFromNode(node);
+      if (subject && !userSubs[subject.id]) {
+        document.getElementById('subSubjectName').textContent = `مادة: ${subject.title}`;
+        document.getElementById('subModal').dataset.subjectId = subject.id;
+        document.getElementById('subNotes').value = '';
+        document.getElementById('subModal').classList.add('active');
+        return;
+      }
     }
+    
+    // لو المحتوى "عام" أو الطالب مشترك، افتحه
+    openPlayer(node);
+
   } else {
     renderLevel(node.id);
   }
 }
 
 window.submitSubRequest = async function() {
-  const itemId = document.getElementById('subModal').dataset.subjectId;
+  const subjectId = document.getElementById('subModal').dataset.subjectId;
   const notes = document.getElementById('subNotes').value.trim();
   if (!notes) { showToast('يرجى إدخال رقم المحفظة أو أي ملاحظات', 'error'); return; }
   
   const btn = document.querySelector('#subModal .btn-primary');
   btn.disabled = true; btn.textContent = 'جاري الإرسال...';
 
-  // بنبعت الـ itemId عشان ده اللي هنوافق عليه
-  const itemTitle = treeData.find(n => n.id === itemId)?.title || 'محتوى';
-  
+  const subject = treeData.find(n => n.id === subjectId);
   try {
-    await requestSubscription(currentUserData.uid, currentUserData.name, itemId, itemTitle, notes);
+    await requestSubscription(currentUserData.uid, currentUserData.name, subjectId, subject.title, notes);
     showToast('تم إرسال الطلب بنجاح. سيتم تفعيله بعد المراجعة.');
     document.getElementById('subModal').classList.remove('active');
   } catch(e) { showToast('حدث خطأ', 'error'); }
