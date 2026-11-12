@@ -55,7 +55,7 @@ export function onAuth(callback) {
 export function isAdmin(userData) { return userData && userData.role === 'admin'; }
 export function goTo(page) { window.location.href = page; }
 
-// ===== DEVICE FINGERPRINT =====
+// ===== DEVICE FINGERPRINT LOGIC =====
 export async function getDeviceFingerprint() {
   const raw = [navigator.userAgent, navigator.language, screen.width + "x" + screen.height, new Date().getTimezoneOffset()].join("|");
   const buf = new TextEncoder().encode(raw);
@@ -85,19 +85,31 @@ export async function checkDeviceStatus(uid) {
 }
 
 // ===== SUBSCRIPTIONS =====
-export async function requestSubscription(uid, userName, subjectId, subjectName, notes) {
+export async function requestSubscription(uid, userName, itemId, itemTitle, notes) {
   const reqRef = doc(collection(db, 'subscription_requests'));
   await setDoc(reqRef, {
-    id: reqRef.id, uid, userName, subjectId, subjectName, notes,
-    status: 'pending', createdAt: serverTimestamp()
+    id: reqRef.id, 
+    uid, 
+    userName, 
+    itemId, 
+    itemTitle, 
+    notes,
+    status: 'pending', 
+    createdAt: serverTimestamp()
   });
   return reqRef.id;
 }
 
-export async function activateSubscription(uid, subjectId, durationDays = 30) {
+export async function activateSubscription(uid, itemId, durationDays = 30) {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + durationDays);
-  await setDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`), {
-    uid, subjectId, status: 'active', createdAt: serverTimestamp(), expiresAt: expiresAt
+  
+  // بنحفظ الاشتراك برقم فريد (ID الطالب + ID المحتوى) عشان نعرف نتحقق منه بسهولة
+  await setDoc(doc(db, 'subscriptions', `${uid}_${itemId}`), {
+    uid, 
+    itemId, 
+    status: 'active', 
+    createdAt: serverTimestamp(), 
+    expiresAt: expiresAt
   });
 }
