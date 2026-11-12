@@ -22,10 +22,8 @@
   .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
   .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
   
-  /* شكل القفل */
   .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
-  .lock-badge.unlocked { color: var(--green); }
 
   /* التلوين الأحمر للمحتوى المقفول فقط */
   .locked-card {
@@ -157,7 +155,7 @@ import { collection, getDocs, query, where } from "https://www.gstatic.com/fireb
 
 let currentUserData = null;
 let treeData = [];
-let userSubs = {}; // هنحفظ فيه الموااااد اللي الطالب مشترك فيها
+let userSubs = {}; 
 
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
@@ -231,7 +229,6 @@ async function loadTreeData() {
   treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// دالة ذكية بترجع الـ ID بتاع المادة الأم لأي ملف
 function getSubjectIdFromNode(nodeId) {
   let current = treeData.find(n => n.id === nodeId);
   while(current) {
@@ -241,7 +238,6 @@ function getSubjectIdFromNode(nodeId) {
   return null;
 }
 
-// بنجيب اشتراكات المواد اللي الطالب دفعها
 async function loadMySubscriptions() {
   userSubs = {};
   const q = query(collection(db, "subscriptions"), where("uid", "==", currentUserData.uid));
@@ -250,7 +246,7 @@ async function loadMySubscriptions() {
   snap.forEach(d => {
     const data = d.data();
     if (data.status === 'active') {
-      userSubs[data.subjectId] = data; // بنربط الاشتراك بالمادة
+      userSubs[data.subjectId] = data; 
     }
   });
 }
@@ -283,18 +279,20 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // التحقق من الصلاحية
-    if (node.access === 'paid') {
+    // التعديل هنا: لو الحقل مش موجود (undefined) نعتبره مدفوع عشان نختبر
+    if (node.access === 'paid' || node.access === undefined) {
       const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId && !userSubs[subjectId]) {
-        isLocked = true; // مقفول عشان المادة مش مشتركة
+      if (subjectId) {
+        if (!userSubs[subjectId]) {
+          isLocked = true; 
+        }
+      } else {
+        isLocked = true; // لو مش لاقي مادة أم، نقفله للأمان
       }
     }
   }
 
   const lockIcon = isLocked ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' : '';
-  
-  // لو مقفول، نضيف كلاس التلوين الأحمر
   const cardClass = isLocked ? `card-item ${node.type || 'custom'} locked-card` : `card-item ${node.type || 'custom'}`;
 
   const titleHtml = `${icon}${node.title}`;
@@ -312,20 +310,17 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    // لو الملف مدفوع، نشوف المادة الأم
-    if (node.access === 'paid') {
+    if (node.access === 'paid' || node.access === undefined) {
       const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId && !userSubs[subjectId]) {
-        // الطالب مش مشترك في المادة دي، نفتح المودال باسم المادة
-        const subject = treeData.find(n => n.id === subjectId);
+      if (!subjectId || !userSubs[subjectId]) {
+        const subject = subjectId ? treeData.find(n => n.id === subjectId) : null;
         document.getElementById('subSubjectName').textContent = `المادة المطلوبة: ${subject?.title || 'غير معروفة'}`;
-        document.getElementById('subModal').dataset.subjectId = subjectId;
+        document.getElementById('subModal').dataset.subjectId = subjectId || 'none';
         document.getElementById('subNotes').value = '';
         document.getElementById('subModal').classList.add('active');
         return;
       }
     }
-    // لو الملف عام، أو المادة مشتركة، نفتح المحتوى
     openPlayer(node);
   } else {
     renderLevel(node.id);
@@ -342,8 +337,7 @@ window.submitSubRequest = async function() {
 
   const subject = treeData.find(n => n.id === subjectId);
   try {
-    // بنبعت الطلب باسم و ID المادة
-    await requestSubscription(currentUserData.uid, currentUserData.name, subjectId, subject.title, notes);
+    await requestSubscription(currentUserData.uid, currentUserData.name, subjectId, subject?.title || 'مادة', notes);
     showToast('تم إرسال الطلب بنجاح. سيتم تفعيله بعد المراجعة.');
     document.getElementById('subModal').classList.remove('active');
   } catch(e) { showToast('حدث خطأ', 'error'); }
