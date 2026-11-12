@@ -22,10 +22,8 @@
   .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
   .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
   
-  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
-  .lock-badge.locked { color: var(--red); }
+  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; color: var(--red); }
 
-  /* التلوين الأحمر للمحتوى المقفول فقط */
   .locked-card {
     background-color: #fff5f5 !important;
     border-color: #feb2b2 !important;
@@ -238,6 +236,7 @@ function getSubjectIdFromNode(nodeId) {
   return null;
 }
 
+// هنجيب الاشتراكات اللي اسمها subjectId
 async function loadMySubscriptions() {
   userSubs = {};
   const q = query(collection(db, "subscriptions"), where("uid", "==", currentUserData.uid));
@@ -246,7 +245,7 @@ async function loadMySubscriptions() {
   snap.forEach(d => {
     const data = d.data();
     if (data.status === 'active') {
-      userSubs[data.subjectId] = data; 
+      userSubs[data.subjectId] = data; // هنا بنحفظ المادة
     }
   });
 }
@@ -279,20 +278,16 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // التعديل هنا: لو الحقل مش موجود (undefined) نعتبره مدفوع عشان نختبر
     if (node.access === 'paid' || node.access === undefined) {
       const subjectId = getSubjectIdFromNode(node.id);
-      if (subjectId) {
-        if (!userSubs[subjectId]) {
-          isLocked = true; 
-        }
-      } else {
-        isLocked = true; // لو مش لاقي مادة أم، نقفله للأمان
+      // لو مفيش اشتراك في المادة دي، اقفلها
+      if (!subjectId || !userSubs[subjectId]) {
+        isLocked = true; 
       }
     }
   }
 
-  const lockIcon = isLocked ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' : '';
+  const lockIcon = isLocked ? '<span class="lock-badge"><i class="fas fa-lock"></i></span>' : '';
   const cardClass = isLocked ? `card-item ${node.type || 'custom'} locked-card` : `card-item ${node.type || 'custom'}`;
 
   const titleHtml = `${icon}${node.title}`;
@@ -310,6 +305,7 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
+    // التحقق من القفل قبل الفتح
     if (node.access === 'paid' || node.access === undefined) {
       const subjectId = getSubjectIdFromNode(node.id);
       if (!subjectId || !userSubs[subjectId]) {
