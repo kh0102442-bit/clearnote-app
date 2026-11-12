@@ -84,15 +84,15 @@ export async function checkDeviceStatus(uid) {
   return { status: newStatus, fp };
 }
 
-// ===== SUBSCRIPTIONS =====
-export async function requestSubscription(uid, userName, itemId, itemTitle, notes) {
+// ===== SUBSCRIPTIONS (Now tied to SubjectId) =====
+export async function requestSubscription(uid, userName, subjectId, subjectName, notes) {
   const reqRef = doc(collection(db, 'subscription_requests'));
   await setDoc(reqRef, {
     id: reqRef.id, 
     uid, 
     userName, 
-    itemId, 
-    itemTitle, 
+    subjectId, // الاشتراك بقى للمادة
+    subjectName, 
     notes,
     status: 'pending', 
     createdAt: serverTimestamp()
@@ -100,14 +100,13 @@ export async function requestSubscription(uid, userName, itemId, itemTitle, note
   return reqRef.id;
 }
 
-export async function activateSubscription(uid, itemId, durationDays = 30) {
+export async function activateSubscription(uid, subjectId, durationDays = 30) {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + durationDays);
   
-  // بنحفظ الاشتراك برقم فريد (ID الطالب + ID المحتوى) عشان نعرف نتحقق منه بسهولة
-  await setDoc(doc(db, 'subscriptions', `${uid}_${itemId}`), {
+  await setDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`), {
     uid, 
-    itemId, 
+    subjectId, 
     status: 'active', 
     createdAt: serverTimestamp(), 
     expiresAt: expiresAt
