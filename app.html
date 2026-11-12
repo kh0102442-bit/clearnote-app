@@ -3,226 +3,365 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ClearNote — لوحة التحكم</title>
+<title>ClearNote — منصة المذاكرة</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  :root { --navy: #152741; --accent: #a8741a; --bg: #f4f6f8; --white: #ffffff; --text: #1a1a1a; --muted: #5b6472; --line: #e9ecef; --green: #1f6b45; --red: #b91c1c; }
-  html, body { max-width: 100vw; overflow-x: hidden; margin: 0; padding: 0; background: var(--bg); font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 30px; font-size: 16px; }
-  .admin-header { background: var(--navy); color: white; padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-  .admin-brand { font-family: Georgia, serif; font-size: 22px; font-weight: bold; }
-  .admin-brand span { color: var(--accent); }
-  .btn-add-main { background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: 10px; font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
-  .btn-logout { background: rgba(255,255,255,0.1); color: white; border: none; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
-  .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; padding: 0 15px; }
-  .nav-tab { flex: 1; background: var(--white); border: 2px solid var(--line); padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; color: var(--muted); cursor: pointer; text-align: center; transition: 0.2s; }
-  .nav-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
-  .admin-container { padding: 0 15px; width: 100%; box-sizing: border-box; }
-  .tree-group { margin-bottom: 15px; } .node-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); overflow: hidden; }
-  .node-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-  .node-title-area { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-  .node-icon { width: 45px; height: 45px; border-radius: 12px; background: #eef2fa; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .node-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-  .node-title { font-weight: 800; color: var(--navy); font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .node-type { font-size: 12px; color: var(--accent); font-weight: 700; }
-  .node-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .action-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid var(--line); background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 16px; cursor: pointer; }
-  .action-btn.manage { color: var(--green); border-color: #c9d6ee; background: #eef2fa; }
-  .action-btn.danger { color: var(--red); background: #fbeaea; border-color: #fbeaea; }
-  .children-area { display: none; padding: 12px; background: #fafbfc; border-top: 2px solid var(--line); }
-  .children-area.active { display: block; }
-  .student-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-  .student-info { display: flex; flex-direction: column; gap: 4px; }
-  .student-name { font-weight: bold; color: var(--navy); font-size: 17px; }
-  .student-email { font-size: 13px; color: var(--muted); }
-  .request-card { background: var(--white); border: 2px solid var(--line); border-radius: 16px; padding: 15px; margin-bottom: 12px; }
-  .request-title { font-weight: 800; color: var(--navy); font-size: 16px; margin-bottom: 5px; }
-  .request-sub { font-size: 14px; color: var(--accent); margin-bottom: 5px; }
-  .request-notes { font-size: 13px; color: var(--muted); margin-bottom: 15px; background: #fafbfc; padding: 8px; border-radius: 8px; }
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
-  .modal-overlay.active { display: flex; }
-  .modal-box { background: var(--white); border-radius: 24px 24px 0 0; width: 100%; padding: 25px 20px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
-  .modal-box h3 { margin: 0 0 12px; color: var(--navy); font-size: 20px; text-align: center; }
-  .form-group { margin-bottom: 18px; width: 100%; }
-  .form-group label { display: block; font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
-  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px; border: 2px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 16px; box-sizing: border-box; background: #fafbfc; }
-  .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
-  .btn-save { flex: 1; background: var(--navy); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; }
-  .btn-cancel { flex: 1; background: #e9ecef; color: var(--muted); border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; }
-  .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-  .module-item { background: #f8f9fa; border: 2px solid var(--line); border-radius: 14px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
-  .module-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
-  .module-title { font-size: 16px; font-weight: 800; color: var(--navy); }
-  .icon-explain { background: #27ae60; } .icon-video { background: #e74c3c; } .icon-questions { background: #3498db; } .icon-summary { background: #9b59b6; } .icon-terms { background: #e67e22; }
+  .device-lock-overlay { position: fixed; inset: 0; background: var(--navy); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white; }
+  .device-lock-overlay.active { display: flex; }
+  .lock-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--accent); margin-bottom: 20px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(168,116,26,.4); } 70% { box-shadow: 0 0 0 20px rgba(168,116,26,0); } 100% { box-shadow: 0 0 0 0 rgba(168,116,26,0); } }
+  .device-lock-overlay h2 { font-size: 22px; margin: 0 0 10px; }
+  .device-lock-overlay p { color: rgba(255,255,255,.7); font-size: 15px; line-height: 1.6; max-width: 300px; margin-bottom: 30px; }
+  .btn-logout-lock { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.3); padding: 12px 24px; border-radius: 10px; font-family: inherit; font-size: 16px; cursor: pointer; }
+
+  .sub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .sub-overlay.active { display: flex; }
+  .sub-box { background: var(--card); border-radius: var(--r-lg); padding: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--sh-lg); }
+  .sub-box h3 { margin: 0 0 10px; color: var(--navy); }
+  .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
+  
+  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; color: var(--red); }
+
+  .locked-card {
+    background-color: #fff5f5 !important;
+    border-color: #feb2b2 !important;
+  }
 </style>
 </head>
 <body>
 
-<div class="admin-header">
-  <div class="admin-brand">CLEAR<span>NOTE</span></div>
-  <div style="display:flex; gap:12px;">
-    <button class="btn-add-main" id="addBtn" onclick="openAddModal(null, 'root')"><i class="fas fa-plus"></i> سنة</button>
-    <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i></button>
+<div class="device-lock-overlay" id="deviceLock">
+  <div class="lock-icon"><i class="fas fa-shield-alt"></i></div>
+  <h2>جهاز جديد!</h2>
+  <p>لقد حاولت الدخول من جهاز جديد. تم إرسال طلب للإدارة للموافقة عليه.<br>حاول الدخول مرة أخرى لاحقاً.</p>
+  <button class="btn-logout-lock" onclick="doLogout()">تسجيل الخروج</button>
+</div>
+
+<nav class="top-navbar">
+  <div class="brand">CLEAR<span>NOTE</span></div>
+  <div class="spacer"></div>
+  <button class="icon-btn" onclick="showNotifications()"><i class="far fa-bell"></i></button>
+  <div class="top-avatar" id="topAvatar" onclick="switchView('profile')">U</div>
+</nav>
+
+<aside class="side-nav">
+  <button class="nav-item active" data-view="home" onclick="switchView('home')"><i class="fas fa-home"></i><span>الرئيسية</span></button>
+  <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
+  <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>الدردشات</span></button>
+  <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
+  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
+</aside>
+
+<main class="app-main" id="appMain">
+  <section class="view active" id="homeView">
+    <div class="content-wrap">
+      <div class="greeting-card">
+        <div class="greet-small" id="greetSmall">صباح الخير ☀️</div>
+        <h1 class="greet-name">أهلاً، <span id="greetName">...</span></h1>
+        <p class="greet-sub">جاهز تكمل مذاكرتك النهاردة؟</p>
+        <button class="greet-cta" onclick="switchView('content')"><i class="fas fa-play"></i> ابدأ المذاكرة</button>
+      </div>
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-chart-line"></i> إحصائياتك</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon pts"><i class="fas fa-star"></i></div><div class="stat-value" id="statPoints">0</div><div class="stat-label">نقطة</div></div>
+          <div class="stat-card"><div class="stat-icon days"><i class="fas fa-calendar"></i></div><div class="stat-value" id="statDays">0</div><div class="stat-label">يوم معانا</div></div>
+          <div class="stat-card"><div class="stat-icon lessons"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statLessons">0</div><div class="stat-label">درس مكتمل</div></div>
+          <div class="stat-card"><div class="stat-icon available"><i class="fas fa-book"></i></div><div class="stat-value" id="statAvailable">0</div><div class="stat-label">درس متاح</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-bolt"></i> إجراءات سريعة</h2>
+        <div class="quick-grid">
+          <div class="quick-card" onclick="switchView('content')"><div class="quick-icon" style="background:linear-gradient(135deg,#2980b9,#5dade2)"><i class="fas fa-book-open"></i></div><div class="quick-label">تصفح المحتوى</div></div>
+          <div class="quick-card" onclick="alert('قريباً')"><div class="quick-icon" style="background:linear-gradient(135deg,#d35400,#e67e22)"><i class="fas fa-magic"></i></div><div class="quick-label">طلب مخصوص</div></div>
+          <div class="quick-card" onclick="switchView('pomodoro')"><div class="quick-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)"><i class="fas fa-clock"></i></div><div class="quick-label">بومودورو</div></div>
+          <div class="quick-card" onclick="switchView('chats')"><div class="quick-icon" style="background:linear-gradient(135deg,#1f6b45,#27ae60)"><i class="fas fa-comments"></i></div><div class="quick-label">الدردشات</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title"><i class="fas fa-lightbulb"></i> مقترح ليك <span class="see-all" onclick="switchView('content')">عرض الكل ←</span></h2>
+        <div class="content-grid" id="suggestedGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="contentView">
+    <div class="content-wrap">
+      <div class="breadcrumbs" id="breadcrumbs"></div>
+      <div class="content-grid" id="cardsContainer"></div>
+    </div>
+  </section>
+
+  <section class="view" id="chatsView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3>الدردشات قريباً</h3></div></div></section>
+  <section class="view" id="pomodoroView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-clock"></i><h3>بومودورو قريباً</h3></div></div></section>
+
+  <section class="view" id="profileView">
+    <div class="content-wrap">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <h2 class="profile-name" id="profileName">...</h2>
+        <div class="profile-email" id="profileEmail">...</div>
+        <span class="profile-role-badge" id="profileRole">طالب</span>
+      </div>
+      <div class="profile-list">
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon" style="background:#fdfaf3;color:var(--accent)"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" data-view="home" onclick="switchView('home')"><i class="fas fa-home"></i><span>الرئيسية</span></button>
+  <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
+  <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>دردشات</span></button>
+  <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
+  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
+</nav>
+
+<div id="lessonPlayer">
+  <div class="player-header">
+    <h2 class="player-title" id="playerTitle">المحتوى</h2>
+    <button class="player-close" onclick="closePlayer()"><i class="fas fa-times"></i> خروج</button>
+  </div>
+  <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
+</div>
+
+<div class="sub-overlay" id="subModal">
+  <div class="sub-box">
+    <h3>تفعيل الاشتراك</h3>
+    <p id="subSubjectName"></p>
+    <p style="margin-bottom:10px; font-weight:bold; color:var(--navy)">سعر الاشتراك: 40 جنيه / شهر</p>
+    <p style="font-size:12px">قم بتحويل المبلغ على رقم المحفظة (01xxxxxxxxx) ثم أدخل رقم المحفظة التي حولت منها لتأكيد الطلب.</p>
+    <input type="text" id="subNotes" placeholder="رقم المحفظة أو ملاحظات...">
+    <div style="display:flex; gap:10px;">
+      <button class="btn-primary" style="margin-top:0" onclick="submitSubRequest()">إرسال الطلب</button>
+      <button class="btn-primary" style="margin-top:0; background:#e9ecef; color:var(--muted)" onclick="document.getElementById('subModal').classList.remove('active')">إلغاء</button>
+    </div>
   </div>
 </div>
 
-<div class="admin-nav">
-  <div class="nav-tab active" onclick="switchTab('tree')">المحتوى</div>
-  <div class="nav-tab" onclick="switchTab('students')">الطلاب</div>
-  <div class="nav-tab" onclick="switchTab('requests')">طلبات الاشتراك</div>
-</div>
-
-<div class="admin-container">
-  <div id="treeContainer"></div>
-  <div id="studentsContainer" style="display:none;"></div>
-  <div id="requestsContainer" style="display:none;"></div>
-</div>
-
-<div class="modal-overlay" id="deviceModal"><div class="modal-box"><h3>الأجهزة</h3><div id="deviceList" style="margin-top:20px;"></div><button class="btn-cancel" style="width:100%; margin-top:20px;" onclick="closeModal('deviceModal')">إغلاق</button></div></div>
-<div class="modal-overlay" id="nodeModal"><div class="modal-box"><h3 id="modalTitle">إضافة</h3><p id="modalDesc"></p><input type="hidden" id="nodeParentId"><input type="hidden" id="nodeType"><div class="form-group" id="titleGroup"><label>العنوان</label><input type="text" id="nodeTitle"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('nodeModal')">إلغاء</button><button class="btn-save" onclick="saveNode()">حفظ</button></div></div></div>
-<div class="modal-overlay" id="manageModal"><div class="modal-box"><h3 id="manageTitle">إدارة محتوى</h3><p>اختر الجزء:</p><div class="modules-grid"><div class="module-item" onclick="openCodeEditor('explain', 'الشرح')"><div class="module-icon icon-explain"><i class="fas fa-file-alt"></i></div><div class="module-title">الشرح</div></div><div class="module-item" onclick="openCodeEditor('video', 'فيديو')"><div class="module-icon icon-video"><i class="fas fa-video"></i></div><div class="module-title">فيديو</div></div><div class="module-item" onclick="openCodeEditor('questions', 'أسئلة')"><div class="module-icon icon-questions"><i class="fas fa-question-circle"></i></div><div class="module-title">أسئلة</div></div><div class="module-item" onclick="openCodeEditor('summary', 'ملخص')"><div class="module-icon icon-summary"><i class="fas fa-clipboard-list"></i></div><div class="module-title">ملخص</div></div><div class="module-item" onclick="openCodeEditor('terms', 'مصطلحات')"><div class="module-icon icon-terms"><i class="fas fa-book"></i></div><div class="module-title">مصطلحات</div></div></div><button class="btn-cancel" style="width:100%;" onclick="closeModal('manageModal')">إغلاق</button></div></div>
-<div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div class="form-group"><label>كود HTML</label><textarea id="moduleCode" rows="6" style="font-family: monospace;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
-
 <script type="module">
-import { db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription } from "./shared.js";
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
+import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+let currentUserData = null;
 let treeData = [];
-let allStudents = [];
-let allRequests = [];
+let userSubs = {}; 
 
-onAuth((user, userData) => { 
-  if (!user || !isAdmin(userData)) { goTo("index.html"); return; } 
-  loadAllData(); 
+onAuth(async (user, userData) => {
+  if (!user) { goTo("index.html"); return; }
+  currentUserData = userData;
+  
+  try {
+    const dev = await checkDeviceStatus(user.uid);
+    if (dev.status === 'pending') {
+      document.getElementById('deviceLock').classList.add('active');
+      document.getElementById('appMain').style.display = 'none';
+      return;
+    }
+  } catch(e) { console.error("Device error", e); }
+
+  document.getElementById('deviceLock').classList.remove('active');
+  document.getElementById('appMain').style.display = 'block';
+
+  const displayName = userData?.name || user.email.split('@')[0];
+  const initial = displayName.charAt(0).toUpperCase();
+  document.getElementById("topAvatar").textContent = initial;
+  document.getElementById("profileAvatar").textContent = initial;
+  document.getElementById("greetName").textContent = displayName;
+  document.getElementById("profileName").textContent = displayName;
+  document.getElementById("profileEmail").textContent = user.email;
+  
+  try { 
+    await loadTreeData(); 
+    await loadMySubscriptions(); 
+  } catch(e) { console.error("Data load error", e); }
+  
+  renderHome();
 });
 
-window.doLogout = async () => { await signOutUser(); goTo("index.html"); };
-
-window.switchTab = function(tab) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => { if(t.innerText.includes(tab === 'tree' ? 'المحتوى' : (tab === 'students' ? 'الطلاب' : 'طلبات'))) t.classList.add('active'); });
-  document.getElementById('treeContainer').style.display = tab === 'tree' ? 'block' : 'none';
-  document.getElementById('studentsContainer').style.display = tab === 'students' ? 'block' : 'none';
-  document.getElementById('requestsContainer').style.display = tab === 'requests' ? 'block' : 'none';
-  document.getElementById('addBtn').style.display = tab === 'tree' ? 'flex' : 'none';
+window.doLogout = async () => {
+  if (confirm('تسجيل الخروج؟')) { await signOutUser(); goTo("index.html"); }
 };
 
-async function loadAllData() {
-  const snapT = await getDocs(collection(db, "content_tree")); treeData = snapT.docs.map(d => ({ id: d.id, ...d.data() }));
-  const snapS = await getDocs(collection(db, "users")); allStudents = snapS.docs.map(d => ({ id: d.id, ...d.data() }));
-  const snapR = await getDocs(collection(db, "subscription_requests")); allRequests = snapR.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderTree(); renderStudents(); renderRequests();
+window.switchView = function(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(view + 'View').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (view === 'home') renderHome();
+  if (view === 'content') renderLevel('root');
+};
+
+function renderHome() {
+  const hour = new Date().getHours();
+  document.getElementById('greetSmall').textContent = hour < 12 ? 'صباح الخير ☀️' : (hour < 18 ? 'مساء النور 🌤️' : 'مساء الخير 🌙');
+  document.getElementById('statPoints').textContent = currentUserData?.totalPoints || 0;
+  document.getElementById('statDays').textContent = currentUserData?.createdAt ? Math.floor((Date.now() - new Date(currentUserData.createdAt).getTime()) / 86400000) + 1 : 1;
+  document.getElementById('statLessons').textContent = currentUserData?.completedLessons ? Object.keys(currentUserData.completedLessons).length : 0;
+  document.getElementById('statAvailable').textContent = treeData.filter(n => n.type.startsWith('module_')).length;
+  renderSuggested();
 }
 
-function renderRequests() {
-  const container = document.getElementById('requestsContainer');
-  const pending = allRequests.filter(r => r.status === 'pending').sort((a, b) => b.createdAt - a.createdAt);
+function renderSuggested() {
+  const grid = document.getElementById('suggestedGrid');
+  const modules = treeData.filter(n => n.type.startsWith('module_'));
+  if (modules.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>لا يوجد محتوى بعد</p></div>`; return; }
+  const shuffled = [...modules].sort(() => 0.5 - Math.random()).slice(0, 4);
   
-  if(pending.length === 0) { container.innerHTML = `<p style="text-align:center; padding:20px; color:var(--muted)">لا يوجد طلبات جديدة.</p>`; return; }
+  grid.innerHTML = shuffled.map(node => renderCard(node)).join('');
+  grid.querySelectorAll('[data-node]').forEach(el => {
+    el.onclick = () => handleNodeClick(treeData.find(n => n.id === el.dataset.node));
+  });
+}
+
+async function loadTreeData() {
+  const snap = await getDocs(collection(db, "content_tree"));
+  treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+function getSubjectIdFromNode(nodeId) {
+  let current = treeData.find(n => n.id === nodeId);
+  while(current) {
+    if(current.type === 'subject') return current.id;
+    current = treeData.find(n => n.id === current.parentId);
+  }
+  return null;
+}
+
+// هنجيب الاشتراكات اللي اسمها subjectId
+async function loadMySubscriptions() {
+  userSubs = {};
+  const q = query(collection(db, "subscriptions"), where("uid", "==", currentUserData.uid));
+  const snap = await getDocs(q);
   
-  container.innerHTML = pending.map(req => `
-    <div class="request-card">
-      <div class="request-title">${req.userName}</div>
-      <div class="request-sub">المحتوى المطلوب: ${req.itemTitle}</div>
-      <div class="request-notes">ملاحظات الطالب: ${req.notes}</div>
-      <div style="display:flex; gap:10px;">
-        <button class="btn-save" style="padding:10px; background:var(--green); font-size:16px;" onclick="approveSub('${req.id}', '${req.uid}', '${req.itemId}')">موافقة وتفعيل</button>
-        <button class="btn-cancel" style="padding:10px; font-size:16px;" onclick="rejectSub('${req.id}')">رفض</button>
-      </div>
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.status === 'active') {
+      userSubs[data.subjectId] = data; // هنا بنحفظ المادة
+    }
+  });
+}
+
+function renderLevel(parentId) {
+  const container = document.getElementById('cardsContainer');
+  container.innerHTML = '';
+  updateBreadcrumbs(parentId);
+  const nodes = treeData.filter(n => n.parentId === parentId);
+  if (nodes.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>فارغ</h3></div>`; return; }
+  
+  container.innerHTML = nodes.map(node => renderCard(node)).join('');
+  container.querySelectorAll('[data-node]').forEach(el => {
+    el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
+  });
+}
+
+function renderCard(node) {
+  let typeLabel = 'تبويب';
+  let icon = '';
+  let isLocked = false;
+
+  if (node.type === 'year') typeLabel = 'سنة دراسية';
+  else if (node.type === 'program') typeLabel = 'برنامج';
+  else if (node.type === 'subject') typeLabel = 'مادة';
+  else if (node.type.startsWith('module_')) {
+    if (node.type === 'module_explain') { typeLabel = 'الشرح'; icon = '<i class="fas fa-file-alt" style="color:#27ae60;margin-left:6px"></i>'; }
+    else if (node.type === 'module_video') { typeLabel = 'فيديو'; icon = '<i class="fas fa-video" style="color:#e74c3c;margin-left:6px"></i>'; }
+    else if (node.type === 'module_questions') { typeLabel = 'أسئلة'; icon = '<i class="fas fa-question-circle" style="color:#2980b9;margin-left:6px"></i>'; }
+    else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
+    else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
+    
+    if (node.access === 'paid' || node.access === undefined) {
+      const subjectId = getSubjectIdFromNode(node.id);
+      // لو مفيش اشتراك في المادة دي، اقفلها
+      if (!subjectId || !userSubs[subjectId]) {
+        isLocked = true; 
+      }
+    }
+  }
+
+  const lockIcon = isLocked ? '<span class="lock-badge"><i class="fas fa-lock"></i></span>' : '';
+  const cardClass = isLocked ? `card-item ${node.type || 'custom'} locked-card` : `card-item ${node.type || 'custom'}`;
+
+  const titleHtml = `${icon}${node.title}`;
+  const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
+
+  return `
+    <div class="${cardClass}" data-node="${node.id}" style="position:relative;">
+      ${lockIcon}
+      <div class="card-type">${typeLabel}</div>
+      <h3 class="card-title">${titleHtml}</h3>
+      ${descHtml}
     </div>
-  `).join('');
+  `;
 }
 
-window.approveSub = async function(reqId, uid, itemId) {
+function handleNodeClick(node) {
+  if (node.type === 'content' || node.type.startsWith('module_')) {
+    // التحقق من القفل قبل الفتح
+    if (node.access === 'paid' || node.access === undefined) {
+      const subjectId = getSubjectIdFromNode(node.id);
+      if (!subjectId || !userSubs[subjectId]) {
+        const subject = subjectId ? treeData.find(n => n.id === subjectId) : null;
+        document.getElementById('subSubjectName').textContent = `المادة المطلوبة: ${subject?.title || 'غير معروفة'}`;
+        document.getElementById('subModal').dataset.subjectId = subjectId || 'none';
+        document.getElementById('subNotes').value = '';
+        document.getElementById('subModal').classList.add('active');
+        return;
+      }
+    }
+    openPlayer(node);
+  } else {
+    renderLevel(node.id);
+  }
+}
+
+window.submitSubRequest = async function() {
+  const subjectId = document.getElementById('subModal').dataset.subjectId;
+  const notes = document.getElementById('subNotes').value.trim();
+  if (!notes) { showToast('يرجى إدخال رقم المحفظة أو أي ملاحظات', 'error'); return; }
+  
+  const btn = document.querySelector('#subModal .btn-primary');
+  btn.disabled = true; btn.textContent = 'جاري الإرسال...';
+
+  const subject = treeData.find(n => n.id === subjectId);
   try {
-    await activateSubscription(uid, itemId); 
-    await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'approved' });
-    showToast('تم تفعيل المحتوى بنجاح');
-    loadAllData();
-  } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
+    await requestSubscription(currentUserData.uid, currentUserData.name, subjectId, subject?.title || 'مادة', notes);
+    showToast('تم إرسال الطلب بنجاح. سيتم تفعيله بعد المراجعة.');
+    document.getElementById('subModal').classList.remove('active');
+  } catch(e) { showToast('حدث خطأ', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'إرسال الطلب'; }
 };
 
-window.rejectSub = async function(reqId) {
-  try {
-    await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'rejected' });
-    showToast('تم رفض الطلب');
-    loadAllData();
-  } catch(e) { showToast('خطأ', 'error'); }
-};
-
-function renderStudents() {
-  const container = document.getElementById('studentsContainer');
-  if(allStudents.length === 0) { container.innerHTML = `<p style="text-align:center; padding:20px;">لا يوجد طلاب.</p>`; return; }
-  container.innerHTML = allStudents.map(student => `
-    <div class="student-card">
-      <div class="student-info">
-        <div class="student-name">${student.name || 'بدون اسم'}</div>
-        <div class="student-email">${student.email || ''}</div>
-      </div>
-      <button class="action-btn manage" onclick="openDevices('${student.id}', '${student.name}')"><i class="fas fa-mobile-alt"></i></button>
-    </div>
-  `).join('');
+function updateBreadcrumbs(parentId) {
+  const bc = document.getElementById('breadcrumbs'); bc.innerHTML = '';
+  const homeSpan = document.createElement('span'); homeSpan.className = 'crumb'; homeSpan.innerHTML = '<i class="fas fa-home"></i> الرئيسية'; homeSpan.onclick = () => renderLevel('root'); bc.appendChild(homeSpan);
+  if (parentId === 'root') return;
+  let path = []; let current = treeData.find(n => n.id === parentId);
+  while (current) { path.unshift(current); current = treeData.find(n => n.id === current.parentId); }
+  path.forEach(p => {
+    const arrow = document.createElement('i'); arrow.className = 'fas fa-chevron-left'; bc.appendChild(arrow);
+    const crumb = document.createElement('span'); crumb.className = 'crumb'; crumb.textContent = p.title; crumb.onclick = () => renderLevel(p.id); bc.appendChild(crumb);
+  });
 }
 
-window.openDevices = async function(uid, name) {
-  document.getElementById('deviceList').innerHTML = '<p>جاري التحميل...</p>';
-  document.getElementById('deviceModal').classList.add('active');
-  const snap = await getDocs(collection(db, 'devices', uid, 'list'));
-  const devices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  if(devices.length === 0) { document.getElementById('deviceList').innerHTML = '<p style="text-align:center;">لا يوجد أجهزة.</p>'; return; }
-  
-  document.getElementById('deviceList').innerHTML = devices.map(dev => `
-    <div style="background:#fafbfc; border:1px solid var(--line); padding:12px; border-radius:10px; margin-bottom:10px;">
-      <div style="font-size:12px; color:var(--muted); direction:ltr; text-align:left;">${dev.userAgent}</div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-        <span style="font-weight:bold; font-size:13px; color:${dev.status === 'approved' ? 'green' : 'red'}">${dev.status === 'approved' ? 'متوافق' : 'قيد الانتظار'}</span>
-        <div style="display:flex; gap:5px;">
-          ${dev.status === 'pending' ? `<button class="action-btn" style="background:var(--green); color:white; border:none;" onclick="updateDevice('${uid}', '${dev.id}', 'approved')"><i class="fas fa-check"></i></button>` : ''}
-          <button class="action-btn danger" onclick="deleteDevice('${uid}', '${dev.id}')"><i class="fas fa-trash"></i></button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-};
-
-window.updateDevice = async function(uid, devId, status) {
-  await updateDoc(doc(db, 'devices', uid, 'list', devId), { status: status });
-  showToast('تم التحديث'); openDevices(uid, '');
-};
-
-window.deleteDevice = async function(uid, devId) {
-  if(!confirm('حذف هذا الجهاز؟')) return;
-  await deleteDoc(doc(db, 'devices', uid, 'list', devId));
-  showToast('تم الحذف'); openDevices(uid, '');
-};
-
-function renderTree() {
-  const container = document.getElementById("treeContainer");
-  const rootNodes = treeData.filter(n => n.parentId === "root");
-  if (rootNodes.length === 0) { container.innerHTML = `<p style="text-align:center;">لا يوجد محتوى.</p>`; return; }
-  container.innerHTML = buildHTML(rootNodes);
+function openPlayer(node) {
+  document.getElementById('playerTitle').textContent = node.title;
+  document.getElementById('lessonPlayer').classList.add('active');
+  const iframe = document.getElementById('playerFrame');
+  const htmlContent = node.htmlContent || '<div style="text-align:center;padding:50px;"><h2>لا يوجد محتوى</h2></div>';
+  iframe.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{font-family:'Cairo',sans-serif;padding:16px;line-height:1.8}</style></head><body>${htmlContent}</body></html>`;
 }
 
-function buildHTML(nodes) {
-  return nodes.map(node => {
-    const children = treeData.filter(n => n.parentId === node.id);
-    const isModule = node.type.startsWith('module_');
-    let actionsHtml = isModule 
-      ? `<button class="action-btn" onclick="editModule('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>` 
-      : `<button class="action-btn manage" onclick="openManage('${node.id}', '${node.title}')"><i class="fas fa-cog"></i></button><button class="action-btn" onclick="openAddModal('${node.id}', '${node.type}')"><i class="fas fa-plus"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`;
-    return `<div class="tree-group"><div class="node-card"><div class="node-header"><div class="node-title-area" onclick="toggleChildren('${node.id}')"><div class="node-icon"><i class="fas ${isModule ? 'fa-file' : 'fa-folder'}"></i></div><div class="node-text"><div class="node-title">${node.title}</div><div class="node-type">${node.type}</div></div></div><div class="node-actions">${actionsHtml}</div></div>${!isModule ? `<div class="children-area" id="children-${node.id}">${children.length > 0 ? buildHTML(children) : 'لا يوجد فروع'}</div>` : ''}</div></div>`;
-  }).join('');
-}
-
-window.toggleChildren = function(id) { const el = document.getElementById(`children-${id}`); if (el) el.classList.toggle('active'); };
-window.openAddModal = function(parentId, parentType) { let newType = parentType === 'root' ? 'year' : parentType === 'year' ? 'program' : parentType === 'program' ? 'subject' : 'custom'; document.getElementById("nodeParentId").value = parentId || "root"; document.getElementById("nodeType").value = newType; document.getElementById("nodeTitle").value = ""; document.getElementById("nodeModal").classList.add("active"); };
-window.saveNode = async function() { const parentId = document.getElementById("nodeParentId").value; const type = document.getElementById("nodeType").value; const title = document.getElementById("nodeTitle").value.trim(); if (!title) return; await addDoc(collection(db, "content_tree"), { parentId, type, title, createdAt: serverTimestamp() }); closeModal('nodeModal'); loadAllData(); };
-window.openManage = function(nodeId, nodeTitle) { document.getElementById("manageTitle").textContent = `إدارة: ${nodeTitle}`; document.getElementById("manageModal").dataset.currentNodeId = nodeId; document.getElementById("manageModal").classList.add("active"); };
-window.openCodeEditor = function(moduleKey, moduleTitle) { const nodeId = document.getElementById("manageModal").dataset.currentNodeId; document.getElementById("codeTitle").textContent = `إعداد ${moduleTitle}`; document.getElementById("currentNodeId").value = nodeId; document.getElementById("currentModuleKey").value = moduleKey; const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_' + moduleKey); document.getElementById("moduleTitleInput").value = existing ? existing.title : moduleTitle; document.getElementById("moduleAccessInput").value = existing ? (existing.access || 'public') : 'public'; document.getElementById("moduleCode").value = existing ? (existing.htmlContent || '') : ''; closeModal('manageModal'); document.getElementById("codeModal").classList.add("active"); };
-window.saveModuleCode = async function() { const nodeId = document.getElementById("currentNodeId").value; const moduleKey = document.getElementById("currentModuleKey").value; const title = document.getElementById("moduleTitleInput").value.trim(); const access = document.getElementById("moduleAccessInput").value; const code = document.getElementById("moduleCode").value; const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_' + moduleKey); if (existing) { await updateDoc(doc(db, "content_tree", existing.id), { title, access, htmlContent: code }); } else { await addDoc(collection(db, "content_tree"), { parentId: nodeId, type: 'module_' + moduleKey, title, access, htmlContent: code, createdAt: serverTimestamp() }); } closeModal('codeModal'); loadAllData(); };
-window.editModule = async function(nodeId) { const node = treeData.find(n => n.id === nodeId); if (!node) return; document.getElementById("currentNodeId").value = node.parentId; document.getElementById("currentModuleKey").value = node.type.replace('module_', ''); document.getElementById("moduleTitleInput").value = node.title; document.getElementById("moduleAccessInput").value = node.access || 'public'; document.getElementById("moduleCode").value = node.htmlContent || ''; document.getElementById("codeModal").classList.add("active"); };
-window.deleteNode = async function(id) { if (treeData.some(n => n.parentId === id)) return; if (!confirm("حذف؟")) return; await deleteDoc(doc(db, "content_tree", id)); loadAllData(); };
-window.closeModal = function(id) { document.getElementById(id).classList.remove("active"); };
+window.closePlayer = function() { document.getElementById('lessonPlayer').classList.remove('active'); document.getElementById('playerFrame').srcdoc = ''; };
+window.showNotifications = function() { alert('قريباً'); };
 </script>
 </body>
 </html>
