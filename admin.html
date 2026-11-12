@@ -84,9 +84,8 @@
 <div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div class="form-group"><label>كود HTML</label><textarea id="moduleCode" rows="6" style="font-family: monospace;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
 
 <script type="module">
-import { db, onAuth, isAdmin, goTo, showToast, signOutUser } from "./shared.js";
-// استوردنا دوال الفايربيز مباشرة هنا عشان نضمن إنها شغالة
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription } from "./shared.js";
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let treeData = [];
 let allStudents = [];
@@ -127,7 +126,6 @@ function renderRequests() {
       <div class="request-sub">المادة المطلوبة: ${req.subjectName}</div>
       <div class="request-notes">ملاحظات الطالب: ${req.notes}</div>
       <div style="display:flex; gap:10px;">
-        <!-- بنبعت الـ uid والـ subjectId -->
         <button class="btn-save" style="padding:10px; background:var(--green); font-size:16px;" onclick="approveSub('${req.id}', '${req.uid}', '${req.subjectId}')">موافقة وتفعيل</button>
         <button class="btn-cancel" style="padding:10px; font-size:16px;" onclick="rejectSub('${req.id}')">رفض</button>
       </div>
@@ -137,22 +135,9 @@ function renderRequests() {
 
 window.approveSub = async function(reqId, uid, subjectId) {
   try {
-    // هنا بنعمل الحفظ مباشرة عشان نضمن إنه شغال 100%
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30); // 30 يوم
-    
-    // حفظ اشتراك المادة
-    await setDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`), {
-      uid: uid, 
-      subjectId: subjectId, 
-      status: 'active', 
-      createdAt: serverTimestamp(), 
-      expiresAt: expiresAt
-    });
-
-    // تغيير حالة الطلب
+    // بنفعل الاشتراك للمادة
+    await activateSubscription(uid, subjectId); 
     await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'approved' });
-    
     showToast('تم تفعيل اشتراك المادة بنجاح');
     loadAllData();
   } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
