@@ -15,7 +15,6 @@
   .device-lock-overlay p { color: rgba(255,255,255,.7); font-size: 15px; line-height: 1.6; max-width: 300px; margin-bottom: 30px; }
   .btn-logout-lock { background: rgba(255,255,255,.1); color: white; border: 1px solid rgba(255,255,255,.3); padding: 12px 24px; border-radius: 10px; font-family: inherit; font-size: 16px; cursor: pointer; }
 
-  /* مودال الاشتراك */
   .sub-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
   .sub-overlay.active { display: flex; }
   .sub-box { background: var(--card); border-radius: var(--r-lg); padding: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--sh-lg); }
@@ -23,13 +22,21 @@
   .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
   .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
   
-  /* شكل القفل */
-  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; color: var(--red); }
+  /* أشكال الأقفال */
+  .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
+  .lock-badge.locked { color: var(--red); }
+  .lock-badge.unlocked { color: var(--green); }
 
-  /* التلوين الأحمر للمحتوى */
+  /* تلوين الكروت */
   .card-item.module_explain, .card-item.module_video, .card-item.module_questions, .card-item.module_summary, .card-item.module_terms {
     background-color: #fff5f5 !important;
     border-color: #feb2b2 !important;
+  }
+  
+  /* لو الكارت متفتح، نرجع لونه طبيعي */
+  .card-item.unlocked-card {
+    background-color: var(--card) !important;
+    border-color: var(--line) !important;
   }
 </style>
 </head>
@@ -136,7 +143,6 @@
   <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals"></iframe>
 </div>
 
-<!-- مودال الاشتراك -->
 <div class="sub-overlay" id="subModal">
   <div class="sub-box">
     <h3>تفعيل الاشتراك</h3>
@@ -153,10 +159,11 @@
 
 <script type="module">
 import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUserData = null;
 let treeData = [];
+let userSubs = {}; // هنحفظ فيه المحتويات المفتوحة للطالب
 
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
@@ -182,7 +189,10 @@ onAuth(async (user, userData) => {
   document.getElementById("profileName").textContent = displayName;
   document.getElementById("profileEmail").textContent = user.email;
   
-  try { await loadTreeData(); } catch(e) { console.error("Tree error", e); }
+  try { 
+    await loadTreeData(); 
+    await loadMySubscriptions(); // بنجيب اشتراكات الطالب
+  } catch(e) { console.error("Data load error", e); }
   
   renderHome();
 });
@@ -227,6 +237,21 @@ async function loadTreeData() {
   treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
+// بنجيب الاشتراكات اللي الطالب دفعها
+async function loadMySubscriptions() {
+  userSubs = {};
+  const q = query(collection(db, "subscriptions"), where("uid", "==", currentUserData.uid));
+  const snap = await getDocs(q);
+  
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.status === 'active') {
+      // بنحفظ الـ itemId عشان نعرف نفتح المحتوى ده
+      userSubs[data.itemId] = data; 
+    }
+  });
+}
+
 function renderLevel(parentId) {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '';
@@ -240,32 +265,42 @@ function renderLevel(parentId) {
   });
 }
 
-// رسم الكارت: أي حاجة بتتضاف هنا هتتقفل وتتلون
 function renderCard(node) {
   let typeLabel = 'تبويب';
   let icon = '';
-  let isModule = false;
+  let isLocked = false;
+  let isUnlocked = false;
 
   if (node.type === 'year') typeLabel = 'سنة دراسية';
   else if (node.type === 'program') typeLabel = 'برنامج';
   else if (node.type === 'subject') typeLabel = 'مادة';
   else if (node.type.startsWith('module_')) {
-    isModule = true;
     if (node.type === 'module_explain') { typeLabel = 'الشرح'; icon = '<i class="fas fa-file-alt" style="color:#27ae60;margin-left:6px"></i>'; }
     else if (node.type === 'module_video') { typeLabel = 'فيديو'; icon = '<i class="fas fa-video" style="color:#e74c3c;margin-left:6px"></i>'; }
     else if (node.type === 'module_questions') { typeLabel = 'أسئلة'; icon = '<i class="fas fa-question-circle" style="color:#2980b9;margin-left:6px"></i>'; }
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
+    
+    // هل الطالب ده دفع واشترك في المحتوى ده؟
+    if (userSubs[node.id]) {
+      isUnlocked = true; // مفتوح
+    } else {
+      isLocked = true; // مقفول
+    }
   }
 
-  // لو العنصر ده محتوى (فيه كود HTML)، هنحط عليه القفل
-  const lockIcon = isModule ? '<span class="lock-badge"><i class="fas fa-lock"></i></span>' : '';
+  const lockIcon = isLocked 
+    ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' 
+    : (isUnlocked ? '<span class="lock-badge unlocked"><i class="fas fa-lock-open"></i></span>' : '');
+
+  // لو متفتح، هنشيل كلاس التلوين الأحمر
+  const cardClass = isUnlocked ? `card-item ${node.type || 'custom'} unlocked-card` : `card-item ${node.type || 'custom'}`;
 
   const titleHtml = `${icon}${node.title}`;
   const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
 
   return `
-    <div class="card-item ${node.type || 'custom'}" data-node="${node.id}" style="position:relative;">
+    <div class="${cardClass}" data-node="${node.id}" style="position:relative;">
       ${lockIcon}
       <div class="card-type">${typeLabel}</div>
       <h3 class="card-title">${titleHtml}</h3>
@@ -276,13 +311,16 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    // نفتح المودال على طول من غير ما نبحث عن المادة
-    document.getElementById('subSubjectName').textContent = `المحتوى المطلوب: ${node.title}`;
-    
-    // بناخد ID العنصر كـ SubjectId مؤقتاً عشان لما نوافق من لوحة التحكم نعرف نفتحه
-    document.getElementById('subModal').dataset.subjectId = node.id;
-    document.getElementById('subNotes').value = '';
-    document.getElementById('subModal').classList.add('active');
+    if (userSubs[node.id]) {
+      // الطالب مشترك، افتح المحتوى فوراً
+      openPlayer(node);
+    } else {
+      // الطالب مش مشترك، افتح مودال الدفع
+      document.getElementById('subSubjectName').textContent = `المحتوى المطلوب: ${node.title}`;
+      document.getElementById('subModal').dataset.subjectId = node.id;
+      document.getElementById('subNotes').value = '';
+      document.getElementById('subModal').classList.add('active');
+    }
   } else {
     renderLevel(node.id);
   }
@@ -296,9 +334,11 @@ window.submitSubRequest = async function() {
   const btn = document.querySelector('#subModal .btn-primary');
   btn.disabled = true; btn.textContent = 'جاري الإرسال...';
 
+  // بنبعت الـ itemId عشان ده اللي هنوافق عليه
+  const itemTitle = treeData.find(n => n.id === itemId)?.title || 'محتوى';
+  
   try {
-    // هنبعت الطلب بالـ ID بتاع العنصر نفسه
-    await requestSubscription(currentUserData.uid, currentUserData.name, itemId, 'طلب فتح محتوى', notes);
+    await requestSubscription(currentUserData.uid, currentUserData.name, itemId, itemTitle, notes);
     showToast('تم إرسال الطلب بنجاح. سيتم تفعيله بعد المراجعة.');
     document.getElementById('subModal').classList.remove('active');
   } catch(e) { showToast('حدث خطأ', 'error'); }
