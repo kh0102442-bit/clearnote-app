@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyCHspBBXBG8DmLPOfKcqE8H8SmAjw5HGpQ",
@@ -84,14 +84,14 @@ export async function checkDeviceStatus(uid) {
   return { status: newStatus, fp };
 }
 
-// ===== SUBSCRIPTIONS (Now tied to SubjectId) =====
+// ===== SUBSCRIPTIONS =====
 export async function requestSubscription(uid, userName, subjectId, subjectName, notes) {
   const reqRef = doc(collection(db, 'subscription_requests'));
   await setDoc(reqRef, {
     id: reqRef.id, 
     uid, 
     userName, 
-    subjectId, // الاشتراك بقى للمادة
+    subjectId, // تأكدنا إن ده بياخد ID المادة
     subjectName, 
     notes,
     status: 'pending', 
@@ -104,6 +104,7 @@ export async function activateSubscription(uid, subjectId, durationDays = 30) {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + durationDays);
   
+  // حفظ الاشتراك باسم المادة
   await setDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`), {
     uid, 
     subjectId, 
