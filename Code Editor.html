@@ -1,0 +1,3099 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر الأكواد الاحترافي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 0;
+            background: #0f172a;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: #1e293b;
+            border-bottom: 2px solid #334155;
+            flex-shrink: 0;
+            height: 60px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            color: #3b82f6;
+            font-size: 24px;
+        }
+        
+        .logo-text h1 {
+            font-size: 18px;
+            background: linear-gradient(to right, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+        
+        .logo-text p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .language-selector {
+            display: flex;
+            background: #334155;
+            border-radius: 6px;
+            padding: 3px;
+            border: 1px solid #475569;
+        }
+        
+        .lang-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn:hover {
+            background: #475569;
+        }
+        
+        .lang-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .control-btn {
+            padding: 6px 12px;
+            background: #334155;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        
+        .control-btn:hover {
+            background: #475569;
+            border-color: #60a5fa;
+        }
+        
+        .run-btn {
+            padding: 7px 16px;
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        
+        .run-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            background: #0f172a;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1e293b;
+            border-left: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .sidebar.collapsed {
+            width: 0;
+            border-left: none;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            left: 10px;
+            top: 70px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            font-size: 12px;
+        }
+        
+        .sidebar-section {
+            padding: 16px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .sidebar-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: #60a5fa;
+            font-size: 14px;
+        }
+        
+        .sidebar-title i {
+            font-size: 14px;
+        }
+        
+        .file-list {
+            list-style: none;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        
+        .file-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .file-list::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        .file-list::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            border: 1px solid transparent;
+        }
+        
+        .file-item:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .file-item.active {
+            background: rgba(37, 99, 235, 0.15);
+            border-left: 3px solid #3b82f6;
+            border-color: rgba(37, 99, 235, 0.3);
+        }
+        
+        .file-icon {
+            color: #60a5fa;
+            margin-left: 6px;
+            font-size: 14px;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .file-item:hover .file-actions {
+            opacity: 1;
+        }
+        
+        .file-action-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 2px;
+            font-size: 11px;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .file-action-btn:hover {
+            background: #475569;
+            color: white;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #0f172a;
+            border-radius: 4px;
+            padding: 4px 8px;
+            border: 1px solid #475569;
+            margin-bottom: 8px;
+        }
+        
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 4px;
+            width: 100%;
+            outline: none;
+            font-size: 13px;
+        }
+        
+        .search-box input::placeholder {
+            color: #64748b;
+        }
+        
+        .search-box button {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 13px;
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .search-controls button {
+            flex: 1;
+            padding: 5px;
+            font-size: 11px;
+        }
+        
+        .error-list {
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .error-item {
+            padding: 6px;
+            margin-bottom: 4px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #ef4444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .error-item:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .error-item .error-message {
+            color: #fca5a5;
+        }
+        
+        .error-item .error-line {
+            color: #60a5fa;
+            font-family: monospace;
+            margin-top: 2px;
+            font-size: 11px;
+        }
+        
+        /* Editor Container */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+            background: #0f172a;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            height: 48px;
+            flex-shrink: 0;
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .tool-btn {
+            padding: 5px 10px;
+            background: #334155;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .tool-btn:hover {
+            background: #475569;
+            border-color: #60a5fa;
+        }
+        
+        .editor-wrapper {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            background: #0f172a;
+        }
+        
+        #code-editor {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+            border: none;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            tab-size: 4;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+        }
+        
+        #code-editor:focus {
+            outline: none;
+        }
+        
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            background: #1e293b;
+            color: #64748b;
+            text-align: right;
+            padding: 20px 10px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow: hidden;
+            border-right: 1px solid #334155;
+            user-select: none;
+        }
+        
+        /* Output Container */
+        .output-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid #334155;
+            min-width: 0;
+            background: #0f172a;
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            height: 48px;
+            flex-shrink: 0;
+        }
+        
+        .output-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .output-title i {
+            color: #60a5fa;
+        }
+        
+        .output-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .output-btn {
+            padding: 5px 10px;
+            background: #334155;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .output-btn:hover {
+            background: #475569;
+            border-color: #60a5fa;
+        }
+        
+        #output {
+            flex: 1;
+            padding: 20px;
+            background: #0f172a;
+            overflow: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #e2e8f0;
+        }
+        
+        #output iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+        
+        .python-output {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px solid #334155;
+        }
+        
+        .python-output .output-line {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .python-output .output-line:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        /* Footer */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            background: #1e293b;
+            border-top: 1px solid #334155;
+            font-size: 12px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+        }
+        
+        .status-item i {
+            color: #60a5fa;
+            font-size: 13px;
+        }
+        
+        .help-shortcuts {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .shortcut {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .key {
+            background: #334155;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 11px;
+            border: 1px solid #475569;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: #1e293b;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #334155;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-modal:hover {
+            background: #334155;
+        }
+        
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        
+        .setting-title {
+            margin-bottom: 10px;
+            color: #60a5fa;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        
+        .theme-btn {
+            padding: 10px;
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .theme-btn:hover {
+            background: #475569;
+            border-color: #60a5fa;
+        }
+        
+        .theme-btn.active {
+            border-color: #3b82f6;
+            background: rgba(37, 99, 235, 0.2);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 22px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569;
+            transition: .3s;
+            border-radius: 22px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #3b82f6;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        select {
+            background: #334155;
+            border: 1px solid #475569;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            min-width: 150px;
+            font-size: 13px;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 240px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+                border-left: none;
+                border-top: 1px solid #334155;
+            }
+            
+            .sidebar.collapsed {
+                height: 0;
+                width: 100%;
+            }
+            
+            .output-container {
+                height: 250px;
+            }
+            
+            .sidebar-toggle {
+                top: auto;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+                height: auto;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .editor-toolbar {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+                height: auto;
+                padding: 10px;
+            }
+            
+            .editor-actions {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+                height: auto;
+            }
+            
+            .help-shortcuts {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        /* Syntax Highlighting */
+        .keyword {
+            color: #60a5fa;
+        }
+        
+        .string {
+            color: #10b981;
+        }
+        
+        .comment {
+            color: #64748b;
+        }
+        
+        .function {
+            color: #f59e0b;
+        }
+        
+        .number {
+            color: #8b5cf6;
+        }
+        
+        .tag {
+            color: #ef4444;
+        }
+        
+        .attribute {
+            color: #f59e0b;
+        }
+        
+        .value {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>محرر الأكواد الاحترافي</h1>
+                    <p>بيئة تطوير متكاملة - HTML / Python</p>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="language-selector">
+                    <button class="lang-btn active" id="html-btn">
+                        <i class="fab fa-html5"></i> HTML
+                    </button>
+                    <button class="lang-btn" id="python-btn">
+                        <i class="fab fa-python"></i> Python
+                    </button>
+                </div>
+                
+                <button class="control-btn" id="open-file-btn">
+                    <i class="fas fa-folder-open"></i> فتح
+                </button>
+                
+                <button class="control-btn" id="save-file-btn">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+                
+                <button class="control-btn" id="settings-btn">
+                    <i class="fas fa-cog"></i> إعدادات
+                </button>
+                
+                <button class="run-btn" id="run-button">
+                    <i class="fas fa-play"></i> تشغيل
+                </button>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="sidebar" id="sidebar">
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-folder"></i>
+                        <span>الملفات</span>
+                    </div>
+                    
+                    <ul class="file-list" id="file-list">
+                        <li class="file-item active" data-file="index.html">
+                            <div>
+                                <i class="fab fa-html5 file-icon"></i>
+                                <span>index.html</span>
+                            </div>
+                            <div class="file-actions">
+                                <button class="file-action-btn rename-file">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="file-action-btn delete-file">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="file-item" data-file="script.py">
+                            <div>
+                                <i class="fab fa-python file-icon"></i>
+                                <span>script.py</span>
+                            </div>
+                            <div class="file-actions">
+                                <button class="file-action-btn rename-file">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="file-action-btn delete-file">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="file-item" data-file="style.css">
+                            <div>
+                                <i class="fab fa-css3-alt file-icon"></i>
+                                <span>style.css</span>
+                            </div>
+                            <div class="file-actions">
+                                <button class="file-action-btn rename-file">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="file-action-btn delete-file">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <button class="tool-btn" id="new-file-btn" style="width: 100%; margin-top: 8px; font-size: 12px;">
+                        <i class="fas fa-plus"></i> ملف جديد
+                    </button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-search"></i>
+                        <span>بحث واستبدال</span>
+                    </div>
+                    
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="بحث في الكود...">
+                        <button id="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="search-box">
+                        <input type="text" id="replace-input" placeholder="استبدال...">
+                        <button id="replace-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="search-controls">
+                        <button class="tool-btn" id="prev-match-btn">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <button class="tool-btn" id="next-match-btn">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <button class="tool-btn" id="replace-all-btn">
+                            استبدال الكل
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">
+                        <i class="fas fa-bug"></i>
+                        <span>فحص الأخطاء</span>
+                    </div>
+                    
+                    <div id="error-list" class="error-list">
+                        <p style="color: #94a3b8; font-size: 12px; text-align: center; padding: 10px;">
+                            لا توجد أخطاء
+                        </p>
+                    </div>
+                    
+                    <button class="tool-btn" id="check-errors-btn" style="width: 100%; margin-top: 8px; font-size: 12px;">
+                        <i class="fas fa-check-circle"></i> فحص الكود
+                    </button>
+                </div>
+            </div>
+            
+            <div class="editor-container">
+                <div class="editor-toolbar">
+                    <div class="editor-actions">
+                        <button class="tool-btn" id="fold-all-btn" title="طي الكل">
+                            <i class="fas fa-compress-alt"></i> طي الكل
+                        </button>
+                        <button class="tool-btn" id="unfold-all-btn" title="فتح الكل">
+                            <i class="fas fa-expand-alt"></i> فتح الكل
+                        </button>
+                        <button class="tool-btn" id="format-code-btn" title="تنسيق الكود">
+                            <i class="fas fa-align-left"></i> تنسيق
+                        </button>
+                        <button class="tool-btn" id="comment-btn" title="تعليق/إلغاء تعليق">
+                            <i class="fas fa-comment"></i> تعليق
+                        </button>
+                    </div>
+                    
+                    <div class="search-box">
+                        <input type="text" id="quick-search" placeholder="بحث سريع...">
+                        <button id="quick-search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="editor-wrapper">
+                    <div class="line-numbers" id="line-numbers">1</div>
+                    <textarea id="code-editor" spellcheck="false" placeholder="اكتب كودك هنا..."></textarea>
+                </div>
+            </div>
+            
+            <div class="output-container">
+                <div class="output-header">
+                    <div class="output-title">
+                        <i class="fas fa-terminal"></i>
+                        <h3>نتيجة التشغيل</h3>
+                    </div>
+                    
+                    <div class="output-actions">
+                        <button class="output-btn" id="clear-output">
+                            <i class="fas fa-trash"></i> مسح
+                        </button>
+                        <button class="output-btn" id="fullscreen">
+                            <i class="fas fa-expand"></i> ملء الشاشة
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="output">
+                    <div class="python-output">
+                        <div class="output-line">
+                            <i class="fas fa-info-circle" style="color: #60a5fa; margin-left: 5px;"></i>
+                            استخدم زر "تشغيل" لتنفيذ الكود
+                        </div>
+                        <div class="output-line">
+                            <i class="fas fa-code" style="color: #10b981; margin-left: 5px;"></i>
+                            يدعم HTML و Python و CSS و JavaScript
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <div class="status">
+                <div class="status-item">
+                    <i class="fas fa-file-code"></i>
+                    <span id="current-file">index.html</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-code"></i>
+                    <span id="current-language">HTML</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-ruler-combined"></i>
+                    <span id="line-info">سطر 1، عمود 1</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="file-size">0 حرف</span>
+                </div>
+            </div>
+            
+            <div class="help-shortcuts">
+                <div class="shortcut">
+                    <span>تشغيل:</span>
+                    <span class="key">F5</span>
+                </div>
+                <div class="shortcut">
+                    <span>حفظ:</span>
+                    <span class="key">Ctrl+S</span>
+                </div>
+                <div class="shortcut">
+                    <span>بحث:</span>
+                    <span class="key">Ctrl+F</span>
+                </div>
+                <div class="shortcut">
+                    <span>إعدادات:</span>
+                    <span class="key">Ctrl+,</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> إعدادات المحرر</h2>
+                <button class="close-modal" id="close-settings">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="setting-group">
+                    <div class="setting-title">
+                        <i class="fas fa-palette"></i>
+                        <h3>المظهر</h3>
+                    </div>
+                    
+                    <div class="theme-selector">
+                        <button class="theme-btn active" data-theme="dark">
+                            <i class="fas fa-moon"></i> الوضع الداكن
+                        </button>
+                        <button class="theme-btn" data-theme="blue">
+                            <i class="fas fa-moon"></i> الأزرق الداكن
+                        </button>
+                        <button class="theme-btn" data-theme="light">
+                            <i class="fas fa-sun"></i> الوضع الفاتح
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-title">
+                        <i class="fas fa-edit"></i>
+                        <h3>إعدادات المحرر</h3>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <span>تفعيل الإكمال التلقائي</span>
+                        <label class="switch">
+                            <input type="checkbox" id="auto-complete" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <span>إغلاق الأقواس تلقائياً</span>
+                        <label class="switch">
+                            <input type="checkbox" id="auto-close-brackets" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <span>تفعيل طي الكود</span>
+                        <label class="switch">
+                            <input type="checkbox" id="code-folding" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <span>حجم الخط</span>
+                        <select id="font-size">
+                            <option value="12">12px</option>
+                            <option value="13">13px</option>
+                            <option value="14" selected>14px</option>
+                            <option value="15">15px</option>
+                            <option value="16">16px</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <span>مسافة التباعد</span>
+                        <select id="tab-size">
+                            <option value="2">2 مسافات</option>
+                            <option value="4" selected>4 مسافات</option>
+                            <option value="8">8 مسافات</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-title">
+                        <i class="fas fa-code"></i>
+                        <h3>إعدادات اللغات</h3>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <span>فحص الأخطاء تلقائياً</span>
+                        <label class="switch">
+                            <input type="checkbox" id="auto-error-check" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <span>حفظ تلقائي</span>
+                        <label class="switch">
+                            <input type="checkbox" id="auto-save">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="control-btn" id="reset-settings">
+                    <i class="fas fa-undo"></i> إعادة الضبط
+                </button>
+                <button class="run-btn" id="save-settings">
+                    <i class="fas fa-save"></i> حفظ الإعدادات
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- File Input (Hidden) -->
+    <input type="file" id="file-input" accept=".html,.htm,.py,.css,.js,.txt,.json,.xml,.md" style="display: none;">
+
+<!-- الجزء 1 ينتهي هنا -->
+<!-- الجزء 2: JavaScript الكامل -->
+<script>
+// البيانات والمتغيرات العالمية
+let currentLanguage = 'html';
+let currentFile = 'index.html';
+let files = {};
+let searchResults = [];
+let currentSearchIndex = -1;
+let editorSettings = {};
+let isSidebarCollapsed = false;
+
+// عناصر DOM الرئيسية
+const codeEditor = document.getElementById('code-editor');
+const lineNumbers = document.getElementById('line-numbers');
+const runButton = document.getElementById('run-button');
+const outputElement = document.getElementById('output');
+const htmlBtn = document.getElementById('html-btn');
+const pythonBtn = document.getElementById('python-btn');
+const openFileBtn = document.getElementById('open-file-btn');
+const saveFileBtn = document.getElementById('save-file-btn');
+const settingsBtn = document.getElementById('settings-btn');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebar = document.getElementById('sidebar');
+const searchInput = document.getElementById('search-input');
+const searchBtn = document.getElementById('search-btn');
+const replaceInput = document.getElementById('replace-input');
+const replaceBtn = document.getElementById('replace-btn');
+const prevMatchBtn = document.getElementById('prev-match-btn');
+const nextMatchBtn = document.getElementById('next-match-btn');
+const replaceAllBtn = document.getElementById('replace-all-btn');
+const newFileBtn = document.getElementById('new-file-btn');
+const fileList = document.getElementById('file-list');
+const errorList = document.getElementById('error-list');
+const checkErrorsBtn = document.getElementById('check-errors-btn');
+const foldAllBtn = document.getElementById('fold-all-btn');
+const unfoldAllBtn = document.getElementById('unfold-all-btn');
+const formatCodeBtn = document.getElementById('format-code-btn');
+const commentBtn = document.getElementById('comment-btn');
+const clearOutputBtn = document.getElementById('clear-output');
+const fullscreenBtn = document.getElementById('fullscreen');
+const fileInput = document.getElementById('file-input');
+const settingsModal = document.getElementById('settings-modal');
+const closeSettingsBtn = document.getElementById('close-settings');
+const saveSettingsBtn = document.getElementById('save-settings');
+const resetSettingsBtn = document.getElementById('reset-settings');
+
+// أمثلة كود أولية
+const codeExamples = {
+    'index.html': `<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشروع HTML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #4cc9f0;
+        }
+        
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(to right, #4361ee, #3a0ca3);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
+        }
+        
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مرحباً بكم في محرر الأكواد</h1>
+        <p>محرر أكواد متكامل يدعم HTML/CSS/JavaScript و Python مع تلوين للنصوص وتنفيذ مباشر</p>
+        
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-code"></i>
+                <h3>تلوين الكود</h3>
+                <p>دعم تلوين النصوص للغات البرمجة</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-play"></i>
+                <h3>تنفيذ مباشر</h3>
+                <p>تشغيل الكود مباشرة في المتصفح</p>
+            </div>
+        </div>
+        
+        <button onclick="showMessage()">تجربة JavaScript</button>
+        
+        <div id="result">
+            <h3>نتيجة JavaScript:</h3>
+            <p id="message"></p>
+        </div>
+    </div>
+    
+    <script>
+        function showMessage() {
+            const now = new Date();
+            const message = "تم تنفيذ JavaScript بنجاح!\\nالوقت الحالي: " + now.toLocaleTimeString();
+            document.getElementById('message').innerText = message;
+            document.getElementById('result').style.display = 'block';
+            
+            // مثال إضافي
+            console.log('تم تنفيذ الكود في: ' + now.toISOString());
+        }
+    <\/script>
+</body>
+</html>`,
+
+    'script.py': `# برنامج Python متقدم
+# يتضمن أمثلة على مختلف مفاهيم Python
+
+def greet(name):
+    """دالة للترحيب بالشخص"""
+    return f"مرحبًا {name}! أهلاً بك في محرر Python."
+
+def calculate_fibonacci(n):
+    """دالة لحساب متسلسلة فيبوناتشي"""
+    if n <= 0:
+        return []
+    elif n == 1:
+        return [0]
+    
+    fib_sequence = [0, 1]
+    for i in range(2, n):
+        fib_sequence.append(fib_sequence[-1] + fib_sequence[-2])
+    return fib_sequence
+
+def is_prime(num):
+    """دالة للتحقق إذا كان الرقم أوليًا"""
+    if num < 2:
+        return False
+    for i in range(2, int(num ** 0.5) + 1):
+        if num % i == 0:
+            return False
+    return True
+
+def analyze_numbers(numbers):
+    """دالة لتحليل قائمة من الأرقام"""
+    if not numbers:
+        return "القائمة فارغة"
+    
+    stats = {
+        'المجموع': sum(numbers),
+        'المتوسط': sum(numbers) / len(numbers),
+        'الأكبر': max(numbers),
+        'الأصغر': min(numbers),
+        'الطول': len(numbers)
+    }
+    
+    return stats
+
+# البرنامج الرئيسي
+def main():
+    print("=" * 50)
+    print("محرر Python الاحترافي")
+    print("=" * 50)
+    
+    # مثال على الدوال
+    print("\\n1. مثال على الدوال:")
+    print(greet("المبرمج العربي"))
+    
+    # مثال على فيبوناتشي
+    print("\\n2. متسلسلة فيبوناتشي (أول 10 أرقام):")
+    fib_numbers = calculate_fibonacci(10)
+    for i, num in enumerate(fib_numbers):
+        print(f"F({i}) = {num}")
+    
+    # مثال على الأعداد الأولية
+    print("\\n3. الأعداد الأولية من 1 إلى 20:")
+    primes = [num for num in range(1, 21) if is_prime(num)]
+    print(primes)
+    print(f"عدد الأعداد الأولية: {len(primes)}")
+    
+    # مثال على تحليل الأرقام
+    print("\\n4. تحليل قائمة الأرقام:")
+    numbers = [12, 45, 23, 67, 89, 34, 56]
+    analysis = analyze_numbers(numbers)
+    for key, value in analysis.items():
+        if isinstance(value, float):
+            print(f"{key}: {value:.2f}")
+        else:
+            print(f"{key}: {value}")
+    
+    print("\\n" + "=" * 50)
+    print("نهاية البرنامج")
+    print("=" * 50)
+
+# تشغيل البرنامج الرئيسي
+if __name__ == "__main__":
+    main()`,
+
+    'style.css': `/* أنماط CSS متقدمة */
+
+/* متغيرات الألوان */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --accent-color: #4cc9f0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --success-color: #2ecc71;
+    --danger-color: #f72585;
+    --warning-color: #f39c12;
+    --gray-color: #6c757d;
+}
+
+/* إعادة الضبط */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--dark-color);
+    background-color: #f5f7fa;
+}
+
+/* تخطيط الحاوية */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* رأس الصفحة */
+.header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    border-radius: 0 0 20px 20px;
+    margin-bottom: 40px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.header p {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    opacity: 0.9;
+}
+
+/* أزرار */
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn:hover {
+    background: var(--secondary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* بطاقات */
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* تنبيهات */
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-color: var(--success-color);
+    color: #27ae60;
+}
+
+.alert-danger {
+    background-color: rgba(247, 37, 133, 0.1);
+    border-color: var(--danger-color);
+    color: #e74c3c;
+}
+
+/* التجاوب */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .header p {
+        font-size: 1rem;
+    }
+}`
+};
+
+// تهيئة التطبيق
+function initApp() {
+    loadSettings();
+    initFiles();
+    loadFile('index.html');
+    setupEventListeners();
+    updateLineNumbers();
+    updateFileInfo();
+}
+
+// تحميل الإعدادات
+function loadSettings() {
+    const savedSettings = localStorage.getItem('editorSettings');
+    if (savedSettings) {
+        editorSettings = JSON.parse(savedSettings);
+    } else {
+        editorSettings = {
+            autoComplete: true,
+            autoCloseBrackets: true,
+            codeFolding: true,
+            fontSize: 14,
+            tabSize: 4,
+            autoErrorCheck: true,
+            autoSave: false,
+            theme: 'dark'
+        };
+        saveSettings();
+    }
+    
+    applySettings();
+}
+
+// حفظ الإعدادات
+function saveSettings() {
+    localStorage.setItem('editorSettings', JSON.stringify(editorSettings));
+}
+
+// تطبيق الإعدادات
+function applySettings() {
+    // تطبيق حجم الخط
+    codeEditor.style.fontSize = editorSettings.fontSize + 'px';
+    lineNumbers.style.fontSize = editorSettings.fontSize + 'px';
+    
+    // تطبيق الثيم
+    document.body.className = '';
+    document.body.classList.add('theme-' + editorSettings.theme);
+    
+    // تحديث أزرار الثيم
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.theme === editorSettings.theme) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// تهيئة الملفات
+function initFiles() {
+    files = {
+        'index.html': {
+            content: codeExamples['index.html'],
+            language: 'html'
+        },
+        'script.py': {
+            content: codeExamples['script.py'],
+            language: 'python'
+        },
+        'style.css': {
+            content: codeExamples['style.css'],
+            language: 'css'
+        }
+    };
+}
+
+// تحميل الملف
+function loadFile(filename) {
+    if (files[filename]) {
+        currentFile = filename;
+        codeEditor.value = files[filename].content;
+        
+        // تحديث اللغة
+        updateLanguage(filename);
+        
+        // تحديث القائمة النشطة
+        updateActiveFile(filename);
+        
+        // تحديث معلومات الملف
+        updateFileInfo();
+        updateLineNumbers();
+        updateSyntaxHighlighting();
+        
+        // فحص الأخطاء
+        if (editorSettings.autoErrorCheck) {
+            setTimeout(checkForErrors, 100);
+        }
+        
+        return true;
+    }
+    return false;
+}
+
+// تحديث اللغة
+function updateLanguage(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    let language = 'html';
+    
+    switch (ext) {
+        case 'html':
+        case 'htm':
+            language = 'html';
+            break;
+        case 'py':
+            language = 'python';
+            break;
+        case 'css':
+            language = 'css';
+            break;
+        case 'js':
+            language = 'javascript';
+            break;
+        default:
+            language = 'text';
+    }
+    
+    currentLanguage = language;
+    updateLanguageButtons();
+    document.getElementById('current-language').textContent = language.toUpperCase();
+}
+
+// تحديث أزرار اللغة
+function updateLanguageButtons() {
+    htmlBtn.classList.remove('active');
+    pythonBtn.classList.remove('active');
+    
+    if (currentLanguage === 'html') {
+        htmlBtn.classList.add('active');
+    } else if (currentLanguage === 'python') {
+        pythonBtn.classList.add('active');
+    }
+}
+
+// تحديث الملف النشط في القائمة
+function updateActiveFile(filename) {
+    document.querySelectorAll('.file-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.file === filename) {
+            item.classList.add('active');
+        }
+    });
+    document.getElementById('current-file').textContent = filename;
+}
+
+// تحديث ترقيم الأسطر
+function updateLineNumbers() {
+    const lines = codeEditor.value.split('\n').length;
+    let numbers = '';
+    
+    for (let i = 1; i <= lines; i++) {
+        numbers += i + '\n';
+    }
+    
+    lineNumbers.textContent = numbers;
+    
+    // مزامنة التمرير
+    codeEditor.addEventListener('scroll', function() {
+        lineNumbers.scrollTop = codeEditor.scrollTop;
+    });
+}
+
+// تحديث تمييز الصيغة
+function updateSyntaxHighlighting() {
+    // هذه دالة مبسطة للتمييز النحوي
+    // في تطبيق حقيقي، يمكن استخدام مكتبة مثل Prism.js أو Highlight.js
+    const code = codeEditor.value;
+    const lines = code.split('\n');
+    let highlighted = '';
+    
+    lines.forEach(line => {
+        // تمييز HTML
+        if (currentLanguage === 'html') {
+            line = highlightHTML(line);
+        }
+        // تمييز Python
+        else if (currentLanguage === 'python') {
+            line = highlightPython(line);
+        }
+        // تمييز CSS
+        else if (currentLanguage === 'css') {
+            line = highlightCSS(line);
+        }
+        
+        highlighted += line + '\n';
+    });
+    
+    // في تطبيق حقيقي، سنحتاج إلى تحديث عرض التمييز
+    // لكن هنا سنكتفي بتحديث textarea
+}
+
+// تمييز HTML
+function highlightHTML(line) {
+    let highlighted = line;
+    
+    // تمييز العلامات
+    highlighted = highlighted.replace(/&lt;(\/?)([a-zA-Z][^\s&gt;]*)/g, 
+        '&lt;<span class="tag">$1$2</span>');
+    
+    // تمييز السمات
+    highlighted = highlighted.replace(/\s([a-zA-Z-]+)=/g, 
+        ' <span class="attribute">$1</span>=');
+    
+    // تمييز القيم
+    highlighted = highlighted.replace(/=["']([^"']*)["']/g, 
+        '=<span class="value">"$1"</span>');
+    
+    // تمييز التعليقات
+    highlighted = highlighted.replace(/&lt;!--([^>]*)--&gt;/g, 
+        '&lt;!--<span class="comment">$1</span>--&gt;');
+    
+    return highlighted;
+}
+
+// تمييز Python
+function highlightPython(line) {
+    let highlighted = line;
+    
+    // الكلمات المفتاحية
+    const keywords = ['def', 'class', 'if', 'else', 'elif', 'for', 'while', 'return', 
+                     'import', 'from', 'as', 'try', 'except', 'finally', 'with', 
+                     'and', 'or', 'not', 'in', 'is', 'None', 'True', 'False'];
+    
+    keywords.forEach(keyword => {
+        const regex = new RegExp(`\\b${keyword}\\b`, 'g');
+        highlighted = highlighted.replace(regex, `<span class="keyword">${keyword}</span>`);
+    });
+    
+    // الدوال
+    highlighted = highlighted.replace(/(\b[a-zA-Z_][a-zA-Z0-9_]*\b)(?=\()/g, 
+        '<span class="function">$1</span>');
+    
+    // السلاسل النصية
+    highlighted = highlighted.replace(/['"]([^'"]*)['"]/g, 
+        '<span class="string">"$1"</span>');
+    
+    // التعليقات
+    highlighted = highlighted.replace(/#(.*)/g, 
+        '<span class="comment">#$1</span>');
+    
+    // الأرقام
+    highlighted = highlighted.replace(/\b\d+(\.\d+)?\b/g, 
+        '<span class="number">$&</span>');
+    
+    return highlighted;
+}
+
+// تمييز CSS
+function highlightCSS(line) {
+    let highlighted = line;
+    
+    // الخواص
+    highlighted = highlighted.replace(/([a-zA-Z-]+)\s*:/g, 
+        '<span class="attribute">$1</span>:');
+    
+    // القيم
+    highlighted = highlighted.replace(/:\s*([^;]+);/g, 
+        ': <span class="value">$1</span>;');
+    
+    // التعليقات
+    highlighted = highlighted.replace(/\/\*([^*]|\*[^/])*\*\//g, 
+        '<span class="comment">$&</span>');
+    
+    // الألوان
+    highlighted = highlighted.replace(/#([0-9a-fA-F]{3,6})\b/g, 
+        '<span class="value">#$1</span>');
+    
+    return highlighted;
+}
+
+// تحديث معلومات الملف
+function updateFileInfo() {
+    const content = codeEditor.value;
+    const lines = content.split('\n').length;
+    const chars = content.length;
+    const words = content.trim().split(/\s+/).filter(w => w.length > 0).length;
+    
+    document.getElementById('file-size').textContent = `${chars} حرف، ${words} كلمة`;
+    
+    // تحديث موضع المؤشر
+    updateCursorPosition();
+}
+
+// تحديث موضع المؤشر
+function updateCursorPosition() {
+    const cursorPos = codeEditor.selectionStart;
+    const textBeforeCursor = codeEditor.value.substring(0, cursorPos);
+    const lineNumber = textBeforeCursor.split('\n').length;
+    const columnNumber = textBeforeCursor.split('\n').pop().length + 1;
+    
+    document.getElementById('line-info').textContent = `سطر ${lineNumber}، عمود ${columnNumber}`;
+}
+
+// حفظ الملف الحالي
+function saveCurrentFile() {
+    if (files[currentFile]) {
+        files[currentFile].content = codeEditor.value;
+    }
+}
+
+// إعداد مستمعات الأحداث
+function setupEventListeners() {
+    // تحديث ترقيم الأسطر عند الكتابة
+    codeEditor.addEventListener('input', function() {
+        updateLineNumbers();
+        updateFileInfo();
+        saveCurrentFile();
+        
+        if (editorSettings.autoErrorCheck) {
+            setTimeout(checkForErrors, 500);
+        }
+    });
+    
+    // تحديث موضع المؤشر
+    codeEditor.addEventListener('click', updateCursorPosition);
+    codeEditor.addEventListener('keyup', updateCursorPosition);
+    
+    // أزرار اللغة
+    htmlBtn.addEventListener('click', function() {
+        saveCurrentFile();
+        loadFile('index.html');
+    });
+    
+    pythonBtn.addEventListener('click', function() {
+        saveCurrentFile();
+        loadFile('script.py');
+    });
+    
+    // تشغيل الكود
+    runButton.addEventListener('click', runCode);
+    
+    // فتح الملف
+    openFileBtn.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const filename = file.name;
+                
+                files[filename] = {
+                    content: content,
+                    language: getLanguageFromExtension(filename)
+                };
+                
+                addFileToList(filename);
+                loadFile(filename);
+                showNotification(`تم فتح الملف ${filename}`, 'success');
+            };
+            reader.readAsText(file);
+        }
+    });
+    
+    // حفظ الملف
+    saveFileBtn.addEventListener('click', saveFile);
+    
+    // الإعدادات
+    settingsBtn.addEventListener('click', function() {
+        settingsModal.style.display = 'flex';
+        loadSettingsToUI();
+    });
+    
+    closeSettingsBtn.addEventListener('click', function() {
+        settingsModal.style.display = 'none';
+    });
+    
+    saveSettingsBtn.addEventListener('click', function() {
+        saveSettingsFromUI();
+        applySettings();
+        settingsModal.style.display = 'none';
+        showNotification('تم حفظ الإعدادات', 'success');
+    });
+    
+    resetSettingsBtn.addEventListener('click', function() {
+        if (confirm('هل أنت متأكد من إعادة ضبط جميع الإعدادات؟')) {
+            editorSettings = {
+                autoComplete: true,
+                autoCloseBrackets: true,
+                codeFolding: true,
+                fontSize: 14,
+                tabSize: 4,
+                autoErrorCheck: true,
+                autoSave: false,
+                theme: 'dark'
+            };
+            
+            saveSettings();
+            applySettings();
+            loadSettingsToUI();
+            showNotification('تم إعادة ضبط الإعدادات', 'info');
+        }
+    });
+    
+    // الثيمات
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            editorSettings.theme = this.dataset.theme;
+            saveSettings();
+            applySettings();
+        });
+    });
+    
+    // الشريط الجانبي
+    sidebarToggle.addEventListener('click', toggleSidebar);
+    
+    // البحث
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+    
+    // استبدال
+    replaceBtn.addEventListener('click', replaceNext);
+    replaceAllBtn.addEventListener('click', replaceAll);
+    prevMatchBtn.addEventListener('click', findPrev);
+    nextMatchBtn.addEventListener('click', findNext);
+    
+    // ملف جديد
+    newFileBtn.addEventListener('click', createNewFile);
+    
+    // فحص الأخطاء
+    checkErrorsBtn.addEventListener('click', checkForErrors);
+    
+    // أزرار المحرر
+    foldAllBtn.addEventListener('click', function() {
+        showNotification('ميزة طي الكود قيد التطوير', 'info');
+    });
+    
+    unfoldAllBtn.addEventListener('click', function() {
+        showNotification('ميزة فتح الكود قيد التطوير', 'info');
+    });
+    
+    formatCodeBtn.addEventListener('click', formatCode);
+    
+    commentBtn.addEventListener('click', function() {
+        toggleComment();
+    });
+    
+    // مسح النتائج
+    clearOutputBtn.addEventListener('click', clearOutput);
+    
+    // ملء الشاشة
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    
+    // اختصارات لوحة المفاتيح
+    document.addEventListener('keydown', function(e) {
+        // F5 لتشغيل الكود
+        if (e.key === 'F5') {
+            e.preventDefault();
+            runCode();
+        }
+        
+        // Ctrl+S للحفظ
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            saveFile();
+        }
+        
+        // Ctrl+F للبحث
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+        
+        // Ctrl+، للإعدادات
+        if (e.ctrlKey && e.key === ',') {
+            e.preventDefault();
+            settingsModal.style.display = 'flex';
+            loadSettingsToUI();
+        }
+        
+        // Tab لإضافة مسافات
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = codeEditor.selectionStart;
+            const end = codeEditor.selectionEnd;
+            
+            const spaces = ' '.repeat(editorSettings.tabSize);
+            codeEditor.value = codeEditor.value.substring(0, start) + spaces + codeEditor.value.substring(end);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + editorSettings.tabSize;
+            
+            updateLineNumbers();
+            updateFileInfo();
+            saveCurrentFile();
+        }
+    });
+    
+    // مستمعات الملفات في القائمة
+    document.addEventListener('click', function(e) {
+        // النقر على عنصر ملف
+        if (e.target.closest('.file-item') && !e.target.closest('.file-actions')) {
+            const fileItem = e.target.closest('.file-item');
+            const filename = fileItem.dataset.file;
+            saveCurrentFile();
+            loadFile(filename);
+        }
+        
+        // إعادة تسمية ملف
+        if (e.target.closest('.rename-file')) {
+            e.stopPropagation();
+            const fileItem = e.target.closest('.file-item');
+            const oldName = fileItem.dataset.file;
+            renameFile(oldName);
+        }
+        
+        // حذف ملف
+        if (e.target.closest('.delete-file')) {
+            e.stopPropagation();
+            const fileItem = e.target.closest('.file-item');
+            const filename = fileItem.dataset.file;
+            deleteFile(filename);
+        }
+    });
+}
+
+// تشغيل الكود
+function runCode() {
+    saveCurrentFile();
+    const code = codeEditor.value;
+    
+    if (currentLanguage === 'html') {
+        runHTML(code);
+    } else if (currentLanguage === 'python') {
+        runPython(code);
+    } else if (currentLanguage === 'css') {
+        showNotification('لا يمكن تشغيل CSS مباشرة', 'info');
+    } else {
+        showNotification('لغة غير مدعومة للتنفيذ المباشر', 'warning');
+    }
+}
+
+// تشغيل HTML
+function runHTML(code) {
+    outputElement.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    outputElement.appendChild(iframe);
+    
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(code);
+    doc.close();
+    
+    showNotification('تم تنفيذ HTML بنجاح', 'success');
+}
+
+// تشغيل Python
+function runPython(code) {
+    try {
+        // محاكاة تنفيذ Python
+        let output = '';
+        const lines = code.split('\n');
+        
+        lines.forEach(line => {
+            line = line.trim();
+            
+            // محاكاة print
+            if (line.startsWith('print(')) {
+                const match = line.match(/print\((.*)\)/);
+                if (match) {
+                    let content = match[1];
+                    
+                    // إزالة الأقواس من السلاسل النصية
+                    if ((content.startsWith('"') && content.endsWith('"')) || 
+                        (content.startsWith("'") && content.endsWith("'"))) {
+                        content = content.substring(1, content.length - 1);
+                    }
+                    
+                    // محاكاة f-strings بسيطة
+                    if (content.includes('{') && content.includes('}')) {
+                        content = content.replace(/{([^}]+)}/g, function(match, expr) {
+                            try {
+                                // محاولة تقييم التعبير
+                                return eval(expr);
+                            } catch {
+                                return `[${expr}]`;
+                            }
+                        });
+                    }
+                    
+                    output += content + '\n';
+                }
+            }
+            
+            // محاكاة تعيين متغيرات بسيطة
+            if (line.includes('=') && !line.includes('==') && !line.startsWith('def ') && 
+                !line.startsWith('class ') && !line.startsWith('#') && !line.includes('(')) {
+                const parts = line.split('=');
+                if (parts.length === 2) {
+                    const varName = parts[0].trim();
+                    const value = parts[1].trim();
+                    
+                    // محاكاة تقييم بسيط للقيم
+                    try {
+                        if (!isNaN(value)) {
+                            window[varName] = Number(value);
+                        } else if (value.startsWith('"') || value.startsWith("'")) {
+                            window[varName] = value.substring(1, value.length - 1);
+                        } else {
+                            window[varName] = eval(value);
+                        }
+                    } catch {
+                        // تجاهل الأخطاء في المحاكاة
+                    }
+                }
+            }
+        });
+        
+        // عرض النتائج
+        if (output) {
+            outputElement.innerHTML = `
+                <div class="python-output">
+                    <div class="output-line">
+                        <i class="fas fa-play" style="color: #10b981; margin-left: 5px;"></i>
+                        تشغيل Python:
+                    </div>
+                    <div class="output-line">
+                        <pre style="margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace;">${output}</pre>
+                    </div>
+                    <div class="output-line" style="color: #94a3b8; font-size: 12px;">
+                        <i class="fas fa-info-circle" style="margin-left: 5px;"></i>
+                        هذا تنفيذ محاكاة. للتنفيذ الكامل، استخدم بيئة Python خارجية.
+                    </div>
+                </div>
+            `;
+        } else {
+            outputElement.innerHTML = `
+                <div class="python-output">
+                    <div class="output-line">
+                        <i class="fas fa-check-circle" style="color: #10b981; margin-left: 5px;"></i>
+                        تم تنفيذ Python بدون أخطاء
+                    </div>
+                    <div class="output-line" style="color: #94a3b8; font-size: 12px;">
+                        <i class="fas fa-info-circle" style="margin-left: 5px;"></i>
+                        الكود لا يحتوي على أوامر طباعة
+                    </div>
+                </div>
+            `;
+        }
+        
+        showNotification('تم تنفيذ Python (محاكاة)', 'info');
+        
+    } catch (error) {
+        outputElement.innerHTML = `
+            <div class="python-output">
+                <div class="output-line">
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444; margin-left: 5px;"></i>
+                    خطأ في تنفيذ Python:
+                </div>
+                <div class="output-line">
+                    <pre style="margin: 10px 0; padding: 10px; background: rgba(239,68,68,0.1); border-radius: 4px; font-family: monospace; color: #fca5a5;">${error.message}</pre>
+                </div>
+            </div>
+        `;
+        showNotification('حدث خطأ في تنفيذ Python', 'error');
+    }
+}
+
+// حفظ الملف
+function saveFile() {
+    saveCurrentFile();
+    const content = files[currentFile].content;
+    const filename = currentFile;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification(`تم حفظ ${filename}`, 'success');
+}
+
+// البحث
+function performSearch() {
+    const query = searchInput.value.trim();
+    if (!query) return;
+    
+    const content = codeEditor.value;
+    const lines = content.split('\n');
+    searchResults = [];
+    
+    lines.forEach((line, index) => {
+        const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        let match;
+        while ((match = regex.exec(line)) !== null) {
+            searchResults.push({
+                line: index,
+                start: match.index,
+                end: match.index + match[0].length,
+                text: match[0]
+            });
+        }
+    });
+    
+    if (searchResults.length > 0) {
+        currentSearchIndex = 0;
+        highlightSearchResults();
+        goToSearchResult(currentSearchIndex);
+        showNotification(`تم العثور على ${searchResults.length} نتيجة`, 'success');
+    } else {
+        showNotification('لم يتم العثور على نتائج', 'warning');
+    }
+}
+
+// تمييز نتائج البحث
+function highlightSearchResults() {
+    // مسح التمييز السابق
+    const markers = document.querySelectorAll('.search-marker');
+    markers.forEach(marker => marker.remove());
+    
+    // تمييز النتائج
+    searchResults.forEach((result, index) => {
+        const marker = document.createElement('div');
+        marker.className = `search-marker ${index === currentSearchIndex ? 'current' : ''}`;
+        marker.style.position = 'absolute';
+        marker.style.left = '60px';
+        marker.style.top = `${result.line * 1.6}em`;
+        marker.style.width = 'calc(100% - 60px)';
+        marker.style.height = '1.6em';
+        marker.style.backgroundColor = index === currentSearchIndex ? 
+            'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.1)';
+        marker.style.borderLeft = index === currentSearchIndex ? 
+            '3px solid #3b82f6' : '1px solid #3b82f6';
+        marker.style.pointerEvents = 'none';
+        marker.style.zIndex = '-1';
+        
+        document.querySelector('.editor-wrapper').appendChild(marker);
+    });
+}
+
+// الانتقال إلى نتيجة البحث
+function goToSearchResult(index) {
+    if (index >= 0 && index < searchResults.length) {
+        const result = searchResults[index];
+        
+        // حساب موضع المؤشر
+        const lines = codeEditor.value.substr(0, codeEditor.value.split('\n').slice(0, result.line).join('\n').length);
+        const cursorPos = lines.length + result.start;
+        
+        // تحديد النص
+        codeEditor.focus();
+        codeEditor.setSelectionRange(cursorPos, cursorPos + result.text.length);
+        
+        // التمرير إلى النتيجة
+        const lineHeight = codeEditor.scrollHeight / codeEditor.value.split('\n').length;
+        codeEditor.scrollTop = result.line * lineHeight - 100;
+        
+        currentSearchIndex = index;
+        highlightSearchResults();
+    }
+}
+
+// البحث عن التالي
+function findNext() {
+    if (searchResults.length === 0) return;
+    currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+    goToSearchResult(currentSearchIndex);
+}
+
+// البحث عن السابق
+function findPrev() {
+    if (searchResults.length === 0) return;
+    currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
+    goToSearchResult(currentSearchIndex);
+}
+
+// استبدال التالي
+function replaceNext() {
+    if (searchResults.length === 0) return;
+    
+    const replaceText = replaceInput.value;
+    const result = searchResults[currentSearchIndex];
+    
+    // حساب موضع النص
+    const lines = codeEditor.value.split('\n');
+    const lineContent = lines[result.line];
+    const newLine = lineContent.substring(0, result.start) + replaceText + lineContent.substring(result.end);
+    lines[result.line] = newLine;
+    
+    codeEditor.value = lines.join('\n');
+    saveCurrentFile();
+    updateLineNumbers();
+    updateFileInfo();
+    
+    // إعادة البحث
+    performSearch();
+    
+    showNotification('تم استبدال النص', 'info');
+}
+
+// استبدال الكل
+function replaceAll() {
+    const searchText = searchInput.value;
+    const replaceText = replaceInput.value;
+    
+    if (!searchText) return;
+    
+    const content = codeEditor.value;
+    const newContent = content.replace(new RegExp(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replaceText);
+    
+    codeEditor.value = newContent;
+    saveCurrentFile();
+    updateLineNumbers();
+    updateFileInfo();
+    
+    showNotification(`تم استبدال ${searchResults.length} نتيجة`, 'success');
+    
+    // مسح نتائج البحث
+    searchResults = [];
+    currentSearchIndex = -1;
+    const markers = document.querySelectorAll('.search-marker');
+    markers.forEach(marker => marker.remove());
+}
+
+// إضافة ملف إلى القائمة
+function addFileToList(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    let iconClass = 'fas fa-file';
+    
+    switch (ext) {
+        case 'html':
+        case 'htm':
+            iconClass = 'fab fa-html5';
+            break;
+        case 'py':
+            iconClass = 'fab fa-python';
+            break;
+        case 'css':
+            iconClass = 'fab fa-css3-alt';
+            break;
+        case 'js':
+            iconClass = 'fab fa-js';
+            break;
+    }
+    
+    const fileItem = document.createElement('li');
+    fileItem.className = 'file-item';
+    fileItem.dataset.file = filename;
+    fileItem.innerHTML = `
+        <div>
+            <i class="${iconClass} file-icon"></i>
+            <span>${filename}</span>
+        </div>
+        <div class="file-actions">
+            <button class="file-action-btn rename-file">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="file-action-btn delete-file">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    fileList.appendChild(fileItem);
+}
+
+// إنشاء ملف جديد
+function createNewFile() {
+    const filename = prompt('أدخل اسم الملف الجديد (مع الامتداد):', `newfile_${Date.now()}.txt`);
+    if (filename && filename.trim()) {
+        const cleanName = filename.trim();
+        
+        if (files[cleanName]) {
+            showNotification('الملف موجود بالفعل!', 'warning');
+            return;
+        }
+        
+        files[cleanName] = {
+            content: '',
+            language: getLanguageFromExtension(cleanName)
+        };
+        
+        addFileToList(cleanName);
+        loadFile(cleanName);
+        showNotification(`تم إنشاء ${cleanName}`, 'success');
+    }
+}
+
+// إعادة تسمية ملف
+function renameFile(oldName) {
+    const newName = prompt('أدخل الاسم الجديد:', oldName);
+    if (newName && newName !== oldName) {
+        if (files[newName]) {
+            showNotification('الاسم موجود بالفعل!', 'warning');
+            return;
+        }
+        
+        files[newName] = files[oldName];
+        delete files[oldName];
+        
+        if (currentFile === oldName) {
+            currentFile = newName;
+        }
+        
+        // تحديث القائمة
+        const fileItem = document.querySelector(`[data-file="${oldName}"]`);
+        fileItem.dataset.file = newName;
+        fileItem.querySelector('span').textContent = newName;
+        
+        // تحديث الأيقونة
+        const ext = newName.split('.').pop().toLowerCase();
+        let iconClass = 'fas fa-file';
+        
+        switch (ext) {
+            case 'html':
+            case 'htm':
+                iconClass = 'fab fa-html5';
+                break;
+            case 'py':
+                iconClass = 'fab fa-python';
+                break;
+            case 'css':
+                iconClass = 'fab fa-css3-alt';
+                break;
+            case 'js':
+                iconClass = 'fab fa-js';
+                break;
+        }
+        
+        fileItem.querySelector('.file-icon').className = `${iconClass} file-icon`;
+        
+        showNotification(`تمت إعادة التسمية إلى ${newName}`, 'info');
+    }
+}
+
+// حذف ملف
+function deleteFile(filename) {
+    if (Object.keys(files).length <= 1) {
+        showNotification('لا يمكن حذف جميع الملفات!', 'warning');
+        return;
+    }
+    
+    if (confirm(`هل أنت متأكد من حذف "${filename}"؟`)) {
+        delete files[filename];
+        
+        // إزالة من القائمة
+        const fileItem = document.querySelector(`[data-file="${filename}"]`);
+        fileItem.remove();
+        
+        // تحميل ملف آخر
+        if (currentFile === filename) {
+            const remainingFiles = Object.keys(files);
+            loadFile(remainingFiles[0]);
+        }
+        
+        showNotification(`تم حذف ${filename}`, 'warning');
+    }
+}
+
+// الحصول على اللغة من الامتداد
+function getLanguageFromExtension(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    switch (ext) {
+        case 'html':
+        case 'htm':
+            return 'html';
+        case 'py':
+            return 'python';
+        case 'css':
+            return 'css';
+        case 'js':
+            return 'javascript';
+        default:
+            return 'text';
+    }
+}
+
+// تنسيق الكود
+function formatCode() {
+    const content = codeEditor.value;
+    let formatted = content;
+    
+    if (currentLanguage === 'html') {
+        // تنسيق HTML مبسط
+        formatted = content
+            .replace(/>\s+</g, '>\n<')
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        let indent = 0;
+        const lines = formatted.split('\n');
+        formatted = lines.map(line => {
+            line = line.trim();
+            if (line.startsWith('</')) {
+                indent = Math.max(0, indent - 1);
+            }
+            
+            const indentedLine = '  '.repeat(indent) + line;
+            
+            if (line.startsWith('<') && !line.startsWith('</') && !line.endsWith('/>') && !line.includes('<!')) {
+                indent++;
+            }
+            
+            return indentedLine;
+        }).join('\n');
+        
+    } else if (currentLanguage === 'python') {
+        // تنسيق Python مبسط
+        formatted = content
+            .replace(/\s+$/gm, '')
+            .replace(/\n{3,}/g, '\n\n');
+    }
+    
+    codeEditor.value = formatted;
+    saveCurrentFile();
+    updateLineNumbers();
+    updateFileInfo();
+    
+    showNotification('تم تنسيق الكود', 'success');
+}
+
+// تبديل التعليق
+function toggleComment() {
+    const selectionStart = codeEditor.selectionStart;
+    const selectionEnd = codeEditor.selectionEnd;
+    const selectedText = codeEditor.value.substring(selectionStart, selectionEnd);
+    
+    if (!selectedText) {
+        showNotification('الرجاء تحديد نص لتعليقه', 'warning');
+        return;
+    }
+    
+    let commentedText;
+    const lines = selectedText.split('\n');
+    
+    if (currentLanguage === 'html') {
+        if (selectedText.includes('<!--') && selectedText.includes('-->')) {
+            // إزالة التعليق
+            commentedText = selectedText.replace(/<!--\s*/g, '').replace(/\s*-->/g, '');
+        } else {
+            // إضافة تعليق
+            commentedText = '<!-- ' + selectedText + ' -->';
+        }
+    } else if (currentLanguage === 'python') {
+        const allCommented = lines.every(line => line.trim().startsWith('#') || line.trim() === '');
+        
+        if (allCommented) {
+            // إزالة التعليق
+            commentedText = lines.map(line => line.replace(/^(\s*)#\s?/, '$1')).join('\n');
+        } else {
+            // إضافة تعليق
+            commentedText = lines.map(line => {
+                if (line.trim() === '') return line;
+                return '# ' + line;
+            }).join('\n');
+        }
+    } else if (currentLanguage === 'css') {
+        const allCommented = lines.every(line => line.trim().startsWith('/*') || line.trim() === '');
+        
+        if (allCommented) {
+            // إزالة التعليق
+            commentedText = lines.map(line => line.replace(/^(\s*)\/\*(.*?)\*\//, '$1$2')).join('\n');
+        } else {
+            // إضافة تعليق
+            commentedText = lines.map(line => {
+                if (line.trim() === '') return line;
+                return '/* ' + line + ' */';
+            }).join('\n');
+        }
+    } else {
+        showNotification('اللغة غير مدعومة للتعليق', 'warning');
+        return;
+    }
+    
+    const newValue = codeEditor.value.substring(0, selectionStart) + commentedText + codeEditor.value.substring(selectionEnd);
+    codeEditor.value = newValue;
+    saveCurrentFile();
+    updateLineNumbers();
+    updateFileInfo();
+    
+    showNotification('تم تعديل التعليق', 'success');
+}
+
+// فحص الأخطاء
+function checkForErrors() {
+    const content = codeEditor.value;
+    const errors = [];
+    
+    if (currentLanguage === 'html') {
+        // فحص HTML مبسط
+        const openTags = [];
+        const tagRegex = /<\/?([a-zA-Z][^\s/>]*)(?:\s+[^>]*)?\/?>/g;
+        const lines = content.split('\n');
+        
+        lines.forEach((line, index) => {
+            let match;
+            while ((match = tagRegex.exec(line)) !== null) {
+                const tag = match[1].toLowerCase();
+                const fullMatch = match[0];
+                const isClosing = fullMatch.startsWith('</');
+                const isSelfClosing = fullMatch.endsWith('/>');
+                
+                if (!isClosing && !isSelfClosing) {
+                    openTags.push({ tag, line: index + 1 });
+                } else if (isClosing) {
+                    if (openTags.length === 0) {
+                        errors.push({
+                            line: index + 1,
+                            message: `علامة إغلاق غير متوقعة: </${tag}>`,
+                            severity: 'error'
+                        });
+                    } else if (openTags[openTags.length - 1].tag !== tag) {
+                        errors.push({
+                            line: index + 1,
+                            message: `علامة إغلاق غير متطابقة: </${tag}>`,
+                            severity: 'error'
+                        });
+                    } else {
+                        openTags.pop();
+                    }
+                }
+            }
+        });
+        
+        // علامات غير مغلقة
+        openTags.forEach(tagInfo => {
+            errors.push({
+                line: tagInfo.line,
+                message: `علامة غير مغلقة: <${tagInfo.tag}>`,
+                severity: 'error'
+            });
+        });
+        
+    } else if (currentLanguage === 'python') {
+        // فحص Python مبسط
+        const lines = content.split('\n');
+        
+        lines.forEach((line, index) => {
+            const lineNum = index + 1;
+            const trimmedLine = line.trim();
+            
+            // فحص الأقواس غير المغلقة
+            const openParen = (line.match(/\(/g) || []).length;
+            const closeParen = (line.match(/\)/g) || []).length;
+            if (openParen !== closeParen) {
+                errors.push({
+                    line: lineNum,
+                    message: 'أقواس غير متطابقة',
+                    severity: 'error'
+                });
+            }
+            
+            const openBracket = (line.match(/\[/g) || []).length;
+            const closeBracket = (line.match(/\]/g) || []).length;
+            if (openBracket !== closeBracket) {
+                errors.push({
+                    line: lineNum,
+                    message: 'أقواس معقوفة غير متطابقة',
+                    severity: 'error'
+                });
+            }
+            
+            const openBrace = (line.match(/\{/g) || []).length;
+            const closeBrace = (line.match(/\}/g) || []).length;
+            if (openBrace !== closeBrace) {
+                errors.push({
+                    line: lineNum,
+                    message: 'أقواس معكوفة غير متطابقة',
+                    severity: 'error'
+                });
+            }
+            
+            // فحص علامات التنصيص
+            const singleQuotes = (line.match(/'/g) || []).length;
+            const doubleQuotes = (line.match(/"/g) || []).length;
+            
+            if (singleQuotes % 2 !== 0) {
+                errors.push({
+                    line: lineNum,
+                    message: 'علامات تنصيص مفردة غير متطابقة',
+                    severity: 'error'
+                });
+            }
+            
+            if (doubleQuotes % 2 !== 0) {
+                errors.push({
+                    line: lineNum,
+                    message: 'علامات تنصيص مزدوجة غير متطابقة',
+                    severity: 'error'
+                });
+            }
+            
+            // فحص بناء الجملة الأساسي
+            if (trimmedLine.startsWith('def ') || trimmedLine.startsWith('class ')) {
+                if (!trimmedLine.endsWith(':')) {
+                    errors.push({
+                        line: lineNum,
+                        message: 'ينقص النقطتين في نهاية تعريف الدالة/الكلاس',
+                        severity: 'error'
+                    });
+                }
+            }
+        });
+    }
+    
+    // عرض الأخطاء
+    displayErrors(errors);
+}
+
+// عرض الأخطاء
+function displayErrors(errors) {
+    if (errors.length === 0) {
+        errorList.innerHTML = '<p style="color: #10b981; font-size: 12px; text-align: center; padding: 10px;"><i class="fas fa-check-circle"></i> لا توجد أخطاء</p>';
+        return;
+    }
+    
+    let errorHTML = '';
+    errors.forEach((error, index) => {
+        errorHTML += `
+            <div class="error-item" data-line="${error.line - 1}">
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle" style="color: ${error.severity === 'error' ? '#ef4444' : '#f59e0b'}; margin-left: 5px;"></i>
+                    ${error.message}
+                </div>
+                <div class="error-line">سطر ${error.line}</div>
+            </div>
+        `;
+    });
+    
+    errorList.innerHTML = errorHTML;
+    
+    // إضافة مستمعات للانتقال إلى السطر
+    errorList.querySelectorAll('.error-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const line = parseInt(this.dataset.line);
+            
+            // حساب موضع السطر
+            const lines = codeEditor.value.split('\n');
+            let position = 0;
+            for (let i = 0; i < line && i < lines.length; i++) {
+                position += lines[i].length + 1; // +1 لل newline
+            }
+            
+            // تحديد السطر
+            codeEditor.focus();
+            codeEditor.setSelectionRange(position, position);
+            
+            // التمرير إلى السطر
+            const lineHeight = codeEditor.scrollHeight / lines.length;
+            codeEditor.scrollTop = line * lineHeight - 100;
+        });
+    });
+    
+    showNotification(`تم العثور على ${errors.length} خطأ`, errors.length > 3 ? 'error' : 'warning');
+}
+
+// مسح النتائج
+function clearOutput() {
+    outputElement.innerHTML = `
+        <div class="python-output">
+            <div class="output-line">
+                <i class="fas fa-info-circle" style="color: #60a5fa; margin-left: 5px;"></i>
+                استخدم زر "تشغيل" لتنفيذ الكود
+            </div>
+            <div class="output-line">
+                <i class="fas fa-code" style="color: #10b981; margin-left: 5px;"></i>
+                يدعم HTML و Python و CSS و JavaScript
+            </div>
+        </div>
+    `;
+}
+
+// تبديل وضع ملء الشاشة
+function toggleFullscreen() {
+    const outputContainer = document.querySelector('.output-container');
+    
+    if (!document.fullscreenElement) {
+        if (outputContainer.requestFullscreen) {
+            outputContainer.requestFullscreen();
+        } else if (outputContainer.webkitRequestFullscreen) {
+            outputContainer.webkitRequestFullscreen();
+        } else if (outputContainer.msRequestFullscreen) {
+            outputContainer.msRequestFullscreen();
+        }
+        fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i> خروج';
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i> ملء الشاشة';
+    }
+}
+
+// تبديل الشريط الجانبي
+function toggleSidebar() {
+    isSidebarCollapsed = !isSidebarCollapsed;
+    sidebar.classList.toggle('collapsed', isSidebarCollapsed);
+    
+    const icon = sidebarToggle.querySelector('i');
+    if (isSidebarCollapsed) {
+        icon.className = 'fas fa-chevron-left';
+    } else {
+        icon.className = 'fas fa-chevron-right';
+    }
+}
+
+// تحميل الإعدادات إلى الواجهة
+function loadSettingsToUI() {
+    document.getElementById('auto-complete').checked = editorSettings.autoComplete;
+    document.getElementById('auto-close-brackets').checked = editorSettings.autoCloseBrackets;
+    document.getElementById('code-folding').checked = editorSettings.codeFolding;
+    document.getElementById('font-size').value = editorSettings.fontSize;
+    document.getElementById('tab-size').value = editorSettings.tabSize;
+    document.getElementById('auto-error-check').checked = editorSettings.autoErrorCheck;
+    document.getElementById('auto-save').checked = editorSettings.autoSave;
+    
+    // تحديث أزرار الثيم
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.theme === editorSettings.theme) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// حفظ الإعدادات من الواجهة
+function saveSettingsFromUI() {
+    editorSettings.autoComplete = document.getElementById('auto-complete').checked;
+    editorSettings.autoCloseBrackets = document.getElementById('auto-close-brackets').checked;
+    editorSettings.codeFolding = document.getElementById('code-folding').checked;
+    editorSettings.fontSize = parseInt(document.getElementById('font-size').value);
+    editorSettings.tabSize = parseInt(document.getElementById('tab-size').value);
+    editorSettings.autoErrorCheck = document.getElementById('auto-error-check').checked;
+    editorSettings.autoSave = document.getElementById('auto-save').checked;
+    
+    saveSettings();
+}
+
+// عرض الإشعارات
+function showNotification(message, type = 'info') {
+    // إنشاء عنصر الإشعار
+    const notification = document.createElement('div');
+    notification.className = `notification-${type}`;
+    notification.textContent = message;
+    notification.style.position = 'fixed';
+    notification.style.bottom = '20px';
+    notification.style.right = '20px';
+    notification.style.padding = '12px 20px';
+    notification.style.borderRadius = '6px';
+    notification.style.color = 'white';
+    notification.style.fontWeight = '500';
+    notification.style.zIndex = '10000';
+    notification.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+    notification.style.transform = 'translateY(100px)';
+    notification.style.opacity = '0';
+    notification.style.transition = 'all 0.3s ease';
+    
+    // تحديد لون الإشعار
+    let bgColor;
+    switch (type) {
+        case 'success': bgColor = '#10b981'; break;
+        case 'error': bgColor = '#ef4444'; break;
+        case 'warning': bgColor = '#f59e0b'; break;
+        case 'info': bgColor = '#3b82f6'; break;
+        default: bgColor = '#3b82f6';
+    }
+    
+    notification.style.backgroundColor = bgColor;
+    notification.style.border = `1px solid ${bgColor}80`;
+    
+    document.body.appendChild(notification);
+    
+    // إظهار الإشعار
+    setTimeout(() => {
+        notification.style.transform = 'translateY(0)';
+        notification.style.opacity = '1';
+    }, 10);
+    
+    // إخفاء الإشعار بعد 3 ثواني
+    setTimeout(() => {
+        notification.style.transform = 'translateY(100px)';
+        notification.style.opacity = '0';
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// تهيئة عند تحميل الصفحة
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+<!-- نهاية الجزء 2 -->
+</body>
+</html>
