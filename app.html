@@ -22,17 +22,15 @@
   .sub-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
   .sub-box input { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: var(--r-md); margin-bottom: 15px; font-family: inherit; font-size: 15px; }
   
+  /* شكل القفل */
   .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
   .lock-badge.unlocked { color: var(--green); }
 
-  .card-item.module_explain, .card-item.module_video, .card-item.module_questions, .card-item.module_summary, .card-item.module_terms {
+  /* التلوين الأحمر للمحتوى المقفول فقط */
+  .locked-card {
     background-color: #fff5f5 !important;
     border-color: #feb2b2 !important;
-  }
-  .card-item.unlocked-card {
-    background-color: var(--card) !important;
-    border-color: var(--line) !important;
   }
 </style>
 </head>
@@ -159,7 +157,7 @@ import { collection, getDocs, query, where } from "https://www.gstatic.com/fireb
 
 let currentUserData = null;
 let treeData = [];
-let userSubs = {}; 
+let userSubs = {}; // هنحفظ فيه الموااااد اللي الطالب مشترك فيها
 
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
@@ -233,17 +231,17 @@ async function loadTreeData() {
   treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// دالة ذكية للبحث عن "المادة" اللي المحتوى تابع ليها
-function getSubjectFromNode(node) {
-  let current = node;
-  while (current) {
-    if (current.type === 'subject') return current;
-    if (!current.parentId || current.parentId === 'root') break;
+// دالة ذكية بترجع الـ ID بتاع المادة الأم لأي ملف
+function getSubjectIdFromNode(nodeId) {
+  let current = treeData.find(n => n.id === nodeId);
+  while(current) {
+    if(current.type === 'subject') return current.id;
     current = treeData.find(n => n.id === current.parentId);
   }
   return null;
 }
 
+// بنجيب اشتراكات المواد اللي الطالب دفعها
 async function loadMySubscriptions() {
   userSubs = {};
   const q = query(collection(db, "subscriptions"), where("uid", "==", currentUserData.uid));
@@ -252,7 +250,7 @@ async function loadMySubscriptions() {
   snap.forEach(d => {
     const data = d.data();
     if (data.status === 'active') {
-      userSubs[data.subjectId] = data; 
+      userSubs[data.subjectId] = data; // بنربط الاشتراك بالمادة
     }
   });
 }
@@ -274,7 +272,6 @@ function renderCard(node) {
   let typeLabel = 'تبويب';
   let icon = '';
   let isLocked = false;
-  let isUnlocked = false;
 
   if (node.type === 'year') typeLabel = 'سنة دراسية';
   else if (node.type === 'program') typeLabel = 'برنامج';
@@ -286,24 +283,19 @@ function renderCard(node) {
     else if (node.type === 'module_summary') { typeLabel = 'ملخص'; icon = '<i class="fas fa-clipboard-list" style="color:#8e44ad;margin-left:6px"></i>'; }
     else if (node.type === 'module_terms') { typeLabel = 'مصطلحات'; icon = '<i class="fas fa-book" style="color:#d35400;margin-left:6px"></i>'; }
     
-    // هل المحتوى ده "مدفوع"؟
+    // التحقق من الصلاحية
     if (node.access === 'paid') {
-      const subject = getSubjectFromNode(node);
-      if (subject) {
-        if (userSubs[subject.id]) {
-          isUnlocked = true; // الطالب مشترك في المادة
-        } else {
-          isLocked = true; // الطالب مش مشترك
-        }
+      const subjectId = getSubjectIdFromNode(node.id);
+      if (subjectId && !userSubs[subjectId]) {
+        isLocked = true; // مقفول عشان المادة مش مشتركة
       }
     }
   }
 
-  const lockIcon = isLocked 
-    ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' 
-    : (isUnlocked ? '<span class="lock-badge unlocked"><i class="fas fa-lock-open"></i></span>' : '');
-
-  const cardClass = isUnlocked ? `card-item ${node.type || 'custom'} unlocked-card` : `card-item ${node.type || 'custom'}`;
+  const lockIcon = isLocked ? '<span class="lock-badge locked"><i class="fas fa-lock"></i></span>' : '';
+  
+  // لو مقفول، نضيف كلاس التلوين الأحمر
+  const cardClass = isLocked ? `card-item ${node.type || 'custom'} locked-card` : `card-item ${node.type || 'custom'}`;
 
   const titleHtml = `${icon}${node.title}`;
   const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
@@ -320,22 +312,21 @@ function renderCard(node) {
 
 function handleNodeClick(node) {
   if (node.type === 'content' || node.type.startsWith('module_')) {
-    
-    // لو المحتوى "مدفوع" والطالب مش مشترك
+    // لو الملف مدفوع، نشوف المادة الأم
     if (node.access === 'paid') {
-      const subject = getSubjectFromNode(node);
-      if (subject && !userSubs[subject.id]) {
-        document.getElementById('subSubjectName').textContent = `مادة: ${subject.title}`;
-        document.getElementById('subModal').dataset.subjectId = subject.id;
+      const subjectId = getSubjectIdFromNode(node.id);
+      if (subjectId && !userSubs[subjectId]) {
+        // الطالب مش مشترك في المادة دي، نفتح المودال باسم المادة
+        const subject = treeData.find(n => n.id === subjectId);
+        document.getElementById('subSubjectName').textContent = `المادة المطلوبة: ${subject?.title || 'غير معروفة'}`;
+        document.getElementById('subModal').dataset.subjectId = subjectId;
         document.getElementById('subNotes').value = '';
         document.getElementById('subModal').classList.add('active');
         return;
       }
     }
-    
-    // لو المحتوى "عام" أو الطالب مشترك، افتحه
+    // لو الملف عام، أو المادة مشتركة، نفتح المحتوى
     openPlayer(node);
-
   } else {
     renderLevel(node.id);
   }
@@ -351,6 +342,7 @@ window.submitSubRequest = async function() {
 
   const subject = treeData.find(n => n.id === subjectId);
   try {
+    // بنبعت الطلب باسم و ID المادة
     await requestSubscription(currentUserData.uid, currentUserData.name, subjectId, subject.title, notes);
     showToast('تم إرسال الطلب بنجاح. سيتم تفعيله بعد المراجعة.');
     document.getElementById('subModal').classList.remove('active');
