@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyCHspBBXBG8DmLPOfKcqE8H8SmAjw5HGpQ",
@@ -85,14 +85,14 @@ export async function checkDeviceStatus(uid) {
 }
 
 // ===== SUBSCRIPTIONS =====
-export async function requestSubscription(uid, userName, subjectId, subjectName, notes) {
+export async function requestSubscription(uid, userName, itemId, itemTitle, notes) {
   const reqRef = doc(collection(db, 'subscription_requests'));
   await setDoc(reqRef, {
     id: reqRef.id, 
     uid, 
     userName, 
-    subjectId, // تأكدنا إن ده بياخد ID المادة
-    subjectName, 
+    itemId, 
+    itemTitle, 
     notes,
     status: 'pending', 
     createdAt: serverTimestamp()
@@ -100,14 +100,13 @@ export async function requestSubscription(uid, userName, subjectId, subjectName,
   return reqRef.id;
 }
 
-export async function activateSubscription(uid, subjectId, durationDays = 30) {
+export async function activateSubscription(uid, itemId, durationDays = 30) {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + durationDays);
   
-  // حفظ الاشتراك باسم المادة
-  await setDoc(doc(db, 'subscriptions', `${uid}_${subjectId}`), {
+  await setDoc(doc(db, 'subscriptions', `${uid}_${itemId}`), {
     uid, 
-    subjectId, 
+    itemId, 
     status: 'active', 
     createdAt: serverTimestamp(), 
     expiresAt: expiresAt
