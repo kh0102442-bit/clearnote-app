@@ -100,6 +100,24 @@
   }
   .divider-text:before { left: 0; }
   .divider-text:after { right: 0; }
+
+  /* Admin Notifications */
+  .admin-notif-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px; background: var(--white); z-index: 99999; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,.15); }
+  .admin-notif-panel.active { transform: translateX(0); }
+  .admin-notif-panel-header { background: var(--navy); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .admin-notif-panel-header h3 { margin: 0; font-size: 16px; }
+  .admin-notif-panel-header button { background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; padding: 4px 8px; }
+  .admin-notif-panel-body { flex: 1; overflow-y: auto; padding: 12px; background: var(--bg); }
+  .admin-notif-panel-footer { padding: 12px; border-top: 1px solid var(--line); text-align: center; }
+  .admin-notif-panel-footer button { background: transparent; border: none; color: var(--accent); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .admin-notif-item { background: var(--white); border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--line); cursor: pointer; transition: 0.15s; }
+  .admin-notif-item.unread { border-left-color: var(--accent); background: #fefaf0; }
+  .admin-notif-item:hover { background: var(--line-soft); }
+  .admin-notif-item .n-title { font-weight: 800; font-size: 14px; color: var(--navy); margin-bottom: 4px; }
+  .admin-notif-item .n-msg { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 6px; }
+  .admin-notif-item .n-time { font-size: 11px; color: var(--text-light); }
+  .admin-notif-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 99998; display: none; }
+  .admin-notif-overlay.active { display: block; }
 </style>
 </head>
 <body>
@@ -108,6 +126,10 @@
   <div class="admin-brand">CLEAR<span>NOTE</span></div>
   <div style="display:flex; gap:8px;">
     <button class="btn-add-main" id="addBtn" onclick="openAddModal(null, 'root')"><i class="fas fa-plus"></i> سنة</button>
+    <button class="btn-logout" onclick="openAdminNotifications()" style="position:relative; color: var(--accent);">
+      <i class="fas fa-bell"></i>
+      <span id="adminNotifBadge" style="display:none; position:absolute; top:2px; right:2px; background:var(--red); color:white; border-radius:50%; min-width:16px; height:16px; font-size:10px; align-items:center; justify-content:center; padding:0 3px; font-weight:bold;">0</span>
+    </button>
     <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i></button>
   </div>
 </div>
@@ -205,8 +227,27 @@
   </div>
 </div>
 
+<!-- Admin Notifications Panel -->
+<div class="admin-notif-overlay" id="adminNotifOverlay" onclick="closeAdminNotifications()"></div>
+<div class="admin-notif-panel" id="adminNotifPanel">
+  <div class="admin-notif-panel-header">
+    <h3><i class="fas fa-bell"></i> إشعارات الأدمن</h3>
+    <button onclick="closeAdminNotifications()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="admin-notif-panel-body" id="adminNotifBody">
+    <p style="text-align:center; color:var(--muted); padding:40px;">لا توجد إشعارات</p>
+  </div>
+  <div class="admin-notif-panel-footer">
+    <button onclick="markAllAdminRead()">تعليم الكل كمقروء</button>
+  </div>
+</div>
+
 <script type="module">
-import { db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription } from "./shared.js";
+import { 
+  db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription,
+  listenAdminNotifications, markAdminNotificationRead, markAllAdminNotificationsRead,
+  createNotification
+} from "./shared.js";
 import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let treeData = [];
@@ -214,9 +255,24 @@ let allStudents = [];
 let allRequests = [];
 let openNodes = new Set();
 let videoItemCounter = 0;
+let adminNotifs = [];
+let adminNotifUnsub = null;
 
-onAuth((user, userData) => { if (!user || !isAdmin(userData)) { goTo("index.html"); return; } loadAllData(); });
-window.doLogout = async () => { await signOutUser(); goTo("index.html"); };
+onAuth((user, userData) => { 
+  if (!user || !isAdmin(userData)) { goTo("index.html"); return; } 
+  loadAllData(); 
+  
+  adminNotifUnsub = listenAdminNotifications((notifs) => {
+    adminNotifs = notifs;
+    updateAdminBadge();
+    renderAdminNotifsPanel();
+  });
+});
+window.doLogout = async () => { 
+  if (adminNotifUnsub) adminNotifUnsub();
+  await signOutUser(); 
+  goTo("index.html"); 
+};
 
 window.switchTab = function(tab) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -263,6 +319,16 @@ window.approveSub = async function(reqId, uid, subId) {
   try {
     await activateSubscription(uid, subId);
     await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'approved' });
+    
+    const req = allRequests.find(r => r.id === reqId);
+    await createNotification(
+      uid, 
+      'subscription_approved',
+      '✅ تم تفعيل اشتراكك',
+      `تمت الموافقة على اشتراكك في "${req?.subjectName || 'المادة'}" لمدة 30 يوم`,
+      'app.html'
+    );
+    
     showToast('تم تفعيل الاشتراك');
     loadAllData();
   } catch(e) { showToast('خطأ', 'error'); }
@@ -270,7 +336,19 @@ window.approveSub = async function(reqId, uid, subId) {
 
 window.rejectSub = async function(reqId) {
   try {
+    const req = allRequests.find(r => r.id === reqId);
     await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'rejected' });
+    
+    if (req) {
+      await createNotification(
+        req.uid,
+        'subscription_rejected',
+        '❌ تم رفض طلب الاشتراك',
+        `طلب اشتراكك في "${req.subjectName}" لم يُقبل. تواصل مع الإدارة.`,
+        'app.html'
+      );
+    }
+    
     showToast('تم الرفض');
     loadAllData();
   } catch(e) { showToast('خطأ', 'error'); }
@@ -300,9 +378,12 @@ window.openDevices = async function(uid, name) {
     <div style="background:#fafbfc; border:1px solid var(--line); padding:10px; border-radius:8px; margin-bottom:8px;">
       <div style="font-size:11px; color:var(--muted); direction:ltr; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${dev.userAgent}</div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-        <span style="font-weight:bold; font-size:12px; color:${dev.status === 'approved' ? 'green' : 'red'}">${dev.status === 'approved' ? 'متوافق' : 'قيد الانتظار'}</span>
+        <span style="font-weight:bold; font-size:12px; color:${dev.status === 'approved' ? 'green' : dev.status === 'blocked' ? 'red' : '#a8741a'}">
+          ${dev.status === 'approved' ? 'متوافق' : dev.status === 'blocked' ? 'محظور' : 'قيد الانتظار'}
+        </span>
         <div style="display:flex; gap:4px;">
           ${dev.status === 'pending' ? `<button class="action-btn" style="background:var(--green); color:white; border:none;" onclick="updateDevice('${uid}', '${dev.id}', 'approved')"><i class="fas fa-check"></i></button>` : ''}
+          ${dev.status === 'approved' ? `<button class="action-btn" style="background:#fbeaea; color:var(--red); border-color:#fbeaea;" onclick="updateDevice('${uid}', '${dev.id}', 'blocked')"><i class="fas fa-ban"></i></button>` : ''}
           <button class="action-btn danger" onclick="deleteDevice('${uid}', '${dev.id}')"><i class="fas fa-trash"></i></button>
         </div>
       </div>
@@ -312,6 +393,13 @@ window.openDevices = async function(uid, name) {
 
 window.updateDevice = async function(uid, devId, status) {
   await updateDoc(doc(db, 'devices', uid, 'list', devId), { status: status });
+  
+  if (status === 'approved') {
+    await createNotification(uid, 'device_approved', '✅ تمت الموافقة على جهازك', 'يمكنك الآن الدخول من هذا الجهاز', 'app.html');
+  } else if (status === 'blocked') {
+    await createNotification(uid, 'device_blocked', '🚫 تم حظر جهازك', 'تم حظر هذا الجهاز بواسطة الإدارة', 'app.html');
+  }
+  
   showToast('تم التحديث');
   openDevices(uid, '');
 };
@@ -397,14 +485,12 @@ window.handleHtmlFileUpload = function(event) {
   const file = event.target.files[0];
   if (!file) return;
   
-  // التأكد من الامتداد
   if (!/\.(html?|htm)$/i.test(file.name)) {
     showToast('يرجى اختيار ملف HTML صالح (.html أو .htm)', 'error');
     event.target.value = '';
     return;
   }
   
-  // التأكد من الحجم (حد أقصى 1 ميجا كود HTML - كافي جداً)
   if (file.size > 1024 * 1024) {
     showToast('حجم الملف كبير جداً (الحد الأقصى 1 ميجابايت)', 'error');
     event.target.value = '';
@@ -414,18 +500,14 @@ window.handleHtmlFileUpload = function(event) {
   const reader = new FileReader();
   reader.onload = function(e) {
     const content = e.target.result;
-    
-    // نملأ مربع الكود
     document.getElementById('moduleCode').value = content;
     
-    // نغير شكل صندوق الرفع للأخضر
     const zone = document.getElementById('htmlUploadZone');
     zone.classList.add('success');
     zone.querySelector('.up-text').textContent = '✓ تم تحميل الملف بنجاح';
     zone.querySelector('.up-sub').textContent = 'يمكنك تعديل الكود أدناه أو الحفظ مباشرة';
     zone.querySelector('i').className = 'fas fa-check-circle';
     
-    // نظهر معلومات الملف
     const info = document.getElementById('htmlFileInfo');
     const sizeKB = (file.size / 1024).toFixed(1);
     info.textContent = `📄 ${file.name} — ${sizeKB} KB — ${content.split('\n').length} سطر`;
@@ -599,7 +681,6 @@ window.openCodeEditor = function(moduleKey, moduleTitle) {
   document.getElementById("moduleAccessInput").value = existing ? (existing.access || 'public') : 'public'; 
   document.getElementById("moduleCode").value = existing ? (existing.htmlContent || '') : '';
   
-  // نرجع صندوق الرفع لحالته الطبيعية
   resetHtmlUploadZone();
   
   closeModal('manageModal'); 
@@ -676,6 +757,54 @@ window.editModule = async function(nodeId) {
 
 window.deleteNode = async function(id) { if (treeData.some(n => n.parentId === id)) return; if (!confirm("حذف؟")) return; await deleteDoc(doc(db, "content_tree", id)); loadAllData(); };
 window.closeModal = function(id) { document.getElementById(id).classList.remove("active"); };
+
+// ============ ADMIN NOTIFICATIONS ============
+function updateAdminBadge() {
+  const unread = adminNotifs.filter(n => !n.read).length;
+  const badge = document.getElementById('adminNotifBadge');
+  if (badge) {
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+    badge.textContent = unread > 9 ? '9+' : unread;
+  }
+}
+
+function renderAdminNotifsPanel() {
+  const body = document.getElementById('adminNotifBody');
+  if (!body) return;
+  if (adminNotifs.length === 0) {
+    body.innerHTML = `<p style="text-align:center; color:var(--muted); padding:40px;">لا توجد إشعارات</p>`;
+    return;
+  }
+  body.innerHTML = adminNotifs.map(n => {
+    let time = '';
+    try { time = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-EG') : ''; } catch(e) {}
+    return `<div class="admin-notif-item ${n.read ? '' : 'unread'}" onclick="handleAdminNotif('${n.id}')">
+      <div class="n-title">${n.title || ''}</div>
+      <div class="n-msg">${n.message || ''}</div>
+      <div class="n-time">${time}</div>
+    </div>`;
+  }).join('');
+}
+
+window.openAdminNotifications = function() {
+  document.getElementById('adminNotifPanel').classList.add('active');
+  document.getElementById('adminNotifOverlay').classList.add('active');
+};
+
+window.closeAdminNotifications = function() {
+  document.getElementById('adminNotifPanel').classList.remove('active');
+  document.getElementById('adminNotifOverlay').classList.remove('active');
+};
+
+window.handleAdminNotif = async function(notifId) {
+  await markAdminNotificationRead(notifId);
+  closeAdminNotifications();
+};
+
+window.markAllAdminRead = async function() {
+  await markAllAdminNotificationsRead(adminNotifs);
+  showToast('تم تعليم الكل كمقروء');
+};
 </script>
 </body>
 </html>
