@@ -24,49 +24,11 @@
   
   .lock-badge { position: absolute; top: 12px; left: 12px; font-size: 18px; z-index: 10; }
   .lock-badge.locked { color: var(--red); }
-  .locked-card { background-color: #fff5f5 !important; border-color: #feb2b2 !important; }
 
-  /* Notifications Panel */
-  .notif-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px; background: var(--card); z-index: 99999; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,.15); }
-  .notif-panel.active { transform: translateX(0); }
-  .notif-panel-header { background: var(--navy); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .notif-panel-header h3 { margin: 0; font-size: 16px; }
-  .notif-panel-header button { background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; padding: 4px 8px; }
-  .notif-panel-body { flex: 1; overflow-y: auto; padding: 12px; background: var(--bg); }
-  .notif-item { background: var(--card); border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--line); cursor: pointer; transition: 0.15s; }
-  .notif-item.unread { border-left-color: var(--accent); background: #fefaf0; }
-  .notif-item:hover { background: var(--line-soft); }
-  .notif-item .n-title { font-weight: 800; font-size: 14px; color: var(--navy); margin-bottom: 4px; }
-  .notif-item .n-msg { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 6px; }
-  .notif-item .n-time { font-size: 11px; color: var(--text-light); }
-  .notif-panel-footer { padding: 12px; border-top: 1px solid var(--line); text-align: center; }
-  .notif-panel-footer button { background: transparent; border: none; color: var(--accent); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .notif-empty { text-align: center; padding: 40px 20px; color: var(--muted); }
-  .notif-empty i { font-size: 48px; color: var(--line); display: block; margin-bottom: 10px; }
-  .notif-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 99998; display: none; }
-  .notif-overlay.active { display: block; }
-
-  /* Profile sections */
-  .profile-section { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); margin-bottom: 16px; overflow: hidden; }
-  .profile-section-head { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid var(--line-soft); }
-  .profile-section-head h3 { margin: 0; font-size: 15px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
-  .profile-section-head h3 i { color: var(--accent); font-size: 16px; }
-  .profile-section-head .chevron { color: var(--text-light); transition: 0.2s; }
-  .profile-section-head.open .chevron { transform: rotate(180deg); }
-  .profile-section-body { display: none; padding: 12px 16px; }
-  .profile-section-body.open { display: block; }
-  .empty-mini { text-align: center; color: var(--muted); padding: 20px; font-size: 13px; }
-  .sub-item-mini { background: #f8f9fa; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .sub-item-mini .nm { font-weight: 800; color: var(--navy); font-size: 14px; }
-  .sub-item-mini .ex { font-size: 11.5px; color: var(--green); margin-top: 2px; }
-  .sub-item-mini .ex.warn { color: var(--red); }
-  .device-mini { background: #f8f9fa; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
-  .device-mini .ua { font-size: 11px; color: var(--muted); direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
-  .device-mini .st { font-size: 12px; font-weight: bold; }
-  .device-mini .st.ok { color: var(--green); }
-  .device-mini .st.pending { color: var(--accent); }
-  .device-mini .st.blocked { color: var(--red); }
-  .device-mini.this-device { border-color: var(--green); background: #e8f5e9; }
+  .locked-card {
+    background-color: #fff5f5 !important;
+    border-color: #feb2b2 !important;
+  }
 </style>
 </head>
 <body>
@@ -81,11 +43,8 @@
 <nav class="top-navbar">
   <div class="brand">CLEAR<span>NOTE</span></div>
   <div class="spacer"></div>
-  <button class="icon-btn" onclick="openNotifications()" style="position:relative;">
-    <i class="far fa-bell"></i>
-    <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
-  </button>
-  <div class="top-avatar" id="topAvatar"onclick="window.location.href='profile.html'"">U</div>
+  <button class="icon-btn" onclick="showNotifications()"><i class="far fa-bell"></i></button>
+  <div class="top-avatar" id="topAvatar" onclick="switchView('profile')">U</div>
 </nav>
 
 <aside class="side-nav">
@@ -93,7 +52,7 @@
   <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
   <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>الدردشات</span></button>
   <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
-  <button class="nav-item" data-view="profile"onclick="window.location.href='profile.html'""><i class="fas fa-user"></i><span>حسابي</span></button>
+  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
 </aside>
 
 <main class="app-main" id="appMain">
@@ -148,50 +107,12 @@
         <div class="profile-email" id="profileEmail">...</div>
         <span class="profile-role-badge" id="profileRole">طالب</span>
       </div>
-
-      <!-- اشتراكاتي -->
-      <div class="profile-section">
-        <div class="profile-section-head open" onclick="toggleProfileSection(this)">
-          <h3><i class="fas fa-crown"></i> اشتراكاتي</h3>
-          <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="profile-section-body open" id="subscriptionsBody">
-          <div class="empty-mini">جاري التحميل...</div>
-        </div>
-      </div>
-
-      <!-- أجهزتي -->
-      <div class="profile-section">
-        <div class="profile-section-head" onclick="toggleProfileSection(this)">
-          <h3><i class="fas fa-mobile-alt"></i> أجهزتي</h3>
-          <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="profile-section-body" id="devicesBody">
-          <div class="empty-mini">جاري التحميل...</div>
-        </div>
-      </div>
-
-      <!-- إعدادات -->
-      <div class="profile-section">
-        <div class="profile-section-head" onclick="toggleProfileSection(this)">
-          <h3><i class="fas fa-cog"></i> الإعدادات</h3>
-          <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="profile-section-body">
-          <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الاسم</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-          <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-key"></i></div><div class="pi-text">تغيير كلمة المرور</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-          <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-palette"></i></div><div class="pi-text">المظهر</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-          <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-bell"></i></div><div class="pi-text">الإشعارات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
-        </div>
-      </div>
-
-      <!-- تسجيل الخروج -->
-      <div class="profile-section">
-        <div class="profile-item danger" onclick="doLogout()">
-          <div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div>
-          <div class="pi-text">تسجيل الخروج</div>
-          <i class="fas fa-chevron-left pi-arrow"></i>
-        </div>
+      <div class="profile-list">
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-cog"></i></div><div class="pi-text">الإعدادات</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-user-edit"></i></div><div class="pi-text">تعديل الملف</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon" style="background:#fdfaf3;color:var(--accent)"><i class="fas fa-crown"></i></div><div class="pi-text">اشتراكاتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item" onclick="alert('قريباً')"><div class="pi-icon"><i class="fas fa-mobile-alt"></i></div><div class="pi-text">أجهزتي</div><i class="fas fa-chevron-left pi-arrow"></i></div>
+        <div class="profile-item danger" onclick="doLogout()"><div class="pi-icon"><i class="fas fa-sign-out-alt"></i></div><div class="pi-text">تسجيل الخروج</div><i class="fas fa-chevron-left pi-arrow"></i></div>
       </div>
     </div>
   </section>
@@ -202,23 +123,8 @@
   <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
   <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>دردشات</span></button>
   <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
-  <button class="nav-item" data-view="profile"onclick="window.location.href='profile.html'""><i class="fas fa-user"></i><span>حسابي</span></button>
+  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
 </nav>
-
-<!-- Notifications Panel -->
-<div class="notif-overlay" id="notifOverlay" onclick="closeNotifications()"></div>
-<div class="notif-panel" id="notifPanel">
-  <div class="notif-panel-header">
-    <h3><i class="fas fa-bell"></i> الإشعارات</h3>
-    <button onclick="closeNotifications()"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="notif-panel-body" id="notifBody">
-    <div class="notif-empty"><i class="fas fa-bell-slash"></i>لا توجد إشعارات</div>
-  </div>
-  <div class="notif-panel-footer">
-    <button onclick="markAllRead()">تعليم الكل كمقروء</button>
-  </div>
-</div>
 
 <div id="lessonPlayer">
   <div class="player-header">
@@ -233,7 +139,7 @@
     <h3>تفعيل الاشتراك</h3>
     <p id="subSubjectName"></p>
     <p style="margin-bottom:10px; font-weight:bold; color:var(--navy)">سعر الاشتراك: 40 جنيه / شهر</p>
-    <p style="font-size:12px">قم بتحويل المبلغ على رقم المحفظة (01xxxxxxxxx) ثم أدخل رقم المحفظة التي حولت منها.</p>
+    <p style="font-size:12px">قم بتحويل المبلغ على رقم المحفظة (01xxxxxxxxx) ثم أدخل رقم المحفظة التي حولت منها لتأكيد الطلب.</p>
     <input type="text" id="subNotes" placeholder="رقم المحفظة أو ملاحظات...">
     <div style="display:flex; gap:10px;">
       <button class="btn-primary" style="margin-top:0" onclick="submitSubRequest()">إرسال الطلب</button>
@@ -243,41 +149,24 @@
 </div>
 
 <script type="module">
-import { 
-  db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription,
-  listenUserNotifications, listenUserSubscriptions, listenUserDevices,
-  markNotificationRead, markAllNotificationsRead, deleteNotification,
-  getDeviceFingerprint
-} from "./shared.js";
-import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription } from "./shared.js";
+import { collection, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUserData = null;
 let treeData = [];
 let userSubs = {};
-let userNotifs = [];
-let userDevices = [];
-let currentFp = null;
-let notifUnsub = null;
-let subsUnsub = null;
-let devicesUnsub = null;
 
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
   currentUserData = userData;
-  
   try {
     const dev = await checkDeviceStatus(user.uid);
-    currentFp = dev.fp;
     if (dev.status === 'pending') {
       document.getElementById('deviceLock').classList.add('active');
       document.getElementById('appMain').style.display = 'none';
       return;
     }
-    if (dev.status === 'blocked') {
-      alert('تم حظر هذا الجهاز.');
-      await signOutUser(); goTo("index.html"); return;
-    }
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error("Device error", e); }
 
   document.getElementById('deviceLock').classList.remove('active');
   document.getElementById('appMain').style.display = 'block';
@@ -289,38 +178,13 @@ onAuth(async (user, userData) => {
   document.getElementById("greetName").textContent = displayName;
   document.getElementById("profileName").textContent = displayName;
   document.getElementById("profileEmail").textContent = user.email;
-  document.getElementById("profileRole").textContent = userData?.role === 'admin' ? 'أدمن' : userData?.role === 'ta' ? 'معيد' : userData?.role === 'doctor' ? 'دكتور' : 'طالب';
   
-  try { await loadTreeData(); } catch(e) {}
-  
-  // Real-time listeners
-  notifUnsub = listenUserNotifications(user.uid, (notifs) => {
-    userNotifs = notifs;
-    updateNotifBadge();
-    renderNotifPanel();
-  });
-  
-  subsUnsub = listenUserSubscriptions(user.uid, (subs) => {
-    userSubs = subs;
-    renderSubscriptions();
-    renderLevelIfActive();
-  });
-  
-  devicesUnsub = listenUserDevices(user.uid, (devs) => {
-    userDevices = devs;
-    renderDevices();
-  });
-  
+  try { await loadTreeData(); await loadMySubscriptions(); } catch(e) { console.error("Data load error", e); }
   renderHome();
 });
 
 window.doLogout = async () => {
-  if (confirm('تسجيل الخروج؟')) {
-    if (notifUnsub) notifUnsub();
-    if (subsUnsub) subsUnsub();
-    if (devicesUnsub) devicesUnsub();
-    await signOutUser(); goTo("index.html");
-  }
+  if (confirm('تسجيل الخروج؟')) { await signOutUser(); goTo("index.html"); }
 };
 
 window.switchView = function(view) {
@@ -330,123 +194,8 @@ window.switchView = function(view) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (view === 'home') renderHome();
   if (view === 'content') renderLevel('root');
-  if (view === 'profile') { renderSubscriptions(); renderDevices(); }
 };
 
-function renderLevelIfActive() {
-  const contentView = document.getElementById('contentView');
-  if (contentView && contentView.classList.contains('active')) renderLevel('root');
-}
-
-window.toggleProfileSection = function(head) {
-  head.classList.toggle('open');
-  const body = head.nextElementSibling;
-  if (body) body.classList.toggle('open');
-};
-
-// ===== Notifications =====
-function updateNotifBadge() {
-  const unread = userNotifs.filter(n => !n.read).length;
-  const badge = document.getElementById('notifBadge');
-  if (unread > 0) {
-    badge.style.display = 'flex';
-    badge.textContent = unread > 9 ? '9+' : unread;
-  } else {
-    badge.style.display = 'none';
-  }
-}
-
-function renderNotifPanel() {
-  const body = document.getElementById('notifBody');
-  if (userNotifs.length === 0) {
-    body.innerHTML = `<div class="notif-empty"><i class="fas fa-bell-slash"></i>لا توجد إشعارات</div>`;
-    return;
-  }
-  body.innerHTML = userNotifs.map(n => {
-    let time = '';
-    try { time = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-EG') : ''; } catch(e) {}
-    return `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="handleNotifClick('${n.id}', '${n.link || ''}')">
-      <div class="n-title">${n.title || ''}</div>
-      <div class="n-msg">${n.message || ''}</div>
-      <div class="n-time">${time}</div>
-    </div>`;
-  }).join('');
-}
-
-window.openNotifications = function() {
-  document.getElementById('notifPanel').classList.add('active');
-  document.getElementById('notifOverlay').classList.add('active');
-};
-
-window.closeNotifications = function() {
-  document.getElementById('notifPanel').classList.remove('active');
-  document.getElementById('notifOverlay').classList.remove('active');
-};
-
-window.handleNotifClick = async function(notifId, link) {
-  await markNotificationRead(currentUserData.uid, notifId);
-  closeNotifications();
-  if (link && link.includes('subscriptions'))window.location.href='profile.html');
-};
-
-window.markAllRead = async function() {
-  await markAllNotificationsRead(currentUserData.uid, userNotifs);
-  showToast('تم تعليم الكل كمقروء');
-};
-
-// ===== Profile sections =====
-function renderSubscriptions() {
-  const body = document.getElementById('subscriptionsBody');
-  if (!body) return;
-  const subs = Object.values(userSubs || {});
-  if (subs.length === 0) {
-    body.innerHTML = `<div class="empty-mini">لا يوجد اشتراكات نشطة. اشترك من قسم المحتوى.</div>`;
-    return;
-  }
-  body.innerHTML = subs.map(s => {
-    let expText = '';
-    let warn = false;
-    try {
-      const expDate = s.expiresAt.toDate();
-      const daysLeft = Math.ceil((expDate - new Date()) / 86400000);
-      expText = `نشط — متبقي ${daysLeft} يوم`;
-      if (daysLeft <= 5) warn = true;
-    } catch(e) { expText = 'نشط'; }
-    // Subject name from treeData
-    const subj = treeData.find(n => n.id === s.subjectId);
-    return `<div class="sub-item-mini">
-      <div>
-        <div class="nm">${subj?.title || 'مادة'}</div>
-        <div class="ex ${warn ? 'warn' : ''}">${expText}</div>
-      </div>
-      <i class="fas fa-check-circle" style="color:${warn ? 'var(--red)' : 'var(--green)'};"></i>
-    </div>`;
-  }).join('');
-}
-
-function renderDevices() {
-  const body = document.getElementById('devicesBody');
-  if (!body) return;
-  if (userDevices.length === 0) {
-    body.innerHTML = `<div class="empty-mini">لا يوجد أجهزة مسجلة</div>`;
-    return;
-  }
-  body.innerHTML = userDevices.map(d => {
-    const isThis = d.id === currentFp;
-    let st = 'قيد الانتظار';
-    let cls = 'pending';
-    if (d.status === 'approved') { st = 'موافق عليه'; cls = 'ok'; }
-    else if (d.status === 'blocked') { st = 'محظور'; cls = 'blocked'; }
-    return `<div class="device-mini ${isThis ? 'this-device' : ''}">
-      <div class="ua">${d.userAgent || ''}</div>
-      <div class="st ${cls}">
-        ${st}${isThis ? ' — الجهاز الحالي' : ''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ===== Rest of app logic =====
 function renderHome() {
   const hour = new Date().getHours();
   document.getElementById('greetSmall').textContent = hour < 12 ? 'صباح الخير ☀️' : (hour < 18 ? 'مساء النور 🌤️' : 'مساء الخير 🌙');
@@ -478,13 +227,25 @@ function getSubjectIdFromNode(nodeId) {
   let path = [];
   while(current) {
     path.unshift(current);
-    if (current.parentId === "root") break;
+    if (current.parentId === "root") break; 
     current = treeData.find(n => n.id === current.parentId);
   }
-  if (path.length >= 3) return path[2].id;
-  else if (path.length === 2) return path[1].id;
-  else if (path.length === 1) return path[0].id;
+  if (path.length >= 3) return path[2].id; 
+  else if (path.length === 2) return path[1].id; 
+  else if (path.length === 1) return path[0].id; 
   return null;
+}
+
+async function loadMySubscriptions() {
+  userSubs = {};
+  const q = query(collection(db, "subscriptions"), where("uid", "==", currentUserData.uid));
+  const snap = await getDocs(q);
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.status === 'active' && data.expiresAt && data.expiresAt.toDate() > new Date()) {
+      userSubs[data.subjectId] = data; 
+    }
+  });
 }
 
 function renderLevel(parentId) {
@@ -517,8 +278,10 @@ function renderCard(node) {
     if (node.access === 'paid' || node.access === undefined) {
       const subjectId = getSubjectIdFromNode(node.id);
       if (subjectId) {
-        if (!userSubs[subjectId]) isLocked = true;
-      } else isLocked = true;
+        if (!userSubs[subjectId]) isLocked = true; 
+      } else {
+        isLocked = true; 
+      }
     }
   }
 
@@ -527,12 +290,14 @@ function renderCard(node) {
   const titleHtml = `${icon}${node.title}`;
   const descHtml = node.description ? `<div class="card-desc">${node.description}</div>` : '';
 
-  return `<div class="${cardClass}" data-node="${node.id}" style="position:relative;">
-    ${lockIcon}
-    <div class="card-type">${typeLabel}</div>
-    <h3 class="card-title">${titleHtml}</h3>
-    ${descHtml}
-  </div>`;
+  return `
+    <div class="${cardClass}" data-node="${node.id}" style="position:relative;">
+      ${lockIcon}
+      <div class="card-type">${typeLabel}</div>
+      <h3 class="card-title">${titleHtml}</h3>
+      ${descHtml}
+    </div>
+  `;
 }
 
 async function handleNodeClick(node) {
@@ -541,29 +306,31 @@ async function handleNodeClick(node) {
       const subjectId = getSubjectIdFromNode(node.id);
       if (subjectId) {
         if (!userSubs[subjectId]) {
-          const docRef = doc(db, "subscriptions", `${currentUserData.uid}_${subjectId}`);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists() && docSnap.data().status === 'active' && docSnap.data().expiresAt.toDate() > new Date()) {
-            userSubs[subjectId] = docSnap.data();
-            showToast("تم تفعيل اشتراكك! جاري فتح الملف...", "success");
-            const cardEl = document.querySelector(`[data-node="${node.id}"]`);
-            if(cardEl) {
-              cardEl.classList.remove('locked-card');
-              const lock = cardEl.querySelector('.lock-badge');
-              if(lock) lock.remove();
-            }
-            openPlayer(node); return;
-          } else {
-            const subjectNode = treeData.find(n => n.id === subjectId);
-            document.getElementById('subSubjectName').textContent = `المادة المطلوبة: ${subjectNode?.title || 'غير معروفة'}`;
-            document.getElementById('subModal').dataset.subjectId = subjectId;
-            document.getElementById('subNotes').value = '';
-            document.getElementById('subModal').classList.add('active');
-            return;
-          }
+           const docRef = doc(db, "subscriptions", `${currentUserData.uid}_${subjectId}`);
+           const docSnap = await getDoc(docRef);
+           if (docSnap.exists() && docSnap.data().status === 'active' && docSnap.data().expiresAt.toDate() > new Date()) {
+               userSubs[subjectId] = docSnap.data();
+               showToast("تم تفعيل اشتراكك! جاري فتح الملف...", "success");
+               const cardEl = document.querySelector(`[data-node="${node.id}"]`);
+               if(cardEl) {
+                   cardEl.classList.remove('locked-card');
+                   const lock = cardEl.querySelector('.lock-badge');
+                   if(lock) lock.remove();
+               }
+               openPlayer(node);
+               return;
+           } else {
+               const subjectNode = treeData.find(n => n.id === subjectId);
+               document.getElementById('subSubjectName').textContent = `المادة المطلوبة: ${subjectNode?.title || 'غير معروفة'}`;
+               document.getElementById('subModal').dataset.subjectId = subjectId;
+               document.getElementById('subNotes').value = '';
+               document.getElementById('subModal').classList.add('active');
+               return;
+           }
         }
       } else {
-        showToast("خطأ: الملف مش تابع لمادة", "error"); return;
+        showToast("خطأ: الملف ده مش تابع لمادة", "error");
+        return;
       }
     }
     openPlayer(node);
@@ -575,7 +342,7 @@ async function handleNodeClick(node) {
 window.submitSubRequest = async function() {
   const subjectId = document.getElementById('subModal').dataset.subjectId;
   const notes = document.getElementById('subNotes').value.trim();
-  if (!notes) { showToast('أدخل رقم المحفظة أو أي ملاحظات', 'error'); return; }
+  if (!notes) { showToast('يرجى إدخال رقم المحفظة أو أي ملاحظات', 'error'); return; }
   
   const btn = document.querySelector('#subModal .btn-primary');
   btn.disabled = true; btn.textContent = 'جاري الإرسال...';
@@ -600,6 +367,7 @@ function updateBreadcrumbs(parentId) {
   });
 }
 
+// ===== Video Player Helpers =====
 function escapeHtml(text) {
   if (!text) return '';
   return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -614,16 +382,19 @@ function extractYouTubeId(url) {
 function generateVideoPlayerHTML(videos) {
   videos = [...videos].sort((a,b) => (a.order||0) - (b.order||0));
   let html = '<div style="padding:14px;font-family:\'Cairo\',sans-serif;">';
+  
   videos.forEach((v, i) => {
     html += `<div style="background:#fff;border:2px solid #e9ecef;border-radius:14px;padding:14px;margin-bottom:16px;">
       <div style="font-weight:800;color:#152741;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
         <span style="background:#152741;color:#fff;width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;">${i+1}</span>
         ${escapeHtml(v.title || 'فيديو')}
       </div>`;
+    
     if (v.sourceType === 'upload') {
       html += `<div style="background:#f4f6f8;border-radius:10px;padding:36px 20px;text-align:center;color:#8899aa;">
         <i class="fas fa-video-slash" style="font-size:38px;margin-bottom:10px;display:block;color:#cbd5e0;"></i>
         <div style="font-size:14px;font-weight:700;color:#4a5568;">الفيديو غير متوفر حالياً</div>
+        <div style="font-size:12px;margin-top:6px;">سيتم رفعه قريباً</div>
         ${v.fileName ? `<div style="font-size:11px;margin-top:10px;color:#a0aec0;direction:ltr;">📁 ${escapeHtml(v.fileName)}</div>` : ''}
       </div>`;
     } else if (v.url) {
@@ -634,21 +405,31 @@ function generateVideoPlayerHTML(videos) {
         </div>`;
       } else if (/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(v.url)) {
         html += `<video controls playsinline style="width:100%;border-radius:10px;max-height:320px;background:#000;display:block;">
-          <source src="${escapeHtml(v.url)}">المتصفح لا يدعم هذا الفيديو.</video>`;
+          <source src="${escapeHtml(v.url)}">
+          المتصفح لا يدعم تشغيل هذا الفيديو.
+        </video>`;
       } else {
         html += `<div style="background:#f4f6f8;border-radius:10px;padding:24px;text-align:center;">
+          <i class="fas fa-link" style="font-size:32px;color:#2980b9;display:block;margin-bottom:12px;"></i>
+          <div style="font-size:13px;color:#4a5568;margin-bottom:12px;">لا يمكن تشغيل هذا الرابط مباشرة</div>
           <a href="${escapeHtml(v.url)}" target="_blank" rel="noopener" style="background:#152741;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:bold;">
-            <i class="fas fa-external-link-alt"></i> فتح في المتصفح</a>
+            <i class="fas fa-external-link-alt"></i> فتح في المتصفح
+          </a>
         </div>`;
       }
+    } else {
+      html += `<div style="padding:20px;text-align:center;color:#8899aa;font-size:13px;">لا يوجد مصدر للفيديو</div>`;
     }
+    
     if (v.notes) {
       html += `<div style="margin-top:12px;padding:10px 12px;background:#fdfaf3;border-right:3px solid #a8741a;border-radius:6px;font-size:13px;color:#4a5568;line-height:1.65;">
-        <strong style="color:#152741;display:block;margin-bottom:4px;">📝 ملاحظات:</strong>${escapeHtml(v.notes).replace(/\n/g, '<br>')}
+        <strong style="color:#152741;display:block;margin-bottom:4px;">📝 ملاحظات:</strong>
+        ${escapeHtml(v.notes).replace(/\n/g, '<br>')}
       </div>`;
     }
     html += `</div>`;
   });
+  
   html += '</div>';
   return html;
 }
@@ -657,17 +438,28 @@ function openPlayer(node) {
   document.getElementById('playerTitle').textContent = node.title;
   document.getElementById('lessonPlayer').classList.add('active');
   const iframe = document.getElementById('playerFrame');
+  
   let htmlContent;
   if (node.type === 'module_video') {
     const videos = node.videos || [];
-    htmlContent = videos.length > 0 ? generateVideoPlayerHTML(videos) : `<div style="text-align:center;padding:60px 20px;font-family:'Cairo',sans-serif;color:#8899aa;"><i class="fas fa-video-slash" style="font-size:56px;margin-bottom:15px;display:block;color:#cbd5e0;"></i><h2 style="color:#4a5568;font-size:18px;">لا توجد فيديوهات</h2></div>`;
+    if (videos.length > 0) {
+      htmlContent = generateVideoPlayerHTML(videos);
+    } else {
+      htmlContent = `<div style="text-align:center;padding:60px 20px;font-family:'Cairo',sans-serif;color:#8899aa;">
+        <i class="fas fa-video-slash" style="font-size:56px;margin-bottom:15px;display:block;color:#cbd5e0;"></i>
+        <h2 style="color:#4a5568;font-size:18px;margin:0 0 8px;">لا توجد فيديوهات بعد</h2>
+        <p style="font-size:13px;margin:0;">سيتم إضافة فيديوهات قريباً</p>
+      </div>`;
+    }
   } else {
     htmlContent = node.htmlContent || '<div style="text-align:center;padding:50px;"><h2>لا يوجد محتوى</h2></div>';
   }
+  
   iframe.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{font-family:'Cairo',sans-serif;padding:0;line-height:1.8;margin:0;background:#f8f9fa;} img{max-width:100%;height:auto;border-radius:8px;}</style><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head><body>${htmlContent}</body></html>`;
 }
 
 window.closePlayer = function() { document.getElementById('lessonPlayer').classList.remove('active'); document.getElementById('playerFrame').srcdoc = ''; };
+window.showNotifications = function() { alert('قريباً'); };
 </script>
 </body>
 </html>
