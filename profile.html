@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ClearNote — الملف الشخصي</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  html, body { background: var(--bg); font-family: 'Cairo', sans-serif; margin: 0; padding: 0; padding-bottom: 90px; }
+
+  /* ===== Topbar ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--navy); color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .topbar-title { font-weight: 800; font-size: 15px; letter-spacing: 0.5px; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(255,255,255,0.1); border: none;
+    color: white; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.15s;
+  }
+  .icon-btn:active { background: rgba(255,255,255,0.25); transform: scale(0.95); }
+
+  /* ===== Cover + Header ===== */
+  .cover {
+    height: 130px;
+    background: linear-gradient(135deg, #152741 0%, #2a3f5f 60%, #a8741a 200%);
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(201,164,74,.25) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(21,39,65,.4) 0%, transparent 60%);
+  }
+
+  .head-section {
+    max-width: 900px; margin: 0 auto;
+    padding: 0 16px;
+    position: relative;
+    margin-top: -60px;
+  }
+  .avatar-row {
+    display: flex; align-items: flex-end; gap: 14px;
+    margin-bottom: 12px;
+  }
+  .avatar-wrap { position: relative; flex-shrink: 0; }
+  .avatar {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #152741, #a8741a);
+    color: white; font-size: 42px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    border: 4px solid var(--white);
+    box-shadow: 0 6px 20px rgba(21,39,65,.2);
+    overflow: hidden;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-edit-btn {
+    position: absolute; bottom: 4px; left: 4px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--navy); color: white;
+    border: 3px solid var(--white);
+    display: none; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer;
+  }
+  .avatar-edit-btn.show { display: flex; }
+
+  .name-block { flex: 1; min-width: 0; padding-bottom: 6px; }
+  .name-line {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .name-line h1 {
+    font-size: 22px; margin: 0; color: var(--navy); font-weight: 800;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .username-line { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* ===== Badges ===== */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.3px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .badge.badge-founder {
+    background: linear-gradient(135deg, #f6e8c8, #e4c983);
+    color: #6b4d10;
+    border-color: #d4a541;
+    box-shadow: 0 0 0 1px rgba(212,165,65,.4) inset;
+  }
+  .badge.badge-admin {
+    background: #fbeaea; color: #8b1f1f;
+    border-color: #f0c6c6;
+  }
+  .badge.badge-doctor {
+    background: #e0f2f1; color: #0f5b4f;
+    border-color: #a7d9d2;
+  }
+  .badge.badge-ta {
+    background: #f3e5f5; color: #5a2c7a;
+    border-color: #d6bce0;
+  }
+  .badge.badge-student {
+    background: #eef2fa; color: #2a4b8d;
+    border-color: #c9d6ee;
+  }
+  .verified-mark {
+    display: inline-flex; align-items: center;
+    color: #2980b9; font-size: 16px;
+    margin-right: 2px;
+  }
+
+  /* ===== Bio & Meta ===== */
+  .bio-text {
+    color: var(--text); font-size: 14px; line-height: 1.65;
+    margin: 4px 0 12px;
+    max-width: 600px;
+  }
+  .bio-empty { color: var(--muted); font-style: italic; font-size: 13px; }
+  .meta-info {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    color: var(--muted); font-size: 12px;
+    margin-bottom: 16px;
+  }
+  .meta-info span { display: inline-flex; align-items: center; gap: 5px; }
+  .meta-info i { color: var(--navy); font-size: 12px; }
+
+  /* ===== Actions ===== */
+  .actions-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .btn {
+    padding: 10px 18px; border-radius: 10px;
+    font-family: inherit; font-weight: 800; font-size: 13.5px;
+    border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: 0.15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { background: var(--navy-dark); }
+  .btn-following { background: #e8f5e9; color: var(--green); border: 1px solid #c9e6d1; }
+  .btn-follow { background: var(--navy); color: white; }
+  .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--line); }
+  .btn-outline:hover { border-color: var(--navy); }
+
+  /* ===== Stats ===== */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    max-width: 480px;
+    margin-bottom: 22px;
+  }
+  .stat-cell {
+    padding: 14px 6px; text-align: center;
+    cursor: pointer;
+    border-left: 1px solid var(--line-soft);
+    transition: 0.15s;
+  }
+  .stat-cell:first-child { border-left: none; }
+  .stat-cell:hover { background: #fafbfc; }
+  .stat-cell b { font-size: 20px; color: var(--navy); font-weight: 800; display: block; }
+  .stat-cell span { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+  /* ===== Tabs ===== */
+  .tabs-bar {
+    display: flex; gap: 4px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 18px;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    padding: 10px 18px; border-radius: 8px;
+    background: transparent; border: none;
+    font-family: inherit; font-weight: 800; font-size: 13px;
+    color: var(--muted); cursor: pointer;
+    white-space: nowrap;
+    transition: 0.15s;
+  }
+  .tab-btn.active { background: var(--navy); color: white; }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .empty-block {
+    text-align: center; padding: 50px 20px;
+    color: var(--muted); background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .empty-block i { font-size: 44px; color: var(--line); display: block; margin-bottom: 12px; }
+  .empty-block h3 { margin: 0 0 4px; font-size: 15px; color: var(--navy); }
+  .empty-block p { margin: 0; font-size: 13px; }
+
+  .info-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .info-card h4 { margin: 0 0 10px; font-size: 14px; color: var(--navy); }
+
+  .mini-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line-soft);
+    font-size: 13.5px;
+  }
+  .mini-row:last-child { border-bottom: none; }
+  .mini-row .lbl { color: var(--muted); }
+  .mini-row .val { color: var(--navy); font-weight: 700; }
+
+  .sub-item {
+    background: #f8f9fa; border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px;
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sub-item .nm { font-weight: 800; color: var(--navy); font-size: 14px; }
+  .sub-item .ex { font-size: 11.5px; color: var(--green); margin-top: 2px; }
+  .sub-item .ex.warn { color: var(--red); }
+
+  .device-item {
+    background: #f8f9fa; border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px;
+    margin-bottom: 8px;
+  }
+  .device-item .ua { font-size: 11.5px; color: var(--muted); direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
+  .device-item .st { font-size: 12px; font-weight: 700; }
+  .device-item .st.ok { color: var(--green); }
+  .device-item .st.pending { color: var(--accent); }
+  .device-item .st.blocked { color: var(--red); }
+  .device-item.this-device { border-color: var(--green); background: #e8f5e9; }
+
+  /* ===== Modals ===== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none; align-items: flex-end;
+    z-index: 1000;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 22px 22px 0 0;
+    width: 100%; max-width: 500px; margin: 0 auto;
+    padding: 22px 18px;
+    max-height: 92vh; overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-box h3 { margin: 0 0 14px; color: var(--navy); font-size: 17px; text-align: center; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+  .form-group input, .form-group textarea {
+    width: 100%; padding: 12px;
+    border: 2px solid var(--line); border-radius: 10px;
+    font-family: inherit; font-size: 14px;
+    background: #fafbfc; box-sizing: border-box;
+  }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-save { flex: 1; background: var(--navy); color: white; border: none; padding: 14px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .btn-save:disabled { opacity: 0.6; cursor: wait; }
+  .btn-cancel { flex: 1; background: #e9ecef; color: var(--muted); border: none; padding: 14px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+  .btn-danger { width: 100%; background: #fbeaea; color: var(--red); border: 1px solid #f0c6c6; padding: 14px; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+
+  .settings-list { display: flex; flex-direction: column; gap: 8px; }
+  .settings-item {
+    background: #fafbfc; border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: 0.15s;
+  }
+  .settings-item:hover { background: #f0f2f5; }
+  .settings-item .si-text { font-weight: 700; color: var(--navy); font-size: 14px; display: flex; align-items: center; gap: 10px; }
+  .settings-item .si-text i { color: var(--accent); width: 20px; text-align: center; }
+  .settings-item .si-arrow { color: var(--muted); font-size: 12px; }
+
+  .avatar-preview-wrap {
+    display: flex; justify-content: center; margin-bottom: 16px;
+  }
+  .avatar-preview {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: linear-gradient(135deg, #152741, #a8741a);
+    color: white; font-size: 38px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; border: 3px solid var(--line);
+  }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ===== Bottom Nav ===== */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: var(--white);
+    border-top: 1px solid var(--line);
+    display: flex; z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -2px 12px rgba(21,39,65,.06);
+  }
+  .bottom-nav a {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px; color: var(--text-light);
+    text-decoration: none; font-size: 10.5px; font-weight: 700;
+    position: relative;
+  }
+  .bottom-nav a i { font-size: 19px; }
+  .bottom-nav a.active { color: var(--navy); }
+  .bottom-nav a.active::before {
+    content: ''; position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 28px; height: 3px;
+    background: var(--accent); border-radius: 0 0 3px 3px;
+  }
+
+  /* ===== Followers List Modal ===== */
+  .user-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-soft);
+    cursor: pointer;
+  }
+  .user-row:last-child { border-bottom: none; }
+  .user-row .u-av {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, #152741, #a8741a);
+    color: white; font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; overflow: hidden;
+  }
+  .user-row .u-av img { width: 100%; height: 100%; object-fit: cover; }
+  .user-row .u-info { flex: 1; min-width: 0; }
+  .user-row .u-name { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-row .u-username { font-size: 12px; color: var(--muted); }
+
+  /* Toast */
+  .my-toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--navy); color: white;
+    padding: 12px 24px; border-radius: 10px;
+    font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700;
+    z-index: 99999; box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    max-width: 90%; text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <button class="icon-btn" onclick="window.location.href='app.html'"><i class="fas fa-arrow-right"></i></button>
+  <div class="topbar-title">الملف الشخصي</div>
+  <button class="icon-btn" id="settingsBtn" onclick="openSettings()" style="display:none;"><i class="fas fa-cog"></i></button>
+</div>
+
+<!-- Cover -->
+<div class="cover"></div>
+
+<!-- Head Section -->
+<div class="head-section">
+  <div class="avatar-row">
+    <div class="avatar-wrap">
+      <div class="avatar" id="avatar">?</div>
+      <button class="avatar-edit-btn" id="avatarEditBtn" onclick="openEditProfile()"><i class="fas fa-camera"></i></button>
+    </div>
+    <div class="name-block">
+      <div class="name-line">
+        <h1 id="profileName">جاري التحميل...</h1>
+        <span id="profileBadge"></span>
+      </div>
+      <div class="username-line" id="profileUsername"></div>
+    </div>
+  </div>
+  
+  <p class="bio-text" id="profileBio"></p>
+  
+  <div class="meta-info" id="profileMeta"></div>
+  
+  <div class="actions-row" id="actionsRow"></div>
+  
+  <div class="stats-grid">
+    <div class="stat-cell">
+      <b id="postsCount">0</b><span>منشور</span>
+    </div>
+    <div class="stat-cell" onclick="openList('followers')">
+      <b id="followersCount">0</b><span>متابع</span>
+    </div>
+    <div class="stat-cell" onclick="openList('following')">
+      <b id="followingCount">0</b><span>يتابع</span>
+    </div>
+  </div>
+  
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="posts" onclick="switchTab('posts')">المنشورات</button>
+    <button class="tab-btn" data-tab="about" onclick="switchTab('about')">حول</button>
+    <button class="tab-btn" data-tab="subs" onclick="switchTab('subs')" id="subsTabBtn" style="display:none;">الاشتراكات</button>
+    <button class="tab-btn" data-tab="devices" onclick="switchTab('devices')" id="devicesTabBtn" style="display:none;">الأجهزة</button>
+  </div>
+  
+  <!-- Tab Content -->
+  <div class="tab-pane active" id="pane-posts">
+    <div class="empty-block">
+      <i class="fas fa-newspaper"></i>
+      <h3>لا توجد منشورات بعد</h3>
+      <p>المنشورات قريباً إن شاء الله</p>
+    </div>
+  </div>
+  
+  <div class="tab-pane" id="pane-about">
+    <div class="info-card">
+      <h4>معلومات أساسية</h4>
+      <div class="mini-row"><span class="lbl">الاسم</span><span class="val" id="aboutName">—</span></div>
+      <div class="mini-row"><span class="lbl">اسم المستخدم</span><span class="val" id="aboutUsername">—</span></div>
+      <div class="mini-row"><span class="lbl">الجامعة</span><span class="val" id="aboutUniversity">—</span></div>
+      <div class="mini-row"><span class="lbl">الدور</span><span class="val" id="aboutRole">—</span></div>
+      <div class="mini-row"><span class="lbl">تاريخ الانضمام</span><span class="val" id="aboutJoined">—</span></div>
+    </div>
+  </div>
+  
+  <div class="tab-pane" id="pane-subs">
+    <div id="subsListContainer"></div>
+  </div>
+  
+  <div class="tab-pane" id="pane-devices">
+    <div id="devicesListContainer"></div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="app.html"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+  <a href="app.html"><i class="fas fa-book-open"></i><span>المحتوى</span></a>
+  <a href="app.html"><i class="fas fa-comments"></i><span>دردشات</span></a>
+  <a href="app.html"><i class="fas fa-clock"></i><span>بومودورو</span></a>
+  <a href="profile.html" class="active"><i class="fas fa-user"></i><span>حسابي</span></a>
+</nav>
+
+<!-- ===== Settings Modal ===== -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box">
+    <h3>الإعدادات</h3>
+    <div class="settings-list">
+      <div class="settings-item" onclick="openEditProfile()">
+        <div class="si-text"><i class="fas fa-user-edit"></i> تعديل الملف الشخصي</div>
+        <i class="fas fa-chevron-left si-arrow"></i>
+      </div>
+      <div class="settings-item" onclick="openPasswordChange()">
+        <div class="si-text"><i class="fas fa-key"></i> تغيير كلمة المرور</div>
+        <i class="fas fa-chevron-left si-arrow"></i>
+      </div>
+    </div>
+    <button class="btn-danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+    <button class="btn-cancel" style="width:100%; margin-top:8px;" onclick="closeModal('settingsModal')">إغلاق</button>
+  </div>
+</div>
+
+<!-- ===== Edit Profile Modal ===== -->
+<div class="modal-overlay" id="editProfileModal">
+  <div class="modal-box">
+    <h3>تعديل الملف الشخصي</h3>
+    
+    <div class="avatar-preview-wrap">
+      <div class="avatar-preview" id="editAvatarPreview">?</div>
+    </div>
+    
+    <div class="form-group">
+      <label>تغيير الصورة الشخصية</label>
+      <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)" style="font-size:13px;">
+    </div>
+    
+    <div class="form-group">
+      <label>الاسم</label>
+      <input type="text" id="editNameInput" maxlength="50" placeholder="اسمك">
+    </div>
+    
+    <div class="form-group">
+      <label>نبذة عنك</label>
+      <textarea id="editBioInput" maxlength="200" placeholder="اكتب نبذة قصيرة عن نفسك..."></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label>الجامعة</label>
+      <input type="text" id="editUniversityInput" maxlength="60" placeholder="جامعتك">
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('editProfileModal')">إلغاء</button>
+      <button class="btn-save" id="saveProfileBtn" onclick="saveProfile()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Change Password Modal ===== -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal-box">
+    <h3>تغيير كلمة المرور</h3>
+    <div class="form-group">
+      <label>كلمة المرور الحالية</label>
+      <input type="password" id="oldPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="form-group">
+      <label>كلمة المرور الجديدة</label>
+      <input type="password" id="newPassword" placeholder="6 أحرف على الأقل" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>تأكيد كلمة المرور الجديدة</label>
+      <input type="password" id="confirmPassword" placeholder="أعد الكتابة" autocomplete="new-password">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('passwordModal')">إلغاء</button>
+      <button class="btn-save" id="changePassBtn" onclick="changePassword()">تغيير</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Followers/Following List Modal ===== -->
+<div class="modal-overlay" id="listModal">
+  <div class="modal-box">
+    <h3 id="listTitle">المتابعون</h3>
+    <div id="listContainer"></div>
+    <button class="btn-cancel" style="width:100%; margin-top:14px;" onclick="closeModal('listModal')">إغلاق</button>
+  </div>
+</div>
+
+<script type="module">
+import { 
+  db, auth, onAuth, goTo, showToast, signOutUser, getUserData, isAdmin
+} from "./shared.js";
+import { 
+  doc, getDoc, updateDoc, serverTimestamp,
+  collection, getDocs, query, limit
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { 
+  updatePassword, reauthenticateWithCredential, EmailAuthProvider 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// ===== State =====
+let currentUser = null;
+let currentUserData = null;
+let profileUid = null;
+let profileData = null;
+let isMyProfile = false;
+let isFollowing = false;
+let uploadedAvatarDataUrl = null; // If user uploaded a new one before saving
+let userSubs = {};
+let userDevices = {};
+let currentFp = null;
+
+// ===== Init =====
+onAuth(async (user, userData) => {
+  if (!user) { goTo('index.html'); return; }
+  currentUser = user;
+  currentUserData = userData;
+
+  // Determine which profile to show
+  const params = new URLSearchParams(location.search);
+  const requestedUid = params.get('uid');
+  profileUid = requestedUid || user.uid;
+  isMyProfile = profileUid === user.uid;
+
+  // Load profile data
+  if (isMyProfile) {
+    profileData = userData;
+  } else {
+    profileData = await getUserData(profileUid);
+    if (!profileData) {
+      showToast('المستخدم غير موجود', 'error');
+      setTimeout(() => goTo('app.html'), 1000);
+      return;
+    }
+    isFollowing = !!(userData?.following && userData.following[profileUid]);
+  }
+
+  // If own profile, load subs and devices
+  if (isMyProfile) {
+    try {
+      const fp = await getDeviceFp();
+      currentFp = fp;
+      await loadSubsAndDevices();
+    } catch(e) { console.error(e); }
+  }
+
+  renderAll();
+});
+
+// ===== Helpers =====
+async function getDeviceFp() {
+  const raw = [navigator.userAgent, navigator.language, screen.width + 'x' + screen.height, new Date().getTimezoneOffset()].join('|');
+  const buf = new TextEncoder().encode(raw);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 24);
+}
+
+function toDate(v) {
+  try {
+    if (!v) return null;
+    return v.toDate ? v.toDate() : new Date(v);
+  } catch { return null; }
+}
+
+function escapeHtml(t) {
+  if (!t) return '';
+  return String(t).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ===== Render =====
+function renderAll() {
+  renderAvatar();
+  renderBadge();
+  renderBasicInfo();
+  renderMeta();
+  renderActions();
+  renderStats();
+  renderTabs();
+  if (isMyProfile) {
+    renderSubs();
+    renderDevices();
+  }
+}
+
+function renderAvatar() {
+  const av = document.getElementById('avatar');
+  const editBtn = document.getElementById('avatarEditBtn');
+  if (!av) return;
+
+  if (profileData?.avatar?.type === 'image' && profileData.avatar.data) {
+    av.innerHTML = `<img src="${profileData.avatar.data}" alt="">`;
+  } else {
+    const initial = (profileData?.name || 'U').charAt(0).toUpperCase();
+    av.textContent = initial;
+  }
+  
+  if (isMyProfile) {
+    editBtn.classList.add('show');
+    document.getElementById('settingsBtn').style.display = 'flex';
+  }
+}
+
+function renderBadge() {
+  const el = document.getElementById('profileBadge');
+  if (!el) return;
+  el.innerHTML = getBadgeHTML(profileData);
+}
+
+function getBadgeHTML(u) {
+  if (!u) return '';
+  
+  const badgeType = u.badgeType || (u.role === 'admin' ? 'admin' : u.role === 'ta' ? 'ta' : u.role === 'doctor' ? 'doctor' : 'student');
+  
+  let badgeHTML = '';
+  if (badgeType === 'founder') {
+    badgeHTML = `<span class="badge badge-founder"><i class="fas fa-crown"></i> المؤسس</span>`;
+  } else if (badgeType === 'admin') {
+    badgeHTML = `<span class="badge badge-admin"><i class="fas fa-shield-alt"></i> مسؤول</span>`;
+  } else if (badgeType === 'doctor') {
+    badgeHTML = `<span class="badge badge-doctor"><i class="fas fa-user-md"></i> دكتور</span>`;
+  } else if (badgeType === 'ta') {
+    badgeHTML = `<span class="badge badge-ta"><i class="fas fa-graduation-cap"></i> معيد</span>`;
+  } else if (badgeType === 'student') {
+    badgeHTML = `<span class="badge badge-student"><i class="fas fa-user-graduate"></i> طالب</span>`;
+  }
+  
+  // Verification checkmark
+  let verified = false;
+  if (u.isVerified) {
+    const until = toDate(u.verifiedUntil);
+    verified = !until || until > new Date();
+  }
+  
+  if (verified) {
+    badgeHTML += ` <span class="verified-mark" title="موثق"><i class="fas fa-check-circle"></i></span>`;
+  }
+  
+  return badgeHTML;
+}
+
+function renderBasicInfo() {
+  document.getElementById('profileName').textContent = profileData?.name || 'بدون اسم';
+  document.getElementById('profileUsername').textContent = profileData?.username ? '@' + profileData.username : '';
+  
+  const bioEl = document.getElementById('profileBio');
+  if (profileData?.bio) {
+    bioEl.textContent = profileData.bio;
+    bioEl.classList.remove('bio-empty');
+  } else {
+    bioEl.textContent = isMyProfile ? 'أضف نبذة عنك من الإعدادات' : 'لا توجد نبذة';
+    bioEl.classList.add('bio-empty');
+  }
+}
+
+function renderMeta() {
+  const meta = document.getElementById('profileMeta');
+  if (!meta) return;
+  const items = [];
+  
+  if (profileData?.university) {
+    items.push(`<span><i class="fas fa-university"></i> ${escapeHtml(profileData.university)}</span>`);
+  }
+  
+  const created = toDate(profileData?.createdAt);
+  if (created) {
+    items.push(`<span><i class="fas fa-calendar"></i> انضم ${created.toLocaleDateString('ar-EG', { month: 'short', year: 'numeric' })}</span>`);
+  }
+  
+  meta.innerHTML = items.join('');
+}
+
+function renderActions() {
+  const el = document.getElementById('actionsRow');
+  if (!el) return;
+  
+  if (isMyProfile) {
+    el.innerHTML = `
+      <button class="btn btn-outline" onclick="openEditProfile()">
+        <i class="fas fa-edit"></i> تعديل الملف
+      </button>
+      <button class="btn btn-primary" onclick="showToast('المنشورات قريباً')">
+        <i class="fas fa-plus"></i> إنشاء منشور
+      </button>
+    `;
+    return;
+  }
+  
+  const badgeType = profileData?.badgeType || profileData?.role;
+  const isDoctorOrTA = badgeType === 'doctor' || badgeType === 'ta';
+  
+  el.innerHTML = `
+    <button class="btn ${isFollowing ? 'btn-following' : 'btn-follow'}" onclick="toggleFollow()">
+      <i class="fas fa-${isFollowing ? 'user-check' : 'user-plus'}"></i>
+      ${isFollowing ? 'متابَع' : 'متابعة'}
+    </button>
+    <button class="btn btn-outline" onclick="showToast('الدردشة قريباً')">
+      <i class="fas fa-comment"></i> مراسلة
+    </button>
+    ${isDoctorOrTA ? `
+      <button class="btn btn-outline" onclick="showToast('قسم الأسئلة قريباً')">
+        <i class="fas fa-question-circle"></i> اسأل
+      </button>
+    ` : ''}
+  `;
+}
+
+function renderStats() {
+  const followers = Object.keys(profileData?.followers || {}).length;
+  const following = Object.keys(profileData?.following || {}).length;
+  const posts = 0; // placeholder until posts implemented
+  
+  document.getElementById('followersCount').textContent = followers;
+  document.getElementById('followingCount').textContent = following;
+  document.getElementById('postsCount').textContent = posts;
+}
+
+function renderTabs() {
+  if (isMyProfile) {
+    document.getElementById('subsTabBtn').style.display = 'inline-block';
+    document.getElementById('devicesTabBtn').style.display = 'inline-block';
+  }
+  
+  const aboutName = document.getElementById('aboutName');
+  const aboutUsername = document.getElementById('aboutUsername');
+  const aboutUniversity = document.getElementById('aboutUniversity');
+  const aboutRole = document.getElementById('aboutRole');
+  const aboutJoined = document.getElementById('aboutJoined');
+  
+  if (aboutName) aboutName.textContent = profileData?.name || '—';
+  if (aboutUsername) aboutUsername.textContent = profileData?.username ? '@' + profileData.username : '—';
+  if (aboutUniversity) aboutUniversity.textContent = profileData?.university || '—';
+  if (aboutRole) {
+    const bt = profileData?.badgeType || profileData?.role || 'student';
+    aboutRole.textContent = bt === 'founder' ? 'المؤسس' : bt === 'admin' ? 'مسؤول' : bt === 'doctor' ? 'دكتور' : bt === 'ta' ? 'معيد' : 'طالب';
+  }
+  if (aboutJoined) {
+    const d = toDate(profileData?.createdAt);
+    aboutJoined.textContent = d ? d.toLocaleDateString('ar-EG') : '—';
+  }
+}
+
+// ===== Tabs =====
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + tab).classList.add('active');
+};
+
+// ===== Load Subs and Devices =====
+async function loadSubsAndDevices() {
+  try {
+    // Subs
+    const subsSnap = await getDocs(collection(db, 'subscriptions'));
+    subsSnap.forEach(d => {
+      const data = d.data();
+      if (data.uid === currentUser.uid && data.status === 'active') {
+        const exp = toDate(data.expiresAt);
+        if (exp && exp > new Date()) userSubs[data.subjectId] = data;
+      }
+    });
+    
+    // Devices
+    const devSnap = await getDocs(collection(db, 'devices', currentUser.uid, 'list'));
+    devSnap.forEach(d => {
+      userDevices[d.id] = { id: d.id, ...d.data() };
+    });
+  } catch(e) { console.error('load subs/devices', e); }
+}
+
+function renderSubs() {
+  const c = document.getElementById('subsListContainer');
+  if (!c) return;
+  const subs = Object.values(userSubs);
+  if (subs.length === 0) {
+    c.innerHTML = `<div class="empty-block"><i class="fas fa-crown"></i><h3>لا يوجد اشتراكات</h3><p>اشترك من قسم المحتوى</p></div>`;
+    return;
+  }
+  c.innerHTML = subs.map(s => {
+    const exp = toDate(s.expiresAt);
+    const daysLeft = exp ? Math.ceil((exp - new Date()) / 86400000) : 0;
+    const warn = daysLeft <= 5;
+    return `<div class="sub-item">
+      <div>
+        <div class="nm">${escapeHtml(s.subjectName || 'مادة')}</div>
+        <div class="ex ${warn ? 'warn' : ''}">متبقي ${daysLeft} يوم</div>
+      </div>
+      <i class="fas fa-check-circle" style="color:${warn ? '#b91c1c' : '#1f6b45'};"></i>
+    </div>`;
+  }).join('');
+}
+
+function renderDevices() {
+  const c = document.getElementById('devicesListContainer');
+  if (!c) return;
+  const devs = Object.values(userDevices);
+  if (devs.length === 0) {
+    c.innerHTML = `<div class="empty-block"><i class="fas fa-mobile-alt"></i><h3>لا يوجد أجهزة</h3></div>`;
+    return;
+  }
+  c.innerHTML = devs.map(d => {
+    const isThis = d.id === currentFp;
+    const st = d.status === 'approved' ? 'موافق عليه' : d.status === 'blocked' ? 'محظور' : 'قيد الانتظار';
+    const cls = d.status === 'approved' ? 'ok' : d.status === 'blocked' ? 'blocked' : 'pending';
+    return `<div class="device-item ${isThis ? 'this-device' : ''}">
+      <div class="ua">${escapeHtml(d.userAgent || '')}</div>
+      <div class="st ${cls}">${st}${isThis ? ' — الجهاز الحالي' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== Follow Toggle =====
+window.toggleFollow = async function() {
+  if (isMyProfile) return;
+  try {
+    const myRef = doc(db, 'users', currentUser.uid);
+    const theirRef = doc(db, 'users', profileUid);
+    
+    if (isFollowing) {
+      // Unfollow
+      const myDoc = await getDoc(myRef);
+      const theirDoc = await getDoc(theirRef);
+      const myFollowing = { ...(myDoc.data()?.following || {}) };
+      const theirFollowers = { ...(theirDoc.data()?.followers || {}) };
+      delete myFollowing[profileUid];
+      delete theirFollowers[currentUser.uid];
+      await updateDoc(myRef, { following: myFollowing });
+      await updateDoc(theirRef, { followers: theirFollowers });
+      isFollowing = false;
+      showToast('تم إلغاء المتابعة');
+    } else {
+      await updateDoc(myRef, { [`following.${profileUid}`]: Date.now() });
+      await updateDoc(theirRef, { [`followers.${currentUser.uid}`]: Date.now() });
+      isFollowing = true;
+      showToast('تمت المتابعة ✓');
+    }
+    
+    // Update local data
+    if (!profileData.followers) profileData.followers = {};
+    if (isFollowing) profileData.followers[currentUser.uid] = Date.now();
+    else delete profileData.followers[currentUser.uid];
+    
+    renderActions();
+    renderStats();
+  } catch(e) {
+    console.error(e);
+    showToast('حدث خطأ', 'error');
+  }
+};
+
+// ===== Modals =====
+window.openSettings = function() {
+  document.getElementById('settingsModal').classList.add('active');
+};
+
+window.openEditProfile = function() {
+  closeModal('settingsModal');
+  const nameInput = document.getElementById('editNameInput');
+  const bioInput = document.getElementById('editBioInput');
+  const uniInput = document.getElementById('editUniversityInput');
+  const preview = document.getElementById('editAvatarPreview');
+  
+  nameInput.value = profileData?.name || '';
+  bioInput.value = profileData?.bio || '';
+  uniInput.value = profileData?.university || '';
+  uploadedAvatarDataUrl = null;
+  
+  if (profileData?.avatar?.type === 'image' && profileData.avatar.data) {
+    preview.innerHTML = `<img src="${profileData.avatar.data}" alt="">`;
+  } else {
+    const initial = (profileData?.name || 'U').charAt(0).toUpperCase();
+    preview.textContent = initial;
+  }
+  
+  document.getElementById('editProfileModal').classList.add('active');
+};
+
+window.openPasswordChange = function() {
+  closeModal('settingsModal');
+  document.getElementById('oldPassword').value = '';
+  document.getElementById('newPassword').value = '';
+  document.getElementById('confirmPassword').value = '';
+  document.getElementById('passwordModal').classList.add('active');
+};
+
+window.closeModal = function(id) {
+  document.getElementById(id).classList.remove('active');
+};
+
+// ===== Avatar Upload =====
+window.handleAvatarUpload = async function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (!/^image\//i.test(file.type)) {
+    showToast('يرجى اختيار صورة صالحة', 'error');
+    return;
+  }
+  
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('حجم الصورة كبير جداً (الحد 5 ميجا)', 'error');
+    return;
+  }
+  
+  try {
+    const dataUrl = await resizeImage(file, 256);
+    uploadedAvatarDataUrl = dataUrl;
+    const preview = document.getElementById('editAvatarPreview');
+    preview.innerHTML = `<img src="${dataUrl}" alt="">`;
+    showToast('تم تحميل الصورة. اضغط حفظ');
+  } catch(e) {
+    showToast('فشل تحميل الصورة', 'error');
+  }
+};
+
+function resizeImage(file, maxSize) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > h) {
+          if (w > maxSize) { h = h * maxSize / w; w = maxSize; }
+        } else {
+          if (h > maxSize) { w = w * maxSize / h; h = maxSize; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===== Save Profile =====
+window.saveProfile = async function() {
+  const name = document.getElementById('editNameInput').value.trim();
+  const bio = document.getElementById('editBioInput').value.trim();
+  const university = document.getElementById('editUniversityInput').value.trim();
+  
+  if (!name) { showToast('الاسم مطلوب', 'error'); return; }
+  
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+  
+  try {
+    const updates = { name, bio, university };
+    
+    if (uploadedAvatarDataUrl) {
+      updates.avatar = { type: 'image', data: uploadedAvatarDataUrl };
+    }
+    
+    await updateDoc(doc(db, 'users', currentUser.uid), updates);
+    
+    // Update local state
+    profileData = { ...profileData, ...updates };
+    currentUserData = { ...currentUserData, ...updates };
+    
+    showToast('تم الحفظ بنجاح ✓');
+    closeModal('editProfileModal');
+    renderAll();
+  } catch(e) {
+    console.error(e);
+    showToast('حدث خطأ أثناء الحفظ', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'حفظ';
+  }
+};
+
+// ===== Change Password =====
+window.changePassword = async function() {
+  const oldPwd = document.getElementById('oldPassword').value;
+  const newPwd = document.getElementById('newPassword').value;
+  const confirmPwd = document.getElementById('confirmPassword').value;
+  
+  if (!oldPwd || !newPwd || !confirmPwd) { showToast('املأ كل الحقول', 'error'); return; }
+  if (newPwd !== confirmPwd) { showToast('كلمتا المرور غير متطابقتين', 'error'); return; }
+  if (newPwd.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل', 'error'); return; }
+  
+  const btn = document.getElementById('changePassBtn');
+  btn.disabled = true; btn.textContent = 'جاري التغيير...';
+  
+  try {
+    const cred = EmailAuthProvider.credential(currentUser.email, oldPwd);
+    await reauthenticateWithCredential(currentUser, cred);
+    await updatePassword(currentUser, newPwd);
+    showToast('تم تغيير كلمة المرور ✓');
+    closeModal('passwordModal');
+  } catch(e) {
+    console.error(e);
+    const msgs = {
+      'auth/wrong-password': 'كلمة المرور الحالية خطأ',
+      'auth/invalid-credential': 'كلمة المرور الحالية خطأ',
+      'auth/weak-password': 'كلمة المرور الجديدة ضعيفة'
+    };
+    showToast(msgs[e.code] || 'حدث خطأ', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'تغيير';
+  }
+};
+
+// ===== List Followers/Following =====
+window.openList = async function(type) {
+  document.getElementById('listTitle').textContent = type === 'followers' ? 'المتابعون' : 'يتابع';
+  const container = document.getElementById('listContainer');
+  container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--muted)">جاري التحميل...</p>';
+  document.getElementById('listModal').classList.add('active');
+  
+  const uids = Object.keys(profileData?.[type] || {});
+  
+  if (uids.length === 0) {
+    container.innerHTML = `<p style="text-align:center;padding:20px;color:var(--muted)">لا يوجد ${type === 'followers' ? 'متابعون' : 'متابَعون'} بعد</p>`;
+    return;
+  }
+  
+  // Limit to 30 for performance
+  const limited = uids.slice(0, 30);
+  const users = [];
+  
+  for (const uid of limited) {
+    try {
+      const snap = await getDoc(doc(db, 'users', uid));
+      if (snap.exists()) {
+        users.push({ id: uid, ...snap.data() });
+      }
+    } catch(e) {}
+  }
+  
+  container.innerHTML = users.map(u => {
+    let avatar;
+    if (u.avatar?.type === 'image' && u.avatar.data) {
+      avatar = `<img src="${u.avatar.data}" alt="">`;
+    } else {
+      avatar = (u.name || 'U').charAt(0).toUpperCase();
+    }
+    return `<div class="user-row" onclick="window.location.href='profile.html?uid=${u.id}'">
+      <div class="u-av">${avatar}</div>
+      <div class="u-info">
+        <div class="u-name">${escapeHtml(u.name || 'بدون اسم')}</div>
+        <div class="u-username">${u.username ? '@' + escapeHtml(u.username) : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  
+  if (uids.length > 30) {
+    container.innerHTML += `<p style="text-align:center;color:var(--muted);font-size:12px;padding:8px;">و ${uids.length - 30} آخرون...</p>`;
+  }
+};
+
+// ===== Logout =====
+window.doLogout = async function() {
+  if (confirm('تسجيل الخروج؟')) {
+    await signOutUser();
+    goTo('index.html');
+  }
+};
+</script>
+</body>
+</html>
