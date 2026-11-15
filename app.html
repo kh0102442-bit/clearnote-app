@@ -85,7 +85,7 @@
     <i class="far fa-bell"></i>
     <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
   </button>
-  <div class="top-avatar" id="topAvatar" onclick="switchView('profile')">U</div>
+  <div class="top-avatar" id="topAvatar"onclick="window.location.href='profile.html'"">U</div>
 </nav>
 
 <aside class="side-nav">
@@ -93,7 +93,7 @@
   <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
   <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>الدردشات</span></button>
   <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
-  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
+  <button class="nav-item" data-view="profile"onclick="window.location.href='profile.html'""><i class="fas fa-user"></i><span>حسابي</span></button>
 </aside>
 
 <main class="app-main" id="appMain">
@@ -202,7 +202,7 @@
   <button class="nav-item" data-view="content" onclick="switchView('content')"><i class="fas fa-book-open"></i><span>المحتوى</span></button>
   <button class="nav-item" data-view="chats" onclick="switchView('chats')"><i class="fas fa-comments"></i><span>دردشات</span></button>
   <button class="nav-item" data-view="pomodoro" onclick="switchView('pomodoro')"><i class="fas fa-clock"></i><span>بومودورو</span></button>
-  <button class="nav-item" data-view="profile" onclick="switchView('profile')"><i class="fas fa-user"></i><span>حسابي</span></button>
+  <button class="nav-item" data-view="profile"onclick="window.location.href='profile.html'""><i class="fas fa-user"></i><span>حسابي</span></button>
 </nav>
 
 <!-- Notifications Panel -->
@@ -386,7 +386,7 @@ window.closeNotifications = function() {
 window.handleNotifClick = async function(notifId, link) {
   await markNotificationRead(currentUserData.uid, notifId);
   closeNotifications();
-  if (link && link.includes('subscriptions')) switchView('profile');
+  if (link && link.includes('subscriptions'))window.location.href='profile.html');
 };
 
 window.markAllRead = async function() {
