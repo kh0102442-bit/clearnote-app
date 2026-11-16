@@ -57,6 +57,11 @@ html, body {
   line-height: 1.6;
 }
 
+a { color: var(--navy); text-decoration: none; }
+a:hover { color: var(--accent); }
+img { max-width: 100%; display: block; }
+button { font-family: inherit; }
+
 /* ========== AUTH SCREEN ========== */
 .auth-screen {
   min-height: 100vh;
@@ -131,6 +136,16 @@ html, body {
 }
 .btn-primary:hover, .btn-primary:active { background: var(--navy-dark); transform: translateY(-1px); }
 .btn-primary:disabled { opacity: .6; cursor: wait; transform: none; }
+
+.btn-secondary {
+  width: 100%; padding: 13px;
+  background: transparent; color: var(--navy);
+  border: 2px solid var(--navy); border-radius: var(--r-md);
+  font-size: 15px; font-weight: 800; font-family: inherit;
+  cursor: pointer; margin-top: var(--sp-3);
+  transition: all .2s;
+}
+.btn-secondary:hover { background: var(--navy); color: white; }
 
 .status-msg { font-size: 14px; min-height: 20px; margin: var(--sp-2) 0; text-align: center; font-weight: 700; }
 .status-msg.err { color: var(--red); }
@@ -607,3 +622,44 @@ html, body {
 .skeleton-card { height: 90px; border-radius: var(--r-md); margin-bottom: var(--sp-3); }
 .skeleton-title { height: 18px; width: 60%; margin-bottom: var(--sp-2); }
 .skeleton-text { height: 12px; width: 90%; }
+
+/* ========== UTILITIES & MISC ========== */
+.text-muted { color: var(--text-muted); }
+.text-light { color: var(--text-light); }
+.text-center { text-align: center; }
+.mt-2 { margin-top: var(--sp-2); }
+.mt-3 { margin-top: var(--sp-3); }
+.mt-4 { margin-top: var(--sp-4); }
+.mt-5 { margin-top: var(--sp-5); }
+.mb-2 { margin-bottom: var(--sp-2); }
+.mb-3 { margin-bottom: var(--sp-3); }
+.mb-4 { margin-bottom: var(--sp-4); }
+.mb-5 { margin-bottom: var(--sp-5); }
+.hidden { display: none !important; }
+
+/* Form helpers */
+.form-group { margin-bottom: var(--sp-4); }
+.form-group label {
+  display: block; font-size: 13px;
+  font-weight: 700; color: var(--navy);
+  margin-bottom: 6px;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  font-size: 15px; font-family: inherit;
+  background: #fafbfc;
+  transition: border-color .2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: var(--navy);
+  background: white;
+}
+
+/* Avatar image (when using URL) */
+.avatar-img {
+  width: 100%; height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
