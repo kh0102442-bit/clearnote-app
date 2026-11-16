@@ -31,7 +31,6 @@
   .name-line h1 { font-size: 22px; margin: 0; color: var(--navy); font-weight: 800; line-height: 1.2; word-break: break-word; }
   .username-line { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 
-  /* Royal Badges — English */
   .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-family: 'Inter', 'Cairo', sans-serif; }
   .badge-founder { background: linear-gradient(135deg, #d4af37, #f4e5b1); color: #4a2f0a; border: 1px solid #b8912f; }
   .badge-admin { background: linear-gradient(135deg, #7b1818, #b91c1c); color: #fff; border: 1px solid #5a0f0f; }
@@ -49,13 +48,17 @@
   .actions-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
   .btn { padding: 10px 18px; border-radius: 10px; font-family: inherit; font-weight: 800; font-size: 13.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; }
   .btn:active { transform: scale(0.97); }
-  .btn:disabled { opacity: .6; cursor: wait; }
+  .btn:disabled { opacity: .85; cursor: default; }
   .btn-primary { background: var(--navy); color: white; }
   .btn-primary:hover { background: var(--navy-dark); }
   .btn-following { background: #e8f5e9; color: var(--green); border: 1px solid #c9e6d1; }
   .btn-follow { background: var(--navy); color: white; }
   .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--line); }
   .btn-outline:hover { border-color: var(--navy); }
+  .btn-verify { background: linear-gradient(135deg, #1da1f2, #0d8ddb); color: white; }
+  .btn-verify:hover { background: linear-gradient(135deg, #0d8ddb, #0a7ab8); }
+  .btn-verified { background: #e0f2f1; color: #0f5b4f; border: 1px solid #a7d9d2; cursor: default; }
+  .btn-pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; cursor: wait; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; max-width: 480px; margin-bottom: 22px; box-shadow: var(--sh-sm); }
   .stat-cell { padding: 14px 6px; text-align: center; cursor: pointer; border-left: 1px solid var(--line-soft); transition: 0.15s; }
@@ -139,6 +142,52 @@
   .user-row .u-info { flex: 1; min-width: 0; }
   .user-row .u-name { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-row .u-username { font-size: 12px; color: var(--text-muted); }
+
+  /* ===== Verification Plans ===== */
+  .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .plan-card {
+    background: #fafbfc; border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 10px; cursor: pointer; transition: 0.15s; position: relative;
+    text-align: center;
+  }
+  .plan-card:hover { border-color: var(--navy); transform: translateY(-2px); }
+  .plan-card.selected { border-color: #1da1f2; background: #e7f5ff; box-shadow: 0 4px 12px rgba(29,161,242,.2); }
+  .plan-card .p-popular {
+    position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: white;
+    padding: 2px 10px; border-radius: 20px;
+    font-size: 10px; font-weight: 800; white-space: nowrap;
+  }
+  .plan-card .p-name { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+  .plan-card .p-price { font-size: 22px; font-weight: 800; color: #1da1f2; line-height: 1; }
+  .plan-card .p-price small { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+  .plan-card .p-per { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+  .plan-card .p-save { font-size: 10.5px; color: var(--green); font-weight: 800; margin-top: 4px; }
+
+  .verify-info-box { background: #e7f5ff; border: 1px solid #b6e0fe; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+  .verify-info-box h4 { margin: 0 0 8px; color: #0d47a1; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .verify-info-box ul { margin: 0; padding: 0 20px 0 0; font-size: 12.5px; color: #1565c0; line-height: 1.8; }
+  .verify-info-box ul li { margin-bottom: 4px; }
+
+  .free-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white; padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 800;
+  }
+
+  .payment-method-box {
+    background: #f8f9fa; border: 2px solid var(--line); border-radius: 12px; padding: 14px;
+    margin-bottom: 16px;
+  }
+  .payment-method-box h5 { margin: 0 0 8px; font-size: 13px; color: var(--navy); }
+  .payment-method-box p { margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+  .payment-method-box .wallet-num {
+    display: inline-block; background: var(--navy); color: white;
+    padding: 8px 14px; border-radius: 8px;
+    font-family: 'Inter', monospace; font-size: 15px; font-weight: 800;
+    letter-spacing: 1px; margin: 8px 0; direction: ltr;
+  }
 </style>
 </head>
 <body>
@@ -209,6 +258,7 @@
   <a href="profile.html" class="active"><i class="fas fa-user"></i><span>حسابي</span></a>
 </nav>
 
+<!-- Settings Modal -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
     <h3>الإعدادات</h3>
@@ -221,6 +271,7 @@
   </div>
 </div>
 
+<!-- Edit Profile Modal -->
 <div class="modal-overlay" id="editProfileModal">
   <div class="modal-box">
     <h3>تعديل الملف الشخصي</h3>
@@ -243,6 +294,7 @@
   </div>
 </div>
 
+<!-- Password Modal -->
 <div class="modal-overlay" id="passwordModal">
   <div class="modal-box">
     <h3>تغيير كلمة المرور</h3>
@@ -256,6 +308,7 @@
   </div>
 </div>
 
+<!-- List Modal -->
 <div class="modal-overlay" id="listModal">
   <div class="modal-box">
     <h3 id="listTitle">المتابعون</h3>
@@ -264,11 +317,70 @@
   </div>
 </div>
 
+<!-- Verification Role Modal (Check role first) -->
+<div class="modal-overlay" id="verificationRoleModal">
+  <div class="modal-box">
+    <h3>توثيق الحساب</h3>
+    <div id="verificationRoleContent"></div>
+  </div>
+</div>
+
+<!-- Verification Plans Modal (For students) -->
+<div class="modal-overlay" id="verificationPlansModal">
+  <div class="modal-box">
+    <h3>اختر خطة التوثيق</h3>
+    <div class="verify-info-box">
+      <h4><i class="fas fa-check-circle"></i> ميزات التوثيق</h4>
+      <ul>
+        <li>شارة زرقاء موثقة على حسابك</li>
+        <li>منشوراتك تظهر للجميع (ليس فقط متابعيك)</li>
+        <li>ظهور في قسم "صنّاع محتوى مقترحون"</li>
+        <li>أولوية في الدعم</li>
+      </ul>
+    </div>
+    <div class="plan-grid" id="plansGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('verificationPlansModal')">إلغاء</button>
+      <button class="btn-save" id="selectPlanBtn" onclick="goToPayment()" disabled>متابعة الدفع</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verification Payment Modal -->
+<div class="modal-overlay" id="verificationPaymentModal">
+  <div class="modal-box">
+    <h3>تأكيد الدفع</h3>
+    <div class="payment-method-box">
+      <h5><i class="fas fa-wallet"></i> طريقة الدفع</h5>
+      <p>حوّل المبلغ على رقم المحفظة التالي:</p>
+      <div class="wallet-num">01XXXXXXXXX</div>
+      <p>ثم أدخل رقم المحفظة التي حوّلت منها وبيانات أخرى.</p>
+    </div>
+    <div class="form-group">
+      <label>المبلغ المطلوب</label>
+      <input type="text" id="paymentAmount" readonly style="background:#f0f2f5;font-weight:800;color:#1da1f2;">
+    </div>
+    <div class="form-group">
+      <label>رقم المحفظة التي حوّلت منها</label>
+      <input type="tel" id="paymentWallet" placeholder="01xxxxxxxxx" dir="ltr" style="text-align:right;">
+    </div>
+    <div class="form-group">
+      <label>ملاحظات إضافية (اختياري)</label>
+      <textarea id="paymentNotes" placeholder="أي معلومات إضافية..." style="min-height:60px;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('verificationPaymentModal')">إلغاء</button>
+      <button class="btn-save" id="sendVerifBtn" onclick="submitVerificationRequest()">إرسال الطلب</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import {
   db, onAuth, goTo, showToast, signOutUser, getUserData,
   uploadAvatar, followUser, unfollowUser, checkIfFollowing,
-  listenUserSubscriptions, listenUserDevices, getDeviceFingerprint, escapeHtml
+  listenUserSubscriptions, listenUserDevices, getDeviceFingerprint, escapeHtml,
+  requestVerification, checkPendingVerification
 } from "./shared.js";
 import {
   doc, getDoc, updateDoc,
@@ -278,6 +390,15 @@ import {
   updatePassword, reauthenticateWithCredential, EmailAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+/* ===== Verification plans ===== */
+const VERIFICATION_PLANS = [
+  { id: 'monthly', name: 'شهري', price: 60, days: 30, perMonth: 60, save: null, popular: false },
+  { id: '3months', name: '3 شهور', price: 150, days: 90, perMonth: 50, save: 'وفّر 30ج', popular: false },
+  { id: '6months', name: '6 شهور', price: 270, days: 180, perMonth: 45, save: 'وفّر 90ج', popular: true },
+  { id: 'yearly', name: 'سنوي', price: 480, days: 365, perMonth: 40, save: 'وفّر 240ج', popular: false }
+];
+
+/* ===== State ===== */
 let currentUser = null;
 let currentUserData = null;
 let profileUid = null;
@@ -290,7 +411,10 @@ let currentFp = null;
 let pendingAvatarUrl = null;
 let subsUnsub = null;
 let devicesUnsub = null;
+let hasPendingVerification = false;
+let selectedPlan = null;
 
+/* ===== Init ===== */
 onAuth(async (user, userData) => {
   if (!user) { goTo('index.html'); return; }
   currentUser = user;
@@ -305,6 +429,10 @@ onAuth(async (user, userData) => {
       profileData = userData;
       currentFp = await getDeviceFingerprint();
       await loadSubsAndDevices();
+      const isVerified = profileData?.isVerified && (!profileData.verifiedUntil || toDate(profileData.verifiedUntil) > new Date());
+      if (!isVerified && profileData?.badgeType !== 'founder') {
+        hasPendingVerification = await checkPendingVerification(user.uid);
+      }
     } else {
       profileData = await getUserData(profileUid);
       if (!profileData) {
@@ -347,22 +475,17 @@ function renderAll() {
 function renderAvatar() {
   const av = document.getElementById('avatar');
   const editBtn = document.getElementById('avatarEditBtn');
-  if (profileData?.avatarUrl) {
-    av.innerHTML = `<img src="${getAvatarDisplayUrl(profileData.avatarUrl, 220)}" alt="">`;
-  } else {
-    av.textContent = (profileData?.name || 'U').charAt(0).toUpperCase();
-  }
+  if (profileData?.avatarUrl) av.innerHTML = `<img src="${getAvatarDisplayUrl(profileData.avatarUrl, 220)}" alt="">`;
+  else av.textContent = (profileData?.name || 'U').charAt(0).toUpperCase();
   if (isMyProfile) {
     editBtn.classList.add('show');
     document.getElementById('settingsBtn').style.display = 'flex';
   }
 }
 
-/* English badges */
 function getBadgeHTML(u) {
   if (!u) return '';
   const badgeType = u.badgeType || (u.role === 'admin' ? 'admin' : u.role === 'ta' ? 'ta' : u.role === 'doctor' ? 'doctor' : 'student');
-
   const map = {
     founder: `<span class="badge badge-founder"><i class="fas fa-crown"></i> Founder</span>`,
     admin:   `<span class="badge badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>`,
@@ -371,7 +494,6 @@ function getBadgeHTML(u) {
     student: `<span class="badge badge-student"><i class="fas fa-user-graduate"></i> Student</span>`
   };
   let html = map[badgeType] || map.student;
-
   let verified = false;
   if (u.isVerified) {
     const until = toDate(u.verifiedUntil);
@@ -381,9 +503,7 @@ function getBadgeHTML(u) {
   return html;
 }
 
-function renderBadge() {
-  document.getElementById('profileBadge').innerHTML = getBadgeHTML(profileData);
-}
+function renderBadge() { document.getElementById('profileBadge').innerHTML = getBadgeHTML(profileData); }
 
 function renderBasicInfo() {
   document.getElementById('profileName').textContent = profileData?.name || 'بدون اسم';
@@ -402,10 +522,23 @@ function renderMeta() {
   meta.innerHTML = items.join('');
 }
 
+function getVerifyButtonHTML() {
+  if (profileData?.badgeType === 'founder') return '';
+  const isVerified = profileData?.isVerified && (!profileData.verifiedUntil || toDate(profileData.verifiedUntil) > new Date());
+  if (isVerified) {
+    return `<button class="btn btn-verified" disabled><i class="fas fa-check-circle"></i> حسابك موثق</button>`;
+  }
+  if (hasPendingVerification) {
+    return `<button class="btn btn-pending" disabled><i class="fas fa-clock"></i> طلبك قيد المراجعة</button>`;
+  }
+  return `<button class="btn btn-verify" onclick="openVerification()"><i class="fas fa-check-circle"></i> توثيق الحساب</button>`;
+}
+
 function renderActions() {
   const el = document.getElementById('actionsRow');
   if (isMyProfile) {
     el.innerHTML = `
+      ${getVerifyButtonHTML()}
       <button class="btn btn-outline" onclick="openEditProfile()"><i class="fas fa-edit"></i> تعديل الملف</button>
       <button class="btn btn-primary" onclick="showToast('المنشورات قريباً')"><i class="fas fa-plus"></i> إنشاء منشور</button>
     `;
@@ -449,7 +582,7 @@ function renderTabs() {
     let v = 'غير موثق';
     if (profileData?.isVerified) {
       const until = toDate(profileData.verifiedUntil);
-      if (!until) v = 'موثق ✓';
+      if (!until) v = 'موثق ✓ (دائم)';
       else if (until > new Date()) v = `موثق حتى ${until.toLocaleDateString('ar-EG')}`;
     }
     document.getElementById('aboutVerified').textContent = v;
@@ -600,11 +733,7 @@ window.changePassword = async function() {
     closeModal('passwordModal');
   } catch (e) {
     console.error(e);
-    const msgs = {
-      'auth/wrong-password': 'كلمة المرور الحالية خطأ',
-      'auth/invalid-credential': 'كلمة المرور الحالية خطأ',
-      'auth/weak-password': 'كلمة المرور الجديدة ضعيفة'
-    };
+    const msgs = { 'auth/wrong-password': 'كلمة المرور الحالية خطأ', 'auth/invalid-credential': 'كلمة المرور الحالية خطأ', 'auth/weak-password': 'كلمة المرور الجديدة ضعيفة' };
     showToast(msgs[e.code] || 'حدث خطأ', 'error');
   } finally { btn.disabled = false; btn.textContent = 'تغيير'; }
 };
@@ -623,10 +752,7 @@ window.openList = async function(type) {
     if (uids.length === 0) { container.innerHTML = `<p style="text-align:center;padding:20px;color:var(--text-muted)">لا يوجد ${type === 'followers' ? 'متابعون' : 'متابَعون'} بعد</p>`; return; }
     const users = [];
     for (const uid of uids) {
-      try {
-        const s = await getDoc(doc(db, 'users', uid));
-        if (s.exists()) users.push({ id: uid, ...s.data() });
-      } catch (e) { }
+      try { const s = await getDoc(doc(db, 'users', uid)); if (s.exists()) users.push({ id: uid, ...s.data() }); } catch (e) { }
     }
     container.innerHTML = users.map(u => {
       const av = u.avatarUrl ? `<img src="${getAvatarDisplayUrl(u.avatarUrl, 80)}" alt="">` : (u.name || 'U').charAt(0).toUpperCase();
@@ -636,6 +762,119 @@ window.openList = async function(type) {
   } catch (e) {
     console.error(e);
     container.innerHTML = `<p style="text-align:center;padding:20px;color:var(--red)">حدث خطأ في التحميل</p>`;
+  }
+};
+
+/* ===== Verification Flow ===== */
+window.openVerification = function() {
+  const role = profileData?.role || 'student';
+
+  if (role === 'ta' || role === 'doctor') {
+    // Free verification for TA/Doctor
+    const roleLabel = role === 'ta' ? 'معيد' : 'دكتور';
+    document.getElementById('verificationRoleContent').innerHTML = `
+      <div class="verify-info-box">
+        <h4><i class="fas fa-gift"></i> توثيق مجاني</h4>
+        <p style="margin:0;font-size:13px;color:#1565c0;line-height:1.7;">
+          بصفتك <strong>${roleLabel}</strong>، التوثيق مجاني وبدون تاريخ انتهاء.
+          سيتم مراجعة طلبك من الإدارة للتحقق من هويتك الأكاديمية.
+        </p>
+      </div>
+      <div class="verify-info-box">
+        <h4><i class="fas fa-check-circle"></i> ميزات التوثيق</h4>
+        <ul>
+          <li>شارة زرقاء موثقة دائمة</li>
+          <li>منشوراتك تظهر للجميع</li>
+          <li>ظهور في قسم "صنّاع محتوى مقترحون"</li>
+        </ul>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('verificationRoleModal')">إلغاء</button>
+        <button class="btn-save" id="freeVerifBtn" onclick="submitFreeVerification()">إرسال الطلب</button>
+      </div>
+    `;
+    document.getElementById('verificationRoleModal').classList.add('active');
+  } else {
+    // Student → show plans
+    renderPlans();
+    selectedPlan = null;
+    document.getElementById('verificationPlansModal').classList.add('active');
+  }
+};
+
+function renderPlans() {
+  const grid = document.getElementById('plansGrid');
+  grid.innerHTML = VERIFICATION_PLANS.map(p => `
+    <div class="plan-card ${p.popular ? 'popular' : ''}" data-plan="${p.id}" onclick="selectPlan('${p.id}')">
+      ${p.popular ? '<div class="p-popular">الأكثر شعبية</div>' : ''}
+      <div class="p-name">${p.name}</div>
+      <div class="p-price">${p.price}<small> ج</small></div>
+      <div class="p-per">${p.perMonth} ج/شهر</div>
+      ${p.save ? `<div class="p-save">${p.save}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+window.selectPlan = function(planId) {
+  selectedPlan = VERIFICATION_PLANS.find(p => p.id === planId);
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.toggle('selected', c.dataset.plan === planId));
+  document.getElementById('selectPlanBtn').disabled = false;
+};
+
+window.goToPayment = function() {
+  if (!selectedPlan) return;
+  document.getElementById('paymentAmount').value = `${selectedPlan.price} ج - ${selectedPlan.name}`;
+  document.getElementById('paymentWallet').value = '';
+  document.getElementById('paymentNotes').value = '';
+  closeModal('verificationPlansModal');
+  document.getElementById('verificationPaymentModal').classList.add('active');
+};
+
+window.submitFreeVerification = async function() {
+  const btn = document.getElementById('freeVerifBtn');
+  btn.disabled = true; btn.textContent = 'جاري الإرسال...';
+  try {
+    await requestVerification(
+      currentUser.uid, profileData.name, profileData.role,
+      'free', 'free', 0, 0, ''
+    );
+    hasPendingVerification = true;
+    showToast('تم إرسال طلبك. سيتم مراجعته قريباً ✓');
+    closeModal('verificationRoleModal');
+    renderActions();
+  } catch (e) {
+    console.error(e);
+    showToast(e.message || 'حدث خطأ', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'إرسال الطلب';
+  }
+};
+
+window.submitVerificationRequest = async function() {
+  if (!selectedPlan) return;
+  const wallet = document.getElementById('paymentWallet').value.trim();
+  const notes = document.getElementById('paymentNotes').value.trim();
+  if (!wallet) { showToast('أدخل رقم المحفظة التي حوّلت منها', 'error'); return; }
+
+  const btn = document.getElementById('sendVerifBtn');
+  btn.disabled = true; btn.textContent = 'جاري الإرسال...';
+
+  try {
+    const fullNotes = `رقم المحفظة: ${wallet}${notes ? ' — ' + notes : ''}`;
+    await requestVerification(
+      currentUser.uid, profileData.name, 'student',
+      'paid', selectedPlan.name, selectedPlan.price, selectedPlan.days, fullNotes
+    );
+    hasPendingVerification = true;
+    showToast('تم إرسال طلبك. سيتم تفعيله بعد تأكيد الدفع ✓');
+    closeModal('verificationPaymentModal');
+    selectedPlan = null;
+    renderActions();
+  } catch (e) {
+    console.error(e);
+    showToast(e.message || 'حدث خطأ', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'إرسال الطلب';
   }
 };
 
