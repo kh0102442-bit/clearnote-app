@@ -17,135 +17,66 @@
   html, body { margin: 0; padding: 0; background: var(--bg); font-family: 'Cairo', sans-serif; font-size: 15px; line-height: 1.6; max-width: 100vw; overflow-x: hidden; }
   body { padding-bottom: 84px; }
 
-  /* ===== Topbar ===== */
-  .admin-topbar {
-    background: var(--navy); color: #fff;
-    padding: 12px 16px;
-    display: flex; justify-content: space-between; align-items: center;
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-  }
+  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 9000; }
+  .loading-overlay.hide { display: none; }
+  .loading-spinner { width: 44px; height: 44px; border: 4px solid var(--line); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .admin-topbar { background: var(--navy); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
   .admin-brand { font-family: Georgia, serif; font-size: 19px; font-weight: 700; letter-spacing: 1px; }
   .admin-brand span { color: var(--accent); }
   .topbar-actions { display: flex; gap: 8px; align-items: center; }
-  .topbar-btn {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: rgba(255,255,255,0.1); border: none; color: #fff;
-    font-size: 15px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    position: relative; transition: 0.15s;
-  }
+  .topbar-btn { width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: 0.15s; }
   .topbar-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.95); }
-  .topbar-btn .dot {
-    position: absolute; top: 6px; left: 6px;
-    min-width: 16px; height: 16px; line-height: 16px;
-    background: var(--red); color: #fff; border-radius: 9999px;
-    font-size: 10px; font-weight: 800; padding: 0 4px;
-    text-align: center; border: 2px solid var(--navy);
-    display: none;
-  }
+  .topbar-btn .dot { position: absolute; top: 6px; left: 6px; min-width: 16px; height: 16px; line-height: 16px; background: var(--red); color: #fff; border-radius: 9999px; font-size: 10px; font-weight: 800; padding: 0 4px; text-align: center; border: 2px solid var(--navy); display: none; }
   .topbar-btn .dot.show { display: block; }
 
-  /* ===== Segmented tabs ===== */
-  .seg-wrap {
-    background: var(--card); padding: 12px 16px;
-    border-bottom: 1px solid var(--line);
-    position: sticky; top: 62px; z-index: 90;
-  }
-  .seg {
-    display: flex; background: var(--line-soft);
-    border-radius: 12px; padding: 4px; gap: 2px;
-  }
-  .seg-btn {
-    flex: 1; padding: 10px 6px;
-    background: transparent; border: none;
-    font-family: inherit; font-size: 12.5px; font-weight: 800;
-    color: var(--muted); cursor: pointer;
-    border-radius: 9px; transition: 0.18s;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-    position: relative; min-width: 0;
-  }
+  .seg-wrap { background: var(--card); padding: 12px 16px; border-bottom: 1px solid var(--line); position: sticky; top: 62px; z-index: 90; }
+  .seg { display: flex; background: var(--line-soft); border-radius: 12px; padding: 4px; gap: 2px; }
+  .seg-btn { flex: 1; padding: 10px 6px; background: transparent; border: none; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--muted); cursor: pointer; border-radius: 9px; transition: 0.18s; display: flex; align-items: center; justify-content: center; gap: 5px; position: relative; min-width: 0; }
   .seg-btn i { font-size: 14px; }
   .seg-btn.active { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(21,39,65,.25); }
-  .seg-btn .dot {
-    position: absolute; top: 2px; left: 2px;
-    min-width: 16px; height: 16px; line-height: 16px;
-    background: var(--red); color: #fff; border-radius: 9999px;
-    font-size: 9px; font-weight: 800; padding: 0 4px;
-    text-align: center; border: 1px solid var(--card);
-  }
+  .seg-btn .dot { position: absolute; top: 2px; left: 2px; min-width: 16px; height: 16px; line-height: 16px; background: var(--red); color: #fff; border-radius: 9999px; font-size: 9px; font-weight: 800; padding: 0 4px; text-align: center; border: 1px solid var(--card); }
   @media (max-width: 420px) {
     .seg-btn span.lbl { display: none; }
     .seg-btn i { font-size: 17px; }
     .seg-btn { padding: 11px 4px; }
   }
 
-  /* ===== Main ===== */
   .main-wrap { max-width: 920px; margin: 0 auto; padding: 16px; }
 
-  /* Skeleton */
   .skel { background: linear-gradient(90deg, #f0f2f5, #e9ecef, #f0f2f5); background-size: 200% 100%; animation: skel 1.5s infinite; border-radius: 10px; }
   @keyframes skel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  .skel-line { height: 14px; margin-bottom: 8px; }
   .skel-card { height: 76px; margin-bottom: 12px; }
 
-  /* Add btn (visible only on content tab) */
-  .btn-primary-action {
-    background: var(--accent); color: #fff; border: none;
-    padding: 11px 16px; border-radius: 10px;
-    font-family: inherit; font-weight: 800; font-size: 13.5px;
-    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-    margin-bottom: 14px;
-  }
+  .error-banner { background: #fbeaea; border: 1px solid #f0c6c6; color: var(--red); padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; line-height: 1.6; display: none; }
+  .error-banner.show { display: block; }
+  .error-banner strong { display: block; margin-bottom: 4px; }
 
-  /* ===== Content tree ===== */
+  .btn-primary-action { background: var(--accent); color: #fff; border: none; padding: 11px 16px; border-radius: 10px; font-family: inherit; font-weight: 800; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+
   .tree-group { margin-bottom: 8px; }
-  .node-card {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 12px; overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
+  .node-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
   .node-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
   .node-title-area { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
-  .node-icon {
-    width: 34px; height: 34px; border-radius: 9px;
-    background: #eef2fa; color: var(--navy);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; flex-shrink: 0;
-  }
+  .node-icon { width: 34px; height: 34px; border-radius: 9px; background: #eef2fa; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
   .node-text { flex: 1; min-width: 0; }
   .node-title { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .node-type { font-size: 11px; color: var(--accent); font-weight: 700; margin-top: 1px; }
   .node-actions { display: flex; gap: 4px; flex-shrink: 0; }
-  .action-btn {
-    width: 30px; height: 30px; border-radius: 7px;
-    border: 1px solid var(--line); background: #f8f9fa;
-    color: var(--muted); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; transition: 0.15s;
-  }
+  .action-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--line); background: #f8f9fa; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.15s; }
   .action-btn:hover { background: var(--line-soft); }
   .action-btn.manage { color: var(--green); border-color: #c9d6ee; background: #eef2fa; }
   .action-btn.danger { color: var(--red); background: #fbeaea; border-color: #fbeaea; }
   .children-area { display: none; padding: 8px 12px 12px; background: #fafbfc; border-top: 1px solid var(--line); }
   .children-area.active { display: block; }
 
-  /* ===== Cards generic ===== */
-  .user-card, .req-card, .verif-card {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 12px; padding: 14px; margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
+  .user-card, .req-card, .verif-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
   .user-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
   .user-info { flex: 1; min-width: 0; }
   .user-name { font-weight: 800; color: var(--navy); font-size: 14.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .user-email { font-size: 12px; color: var(--muted); margin-top: 2px; direction: ltr; text-align: right; }
-  .user-role-chip {
-    display: inline-block; padding: 2px 9px; border-radius: 20px;
-    font-size: 10.5px; font-weight: 800;
-    font-family: 'Inter', 'Cairo', sans-serif;
-    letter-spacing: 0.4px;
-  }
+  .user-role-chip { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 800; font-family: 'Inter', 'Cairo', sans-serif; letter-spacing: 0.4px; }
   .role-student { background: #eef2fa; color: #2a4b8d; }
   .role-ta { background: #e3f2fd; color: #0d47a1; }
   .role-doctor { background: #f3e5f5; color: #4a148c; }
@@ -157,15 +88,10 @@
   .req-sub { font-size: 12.5px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
   .req-notes { font-size: 12px; color: var(--muted); background: #fafbfc; padding: 8px 10px; border-radius: 7px; margin: 8px 0; line-height: 1.6; }
   .req-actions { display: flex; gap: 8px; margin-top: 10px; }
-  .req-btn {
-    flex: 1; padding: 10px; border: none; border-radius: 8px;
-    font-family: inherit; font-weight: 800; font-size: 13px;
-    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  }
+  .req-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-family: inherit; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
   .req-btn.approve { background: var(--green); color: #fff; }
   .req-btn.reject { background: #fbeaea; color: var(--red); border: 1px solid #f0c6c6; }
 
-  /* Verification card */
   .verif-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
   .verif-name { font-weight: 800; color: var(--navy); font-size: 14.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .verif-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
@@ -180,114 +106,50 @@
   .verif-details strong { color: var(--navy); }
   .verif-notes { font-size: 12px; padding: 8px 10px; background: #fefaf0; border-right: 3px solid var(--accent); border-radius: 6px; margin-bottom: 10px; color: var(--muted); line-height: 1.6; }
 
-  /* Filter chips */
   .filter-row { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
-  .filter-chip {
-    padding: 7px 14px; border-radius: 20px;
-    border: 1.5px solid var(--line); background: var(--card);
-    color: var(--muted); font-family: inherit;
-    font-size: 12px; font-weight: 800; cursor: pointer;
-    white-space: nowrap; transition: 0.15s;
-  }
+  .filter-chip { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); color: var(--muted); font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: 0.15s; }
   .filter-chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
 
-  /* Empty */
   .empty-box { text-align: center; padding: 50px 20px; color: var(--muted); }
   .empty-box i { font-size: 44px; color: var(--line); display: block; margin-bottom: 12px; }
   .empty-box h3 { margin: 0 0 4px; font-size: 14.5px; color: var(--navy); font-weight: 800; }
   .empty-box p { margin: 0; font-size: 12.5px; }
 
-  /* ===== Bottom nav (mobile) ===== */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: 68px; background: var(--card);
-    border-top: 1px solid var(--line);
-    display: flex; z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom, 0);
-    box-shadow: 0 -2px 12px rgba(21,39,65,0.08);
-  }
-  .bottom-nav button {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 3px;
-    background: none; border: none;
-    color: var(--muted); font-family: inherit;
-    font-size: 10.5px; font-weight: 700;
-    cursor: pointer; padding: 6px 2px;
-    position: relative;
-  }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: var(--card); border-top: 1px solid var(--line); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0); box-shadow: 0 -2px 12px rgba(21,39,65,0.08); }
+  .bottom-nav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; color: var(--muted); font-family: inherit; font-size: 10.5px; font-weight: 700; cursor: pointer; padding: 6px 2px; position: relative; }
   .bottom-nav button i { font-size: 19px; }
   .bottom-nav button.active { color: var(--navy); }
-  .bottom-nav button.active::before {
-    content: ''; position: absolute; top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 28px; height: 3px;
-    background: var(--accent); border-radius: 0 0 3px 3px;
-  }
-  .bottom-nav .nav-dot {
-    position: absolute; top: 4px; left: 50%;
-    margin-left: 8px;
-    min-width: 16px; height: 16px; line-height: 16px;
-    background: var(--red); color: #fff;
-    border-radius: 9999px; font-size: 9px;
-    font-weight: 800; padding: 0 4px;
-    text-align: center; border: 1.5px solid var(--card);
-    display: none;
-  }
+  .bottom-nav button.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 3px; background: var(--accent); border-radius: 0 0 3px 3px; }
+  .bottom-nav .nav-dot { position: absolute; top: 4px; left: 50%; margin-left: 8px; min-width: 16px; height: 16px; line-height: 16px; background: var(--red); color: #fff; border-radius: 9999px; font-size: 9px; font-weight: 800; padding: 0 4px; text-align: center; border: 1.5px solid var(--card); display: none; }
   .bottom-nav .nav-dot.show { display: block; }
-  @media (min-width: 768px) {
-    .bottom-nav { display: none; }
-    body { padding-bottom: 20px; }
-  }
+  @media (min-width: 768px) { .bottom-nav { display: none; } body { padding-bottom: 20px; } }
 
-  /* ===== Modals ===== */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
-  .modal-box {
-    background: var(--card); border-radius: 20px 20px 0 0;
-    width: 100%; max-width: 520px; margin: 0 auto;
-    padding: 22px 18px; max-height: 92vh; overflow-y: auto;
-    animation: slideUp 0.25s ease;
-  }
+  .modal-box { background: var(--card); border-radius: 20px 20px 0 0; width: 100%; max-width: 520px; margin: 0 auto; padding: 22px 18px; max-height: 92vh; overflow-y: auto; animation: slideUp 0.25s ease; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal-box h3 { margin: 0 0 14px; color: var(--navy); font-size: 17px; text-align: center; font-weight: 800; }
   .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
-  .form-group input, .form-group textarea, .form-group select {
-    width: 100%; padding: 12px;
-    border: 2px solid var(--line); border-radius: 10px;
-    font-family: inherit; font-size: 14px;
-    background: #fafbfc; box-sizing: border-box;
-  }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; background: #fafbfc; box-sizing: border-box; }
   .form-group textarea { resize: vertical; }
   .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
   .btn-save { flex: 1; background: var(--navy); color: #fff; border: none; padding: 13px; border-radius: 10px; font-family: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; }
   .btn-save:disabled { opacity: 0.6; cursor: wait; }
   .btn-cancel { flex: 1; background: #e9ecef; color: var(--muted); border: none; padding: 13px; border-radius: 10px; font-family: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; }
 
-  /* Modules grid */
   .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-  .module-item {
-    background: #f8f9fa; border: 1.5px solid var(--line);
-    border-radius: 10px; padding: 15px 10px;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    cursor: pointer; transition: 0.15s;
-  }
+  .module-item { background: #f8f9fa; border: 1.5px solid var(--line); border-radius: 10px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: 0.15s; }
   .module-item:hover { border-color: var(--navy); background: #eef2fa; }
   .module-icon { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; }
   .module-title { font-size: 13px; font-weight: 800; color: var(--navy); }
   .icon-explain { background: #27ae60; } .icon-video { background: #e74c3c; } .icon-questions { background: #3498db; } .icon-summary { background: #9b59b6; } .icon-terms { background: #e67e22; }
 
-  /* Video item */
   .video-item { background: #fafbfc; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
   .video-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .video-file-preview { margin-top: 8px; padding: 8px 10px; background: #fff; border-radius: 6px; font-size: 12.5px; color: #333; }
 
-  /* HTML upload */
-  .html-upload-zone {
-    border: 2px dashed #c9d6ee; background: #f8fbff;
-    border-radius: 10px; padding: 16px; text-align: center;
-    cursor: pointer; transition: 0.2s;
-  }
+  .html-upload-zone { border: 2px dashed #c9d6ee; background: #f8fbff; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; }
   .html-upload-zone:hover, .html-upload-zone.drag-over { border-color: var(--navy); background: #eef2fa; }
   .html-upload-zone i { font-size: 26px; color: var(--navy); margin-bottom: 8px; display: block; }
   .html-upload-zone .up-text { font-size: 13px; color: var(--navy); font-weight: 800; }
@@ -300,16 +162,7 @@
   .divider-text:before, .divider-text:after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--line); }
   .divider-text:before { left: 0; } .divider-text:after { right: 0; }
 
-  /* Notifications panel */
-  .notif-panel {
-    position: fixed; top: 0; right: 0; bottom: 0;
-    width: 100%; max-width: 420px;
-    background: var(--card); z-index: 99999;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    display: flex; flex-direction: column;
-    box-shadow: -4px 0 20px rgba(0,0,0,0.15);
-  }
+  .notif-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px; background: var(--card); z-index: 99999; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.15); }
   .notif-panel.active { transform: translateX(0); }
   .notif-panel-header { background: var(--navy); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
   .notif-panel-header h3 { margin: 0; font-size: 15px; }
@@ -325,102 +178,63 @@
   .notif-item .n-time { font-size: 10.5px; color: #8899aa; }
   .notif-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99998; display: none; }
   .notif-overlay.active { display: block; }
-
-  /* Error state */
-  .error-box {
-    background: #fbeaea; border: 1px solid #f0c6c6;
-    color: var(--red); padding: 16px; border-radius: 12px;
-    margin-bottom: 14px; font-size: 13px; line-height: 1.6;
-  }
-  .error-box strong { display: block; margin-bottom: 4px; font-weight: 800; }
 </style>
 </head>
 <body>
 
-<!-- Topbar -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div style="color:var(--muted);font-size:14px;">جاري التحميل...</div>
+</div>
+
 <div class="admin-topbar">
   <div class="admin-brand">CLEAR<span>NOTE</span></div>
   <div class="topbar-actions">
-    <button class="topbar-btn" onclick="openNotifPanel()" title="الإشعارات">
-      <i class="fas fa-bell"></i>
-      <span class="dot" id="notifDot"></span>
-    </button>
-    <button class="topbar-btn" onclick="doLogout()" title="خروج">
-      <i class="fas fa-sign-out-alt"></i>
-    </button>
+    <button class="topbar-btn" onclick="openNotifPanel()"><i class="fas fa-bell"></i><span class="dot" id="notifDot"></span></button>
+    <button class="topbar-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i></button>
   </div>
 </div>
 
-<!-- Segmented tabs (desktop + top) -->
 <div class="seg-wrap">
   <div class="seg">
-    <button class="seg-btn active" data-tab="tree" onclick="switchTab('tree')">
-      <i class="fas fa-sitemap"></i><span class="lbl">المحتوى</span>
-    </button>
-    <button class="seg-btn" data-tab="students" onclick="switchTab('students')">
-      <i class="fas fa-users"></i><span class="lbl">المستخدمون</span>
-    </button>
-    <button class="seg-btn" data-tab="requests" onclick="switchTab('requests')">
-      <i class="fas fa-crown"></i><span class="lbl">الاشتراكات</span>
-      <span class="dot" id="reqDot" style="display:none;">0</span>
-    </button>
-    <button class="seg-btn" data-tab="verification" onclick="switchTab('verification')">
-      <i class="fas fa-check-circle"></i><span class="lbl">التوثيق</span>
-      <span class="dot" id="verifDot" style="display:none;">0</span>
-    </button>
+    <button class="seg-btn active" data-tab="tree" onclick="switchTab('tree')"><i class="fas fa-sitemap"></i><span class="lbl">المحتوى</span></button>
+    <button class="seg-btn" data-tab="students" onclick="switchTab('students')"><i class="fas fa-users"></i><span class="lbl">المستخدمون</span></button>
+    <button class="seg-btn" data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-crown"></i><span class="lbl">الاشتراكات</span><span class="dot" id="reqDot" style="display:none;">0</span></button>
+    <button class="seg-btn" data-tab="verification" onclick="switchTab('verification')"><i class="fas fa-check-circle"></i><span class="lbl">التوثيق</span><span class="dot" id="verifDot" style="display:none;">0</span></button>
   </div>
 </div>
 
-<!-- Main -->
 <div class="main-wrap">
+  <div class="error-banner" id="errorBanner"></div>
   <div id="treeContainer"></div>
   <div id="studentsContainer" style="display:none;"></div>
   <div id="requestsContainer" style="display:none;"></div>
   <div id="verificationContainer" style="display:none;"></div>
 </div>
 
-<!-- Bottom nav (mobile) -->
 <nav class="bottom-nav">
-  <button class="active" data-tab="tree" onclick="switchTab('tree')">
-    <i class="fas fa-sitemap"></i><span>المحتوى</span>
-  </button>
-  <button data-tab="students" onclick="switchTab('students')">
-    <i class="fas fa-users"></i><span>المستخدمون</span>
-  </button>
-  <button data-tab="requests" onclick="switchTab('requests')">
-    <i class="fas fa-crown"></i><span>الاشتراكات</span>
-    <span class="nav-dot" id="reqDotNav">0</span>
-  </button>
-  <button data-tab="verification" onclick="switchTab('verification')">
-    <i class="fas fa-check-circle"></i><span>التوثيق</span>
-    <span class="nav-dot" id="verifDotNav">0</span>
-  </button>
+  <button class="active" data-tab="tree" onclick="switchTab('tree')"><i class="fas fa-sitemap"></i><span>المحتوى</span></button>
+  <button data-tab="students" onclick="switchTab('students')"><i class="fas fa-users"></i><span>المستخدمون</span></button>
+  <button data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-crown"></i><span>الاشتراكات</span><span class="nav-dot" id="reqDotNav">0</span></button>
+  <button data-tab="verification" onclick="switchTab('verification')"><i class="fas fa-check-circle"></i><span>التوثيق</span><span class="nav-dot" id="verifDotNav">0</span></button>
 </nav>
 
-<!-- ===== Modals ===== -->
+<!-- Modals -->
 <div class="modal-overlay" id="deviceModal"><div class="modal-box"><h3>الأجهزة</h3><div id="deviceList" style="margin-top:15px;"></div><button class="btn-cancel" style="width:100%; margin-top:15px;" onclick="closeModal('deviceModal')">إغلاق</button></div></div>
 
 <div class="modal-overlay" id="nodeModal"><div class="modal-box"><h3 id="modalTitle">إضافة</h3><input type="hidden" id="nodeParentId"><input type="hidden" id="nodeType"><div class="form-group"><label>العنوان</label><input type="text" id="nodeTitle"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('nodeModal')">إلغاء</button><button class="btn-save" onclick="saveNode()">حفظ</button></div></div></div>
 
-<div class="modal-overlay" id="manageModal"><div class="modal-box"><h3 id="manageTitle">إدارة محتوى</h3><p style="text-align:center;color:var(--muted);font-size:13px;">اختر الجزء</p><div class="modules-grid"><div class="module-item" onclick="openCodeEditor('explain', 'الشرح')"><div class="module-icon icon-explain"><i class="fas fa-file-alt"></i></div><div class="module-title">الشرح</div></div><div class="module-item" onclick="openVideoManager()"><div class="module-icon icon-video"><i class="fas fa-video"></i></div><div class="module-title">فيديو</div></div><div class="module-item" onclick="openCodeEditor('questions', 'أسئلة')"><div class="module-icon icon-questions"><i class="fas fa-question-circle"></i></div><div class="module-title">أسئلة</div></div><div class="module-item" onclick="openCodeEditor('summary', 'ملخص')"><div class="module-icon icon-summary"><i class="fas fa-clipboard-list"></i></div><div class="module-title">ملخص</div></div><div class="module-item" onclick="openCodeEditor('terms', 'مصطلحات')"><div class="module-icon icon-terms"><i class="fas fa-book"></i></div><div class="module-title">مصطلحات</div></div></div><button class="btn-cancel" style="width:100%;" onclick="closeModal('manageModal')">إغلاق</button></div></div>
+<div class="modal-overlay" id="manageModal"><div class="modal-box"><h3 id="manageTitle">إدارة</h3><div class="modules-grid"><div class="module-item" onclick="openCodeEditor('explain', 'الشرح')"><div class="module-icon icon-explain"><i class="fas fa-file-alt"></i></div><div class="module-title">الشرح</div></div><div class="module-item" onclick="openVideoManager()"><div class="module-icon icon-video"><i class="fas fa-video"></i></div><div class="module-title">فيديو</div></div><div class="module-item" onclick="openCodeEditor('questions', 'أسئلة')"><div class="module-icon icon-questions"><i class="fas fa-question-circle"></i></div><div class="module-title">أسئلة</div></div><div class="module-item" onclick="openCodeEditor('summary', 'ملخص')"><div class="module-icon icon-summary"><i class="fas fa-clipboard-list"></i></div><div class="module-title">ملخص</div></div><div class="module-item" onclick="openCodeEditor('terms', 'مصطلحات')"><div class="module-icon icon-terms"><i class="fas fa-book"></i></div><div class="module-title">مصطلحات</div></div></div><button class="btn-cancel" style="width:100%;" onclick="closeModal('manageModal')">إغلاق</button></div></div>
 
-<div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان المحتوى</label><input type="text" id="moduleTitleInput" placeholder="مثال: شرح المحاضرة الأولى"></div><div class="form-group"><label>صلاحية الوصول</label><select id="moduleAccessInput"><option value="public">عام (مجاني للجميع)</option><option value="paid">مدفوع (للمشتركين فقط)</option></select></div><div class="form-group"><label>الطريقة الأولى: ارفع ملف HTML</label><div class="html-upload-zone" id="htmlUploadZone" onclick="document.getElementById('htmlFileInput').click()"><i class="fas fa-cloud-upload-alt"></i><div class="up-text">اضغط لاختيار ملف HTML</div><div class="up-sub">.html أو .htm — سيتم قراءة المحتوى تلقائياً</div></div><input type="file" id="htmlFileInput" accept=".html,.htm,text/html" style="display:none" onchange="handleHtmlFileUpload(event)"><div class="html-file-info" id="htmlFileInfo"></div></div><div class="divider-text">أو</div><div class="form-group"><label>الطريقة الثانية: الصق الكود مباشرة</label><textarea id="moduleCode" rows="8" style="font-family: monospace; font-size: 13px;" placeholder="<html>..."></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
+<div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>الصلاحية</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div class="form-group"><label>ارفع ملف HTML</label><div class="html-upload-zone" id="htmlUploadZone" onclick="document.getElementById('htmlFileInput').click()"><i class="fas fa-cloud-upload-alt"></i><div class="up-text">اضغط لاختيار</div><div class="up-sub">.html</div></div><input type="file" id="htmlFileInput" accept=".html,.htm,text/html" style="display:none" onchange="handleHtmlFileUpload(event)"><div class="html-file-info" id="htmlFileInfo"></div></div><div class="divider-text">أو</div><div class="form-group"><label>الصق الكود</label><textarea id="moduleCode" rows="8" style="font-family:monospace;font-size:13px;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
 
-<div class="modal-overlay" id="videoModal"><div class="modal-box" style="max-height:95vh;"><h3>إدارة الفيديوهات</h3><div class="form-group"><label>عنوان قسم الفيديوهات</label><input type="text" id="videoSectionTitle" placeholder="فيديوهات المحاضرة الأولى"></div><div class="form-group"><label>صلاحية الوصول</label><select id="videoAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div id="videoItemsContainer"></div><button class="btn-save" style="width:100%; background:var(--green); margin-bottom:12px;" onclick="addVideoItem()"><i class="fas fa-plus"></i> إضافة فيديو</button><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('videoModal')">إلغاء</button><button class="btn-save" onclick="saveVideos()">حفظ</button></div></div></div>
+<div class="modal-overlay" id="videoModal"><div class="modal-box" style="max-height:95vh;"><h3>الفيديوهات</h3><div class="form-group"><label>عنوان القسم</label><input type="text" id="videoSectionTitle"></div><div class="form-group"><label>الصلاحية</label><select id="videoAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div id="videoItemsContainer"></div><button class="btn-save" style="width:100%; background:var(--green); margin-bottom:12px;" onclick="addVideoItem()"><i class="fas fa-plus"></i> إضافة</button><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('videoModal')">إلغاء</button><button class="btn-save" onclick="saveVideos()">حفظ</button></div></div></div>
 
-<!-- Notif panel -->
 <div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
 <div class="notif-panel" id="notifPanel">
-  <div class="notif-panel-header">
-    <h3><i class="fas fa-bell"></i> الإشعارات</h3>
-    <button onclick="closeNotifPanel()"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="notif-panel-body" id="notifBody">
-    <p style="text-align:center; color:var(--muted); padding:40px;">لا توجد إشعارات</p>
-  </div>
-  <div class="notif-panel-footer">
-    <button onclick="markAllRead()">تعليم الكل كمقروء</button>
-  </div>
+  <div class="notif-panel-header"><h3><i class="fas fa-bell"></i> الإشعارات</h3><button onclick="closeNotifPanel()"><i class="fas fa-times"></i></button></div>
+  <div class="notif-panel-body" id="notifBody"><p style="text-align:center; color:var(--muted); padding:40px;">لا توجد إشعارات</p></div>
+  <div class="notif-panel-footer"><button onclick="markAllRead()">تعليم الكل كمقروء</button></div>
 </div>
 
 <script type="module">
@@ -430,10 +244,9 @@ import {
   createNotification, escapeHtml
 } from "./shared.js";
 import {
-  collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy
+  collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ===== State ===== */
 let treeData = [];
 let allUsers = [];
 let allSubRequests = [];
@@ -449,14 +262,13 @@ let currentTab = 'tree';
 onAuth(async (user, userData) => {
   if (!user || !isAdmin(userData)) { goTo("index.html"); return; }
 
-  // Notifications listener
   try {
     adminNotifUnsub = listenAdminNotifications((notifs) => {
       adminNotifs = notifs;
       renderNotifBadges();
       renderNotifPanel();
     });
-  } catch (e) { console.error("Notif error", e); }
+  } catch (e) { console.warn('notif listener failed:', e); }
 
   await loadAllData();
 });
@@ -467,7 +279,6 @@ window.doLogout = async () => {
   goTo("index.html");
 };
 
-/* ===== Tabs ===== */
 window.switchTab = function(tab) {
   currentTab = tab;
   document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -479,44 +290,51 @@ window.switchTab = function(tab) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-/* ===== Load ===== */
+/* ===== Load with defensive pattern ===== */
 async function loadAllData() {
   showSkeletons();
   saveOpenState();
+  const errors = [];
 
-  // كل query في try/catch منفصل — لو فشل واحد لا يوقف الباقي
-  let errors = [];
-
+  // 1. content_tree
   try {
     const snap = await getDocs(collection(db, "content_tree"));
     treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) { console.error("tree error", e); errors.push("المحتوى: " + e.message); treeData = []; }
+  } catch (e) { console.warn('tree failed:', e); errors.push('المحتوى'); treeData = []; }
 
+  // 2. users
   try {
     const snap = await getDocs(collection(db, "users"));
     allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) { console.error("users error", e); errors.push("المستخدمون: " + e.message); allUsers = []; }
+  } catch (e) { console.warn('users failed:', e); errors.push('المستخدمون'); allUsers = []; }
 
+  // 3. subscription_requests
   try {
     const snap = await getDocs(collection(db, "subscription_requests"));
     allSubRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) { console.error("subs error", e); errors.push("طلبات الاشتراك: " + e.message); allSubRequests = []; }
+  } catch (e) { console.warn('subreqs failed:', e); errors.push('طلبات الاشتراك'); allSubRequests = []; }
 
+  // 4. verification_requests
   try {
     const snap = await getDocs(collection(db, "verification_requests"));
     allVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    // ترتيب يدوياً لتجنب مشاكل index
     allVerifications.sort((a, b) => {
       const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
       const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
       return tb - ta;
     });
-  } catch (e) { console.error("verif error", e); errors.push("التوثيق: " + e.message); allVerifications = []; }
+  } catch (e) { console.warn('verif failed:', e); errors.push('التوثيق'); allVerifications = []; }
 
+  // Error banner
+  const banner = document.getElementById('errorBanner');
   if (errors.length > 0) {
-    showToast('بعض البيانات لم تُحمّل — راجع الـ console', 'error');
+    banner.innerHTML = `<strong>تعذر تحميل بعض البيانات:</strong> ${errors.join('، ')}. الصفحة تعمل بشكل جزئي — راجع الـ Console للأخطاء التفصيلية.`;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
   }
 
+  hideLoading();
   renderTree();
   renderUsers();
   renderSubRequests();
@@ -524,12 +342,10 @@ async function loadAllData() {
   updateAllBadges();
 }
 
+function hideLoading() { document.getElementById('loadingOverlay').classList.add('hide'); }
+
 function showSkeletons() {
-  const skel = `
-    <div class="skel skel-card"></div>
-    <div class="skel skel-card"></div>
-    <div class="skel skel-card"></div>
-  `;
+  const skel = `<div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div>`;
   ['treeContainer', 'studentsContainer', 'requestsContainer', 'verificationContainer'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = skel;
@@ -541,20 +357,18 @@ function updateAllBadges() {
   const reqCount = allSubRequests.filter(r => r.status === 'pending').length;
   const verifCount = allVerifications.filter(v => v.status === 'pending').length;
 
-  // Segmented dots
   const reqDot = document.getElementById('reqDot');
   const verifDot = document.getElementById('verifDot');
   if (reqDot) { reqDot.style.display = reqCount > 0 ? 'inline-block' : 'none'; reqDot.textContent = reqCount > 9 ? '9+' : reqCount; }
   if (verifDot) { verifDot.style.display = verifCount > 0 ? 'inline-block' : 'none'; verifDot.textContent = verifCount > 9 ? '9+' : verifCount; }
 
-  // Bottom nav dots
   const reqDotNav = document.getElementById('reqDotNav');
   const verifDotNav = document.getElementById('verifDotNav');
   if (reqDotNav) { reqDotNav.classList.toggle('show', reqCount > 0); reqDotNav.textContent = reqCount > 9 ? '9+' : reqCount; }
   if (verifDotNav) { verifDotNav.classList.toggle('show', verifCount > 0); verifDotNav.textContent = verifCount > 9 ? '9+' : verifCount; }
 }
 
-/* ===== Content Tree ===== */
+/* ===== Tree ===== */
 function saveOpenState() {
   document.querySelectorAll('.children-area').forEach(el => {
     if (el.classList.contains('active')) openNodes.add(el.id.replace('children-', ''));
@@ -566,9 +380,7 @@ function renderTree() {
   const container = document.getElementById('treeContainer');
   const rootNodes = treeData.filter(n => n.parentId === "root");
   if (rootNodes.length === 0) {
-    container.innerHTML = `
-      <button class="btn-primary-action" onclick="openAddModal(null, 'root')"><i class="fas fa-plus"></i> إضافة سنة دراسية</button>
-      <div class="empty-box"><i class="fas fa-sitemap"></i><h3>لا يوجد محتوى</h3><p>ابدأ بإضافة سنة دراسية</p></div>`;
+    container.innerHTML = `<button class="btn-primary-action" onclick="openAddModal(null, 'root')"><i class="fas fa-plus"></i> إضافة سنة دراسية</button><div class="empty-box"><i class="fas fa-sitemap"></i><h3>لا يوجد محتوى</h3><p>ابدأ بإضافة سنة دراسية</p></div>`;
     return;
   }
   container.innerHTML = `<button class="btn-primary-action" onclick="openAddModal(null, 'root')"><i class="fas fa-plus"></i> إضافة سنة دراسية</button>` + buildTreeHTML(rootNodes);
@@ -577,33 +389,16 @@ function renderTree() {
 function buildTreeHTML(nodes) {
   return nodes.map(node => {
     const children = treeData.filter(n => n.parentId === node.id);
-    const isModule = node.type.startsWith('module_');
+    const isModule = node.type && node.type.startsWith('module_');
     const isOpen = openNodes.has(node.id);
     const iconClass = isModule ? (node.type === 'module_video' ? 'fa-video' : 'fa-file') : 'fa-folder';
+    const title = escapeHtml(node.title || '').replace(/'/g, '&#39;');
 
     const actions = isModule
-      ? `<button class="action-btn" onclick="editModule('${node.id}')"><i class="fas fa-edit"></i></button>
-         <button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`
-      : `<button class="action-btn" onclick="editNode('${node.id}')"><i class="fas fa-edit"></i></button>
-         <button class="action-btn manage" onclick="openManage('${node.id}', '${escapeHtml(node.title).replace(/'/g, '&#39;')}')"><i class="fas fa-cog"></i></button>
-         <button class="action-btn" onclick="openAddModal('${node.id}', '${node.type}')"><i class="fas fa-plus"></i></button>
-         <button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`;
+      ? `<button class="action-btn" onclick="editModule('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`
+      : `<button class="action-btn" onclick="editNode('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn manage" onclick="openManage('${node.id}', '${title}')"><i class="fas fa-cog"></i></button><button class="action-btn" onclick="openAddModal('${node.id}', '${node.type}')"><i class="fas fa-plus"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`;
 
-    return `<div class="tree-group"><div class="node-card">
-      <div class="node-header">
-        <div class="node-title-area" onclick="toggleChildren('${node.id}')">
-          <div class="node-icon"><i class="fas ${iconClass}"></i></div>
-          <div class="node-text">
-            <div class="node-title">${escapeHtml(node.title)}</div>
-            <div class="node-type">${node.type}</div>
-          </div>
-        </div>
-        <div class="node-actions">${actions}</div>
-      </div>
-      ${!isModule ? `<div class="children-area ${isOpen ? 'active' : ''}" id="children-${node.id}">
-        ${children.length > 0 ? buildTreeHTML(children) : '<div style="text-align:center; color:#aaa; font-size:12px; padding:8px;">لا يوجد فروع</div>'}
-      </div>` : ''}
-    </div></div>`;
+    return `<div class="tree-group"><div class="node-card"><div class="node-header"><div class="node-title-area" onclick="toggleChildren('${node.id}')"><div class="node-icon"><i class="fas ${iconClass}"></i></div><div class="node-text"><div class="node-title">${escapeHtml(node.title || '')}</div><div class="node-type">${node.type || ''}</div></div></div><div class="node-actions">${actions}</div></div>${!isModule ? `<div class="children-area ${isOpen ? 'active' : ''}" id="children-${node.id}">${children.length > 0 ? buildTreeHTML(children) : '<div style="text-align:center; color:#aaa; font-size:12px; padding:8px;">لا يوجد فروع</div>'}</div>` : ''}</div></div>`;
   }).join('');
 }
 
@@ -618,7 +413,7 @@ window.toggleChildren = function(id) {
 
 window.openAddModal = function(parentId, parentType) {
   let newType = parentType === 'root' ? 'year' : parentType === 'year' ? 'program' : parentType === 'program' ? 'subject' : 'custom';
-  document.getElementById("modalTitle").textContent = "إضافة جديد";
+  document.getElementById("modalTitle").textContent = "إضافة";
   document.getElementById("nodeParentId").value = parentId || "root";
   document.getElementById("nodeType").value = newType;
   document.getElementById("nodeTitle").value = "";
@@ -664,7 +459,7 @@ window.deleteNode = async function(id) {
   loadAllData();
 };
 
-/* ===== Module editors ===== */
+/* ===== Editors ===== */
 window.openCodeEditor = function(moduleKey, moduleTitle) {
   const nodeId = document.getElementById("manageModal").dataset.currentNodeId;
   document.getElementById("codeTitle").textContent = `إعداد ${moduleTitle}`;
@@ -683,7 +478,7 @@ function resetHtmlUploadZone() {
   const zone = document.getElementById('htmlUploadZone');
   zone.classList.remove('success');
   zone.querySelector('.up-text').textContent = 'اضغط لاختيار ملف HTML';
-  zone.querySelector('.up-sub').textContent = '.html أو .htm — سيتم قراءة المحتوى تلقائياً';
+  zone.querySelector('.up-sub').textContent = '.html أو .htm';
   zone.querySelector('i').className = 'fas fa-cloud-upload-alt';
   document.getElementById('htmlFileInput').value = '';
   document.getElementById('htmlFileInfo').classList.remove('show');
@@ -692,20 +487,20 @@ function resetHtmlUploadZone() {
 window.handleHtmlFileUpload = function(event) {
   const file = event.target.files[0];
   if (!file) return;
-  if (!/\.(html?|htm)$/i.test(file.name)) { showToast('يرجى اختيار ملف HTML صالح', 'error'); event.target.value = ''; return; }
-  if (file.size > 1024 * 1024) { showToast('حجم الملف كبير جداً (الحد 1 ميجا)', 'error'); event.target.value = ''; return; }
+  if (!/\.(html?|htm)$/i.test(file.name)) { showToast('ملف غير صالح', 'error'); event.target.value = ''; return; }
+  if (file.size > 1024 * 1024) { showToast('الحد 1 ميجا', 'error'); event.target.value = ''; return; }
   const reader = new FileReader();
   reader.onload = function(e) {
     document.getElementById('moduleCode').value = e.target.result;
     const zone = document.getElementById('htmlUploadZone');
     zone.classList.add('success');
-    zone.querySelector('.up-text').textContent = '✓ تم تحميل الملف';
-    zone.querySelector('.up-sub').textContent = 'راجع الكود أدناه أو احفظ مباشرة';
+    zone.querySelector('.up-text').textContent = '✓ تم التحميل';
+    zone.querySelector('.up-sub').textContent = 'راجع الكود';
     zone.querySelector('i').className = 'fas fa-check-circle';
     const info = document.getElementById('htmlFileInfo');
     info.textContent = `📄 ${file.name} — ${(file.size / 1024).toFixed(1)} KB`;
     info.classList.add('show');
-    showToast('تم تحميل الملف');
+    showToast('تم التحميل');
   };
   reader.readAsText(file);
 };
@@ -716,9 +511,8 @@ window.saveModuleCode = async function() {
   const title = document.getElementById("moduleTitleInput").value.trim();
   const access = document.getElementById("moduleAccessInput").value;
   const code = document.getElementById("moduleCode").value;
+  if (!code || !code.trim()) { showToast('أدخل الكود أو ارفع ملف', 'error'); return; }
   const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_' + moduleKey);
-
-  if (!code || !code.trim()) { showToast('أدخل الكود أو ارفع ملف HTML', 'error'); return; }
   try {
     if (existing) await updateDoc(doc(db, "content_tree", existing.id), { title, access, htmlContent: code });
     else await addDoc(collection(db, "content_tree"), { parentId: nodeId, type: 'module_' + moduleKey, title, access, htmlContent: code, createdAt: serverTimestamp() });
@@ -726,7 +520,7 @@ window.saveModuleCode = async function() {
     closeModal('codeModal');
     loadAllData();
     showToast('تم الحفظ ✓');
-  } catch (e) { showToast('خطأ في الحفظ', 'error'); }
+  } catch (e) { showToast('خطأ', 'error'); }
 };
 
 window.editModule = async function(nodeId) {
@@ -779,18 +573,7 @@ function addVideoItemWithData(v) {
   const index = videoItemCounter++;
   const container = document.getElementById('videoItemsContainer');
   const sourceType = v && v.sourceType ? v.sourceType : 'link';
-  const html = `
-    <div class="video-item" data-index="${index}">
-      <div class="video-item-header">
-        <strong style="color:var(--navy);font-size:13px;">فيديو</strong>
-        <button class="action-btn danger" onclick="removeVideoItem(this)"><i class="fas fa-trash"></i></button>
-      </div>
-      <div class="form-group"><label>عنوان الفيديو</label><input type="text" class="video-title-input" value="${v ? escapeHtml(v.title || '') : ''}"></div>
-      <div class="form-group"><label>نوع المصدر</label><select class="video-source-type" onchange="toggleVideoSource(this)"><option value="link" ${sourceType === 'link' ? 'selected' : ''}>رابط</option><option value="upload" ${sourceType === 'upload' ? 'selected' : ''}>رفع ملف</option></select></div>
-      <div class="form-group video-link-group" style="display:${sourceType === 'upload' ? 'none' : 'block'};"><label>الرابط</label><input type="text" class="video-url-input" value="${v && v.url ? escapeHtml(v.url) : ''}" dir="ltr" placeholder="https://..."></div>
-      <div class="form-group video-upload-group" style="display:${sourceType === 'upload' ? 'block' : 'none'};"><label>رفع ملف</label><input type="file" accept="video/*" class="video-file-input" onchange="handleVideoFileSelect(this)"><div class="video-file-preview" style="display:${v && v.fileName ? 'block' : 'none'};">${v && v.fileName ? `<i class="fas fa-file-video" style="color:var(--red);"></i> ${escapeHtml(v.fileName)}` : ''}</div></div>
-      <div class="form-group"><label>ملاحظات</label><textarea class="video-notes-input" rows="2">${v && v.notes ? escapeHtml(v.notes) : ''}</textarea></div>
-    </div>`;
+  const html = `<div class="video-item" data-index="${index}"><div class="video-item-header"><strong style="color:var(--navy);font-size:13px;">فيديو</strong><button class="action-btn danger" onclick="removeVideoItem(this)"><i class="fas fa-trash"></i></button></div><div class="form-group"><label>عنوان</label><input type="text" class="video-title-input" value="${v ? escapeHtml(v.title || '') : ''}"></div><div class="form-group"><label>المصدر</label><select class="video-source-type" onchange="toggleVideoSource(this)"><option value="link" ${sourceType === 'link' ? 'selected' : ''}>رابط</option><option value="upload" ${sourceType === 'upload' ? 'selected' : ''}>رفع</option></select></div><div class="form-group video-link-group" style="display:${sourceType === 'upload' ? 'none' : 'block'};"><label>الرابط</label><input type="text" class="video-url-input" value="${v && v.url ? escapeHtml(v.url) : ''}" dir="ltr"></div><div class="form-group video-upload-group" style="display:${sourceType === 'upload' ? 'block' : 'none'};"><label>ملف</label><input type="file" accept="video/*" class="video-file-input" onchange="handleVideoFileSelect(this)"><div class="video-file-preview" style="display:${v && v.fileName ? 'block' : 'none'};">${v && v.fileName ? escapeHtml(v.fileName) : ''}</div></div><div class="form-group"><label>ملاحظات</label><textarea class="video-notes-input" rows="2">${v && v.notes ? escapeHtml(v.notes) : ''}</textarea></div></div>`;
   container.insertAdjacentHTML('beforeend', html);
   updateVideoLabels();
 }
@@ -813,7 +596,7 @@ window.handleVideoFileSelect = function(input) {
   if (!file) return;
   const preview = input.parentElement.querySelector('.video-file-preview');
   preview.style.display = 'block';
-  preview.innerHTML = `<i class="fas fa-file-video" style="color:var(--red);"></i> ${escapeHtml(file.name)} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+  preview.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
 };
 
 window.saveVideos = async function() {
@@ -821,8 +604,7 @@ window.saveVideos = async function() {
   const editId = document.getElementById('videoModal').dataset.editId;
   const title = document.getElementById('videoSectionTitle').value.trim();
   const access = document.getElementById('videoAccessInput').value;
-  if (!title) { showToast('أدخل عنوان القسم', 'error'); return; }
-
+  if (!title) { showToast('أدخل عنوان', 'error'); return; }
   const videos = [];
   document.querySelectorAll('#videoItemsContainer .video-item').forEach((item, i) => {
     const vTitle = item.querySelector('.video-title-input').value.trim();
@@ -834,9 +616,7 @@ window.saveVideos = async function() {
     if (!vTitle) return;
     videos.push({ title: vTitle, sourceType, url: sourceType === 'link' ? url : null, fileName: sourceType === 'upload' ? fileName : null, notes, order: i + 1 });
   });
-
-  if (videos.length === 0) { showToast('أضف فيديو واحد على الأقل', 'error'); return; }
-
+  if (videos.length === 0) { showToast('أضف فيديو', 'error'); return; }
   try {
     if (editId) await updateDoc(doc(db, 'content_tree', editId), { title, access, videos, updatedAt: serverTimestamp() });
     else await addDoc(collection(db, 'content_tree'), { parentId: nodeId, type: 'module_video', title, access, videos, createdAt: serverTimestamp() });
@@ -844,43 +624,32 @@ window.saveVideos = async function() {
     showToast('تم الحفظ ✓');
     closeModal('videoModal');
     loadAllData();
-  } catch (e) { showToast('خطأ: ' + e.message, 'error'); }
+  } catch (e) { showToast('خطأ', 'error'); }
 };
 
 /* ===== Users ===== */
 function renderUsers() {
   const container = document.getElementById('studentsContainer');
-  if (allUsers.length === 0) {
-    container.innerHTML = `<div class="empty-box"><i class="fas fa-users"></i><h3>لا يوجد مستخدمون</h3><p>سيظهروا هنا عند التسجيل</p></div>`;
-    return;
-  }
-
-  // ترتيب: الأدمن أولاً، ثم المعيدين، ثم الدكاترة، ثم الطلاب
+  if (allUsers.length === 0) { container.innerHTML = `<div class="empty-box"><i class="fas fa-users"></i><h3>لا يوجد مستخدمون</h3></div>`; return; }
   const order = { founder: 0, admin: 1, doctor: 2, ta: 3, student: 4 };
   const sorted = [...allUsers].sort((a, b) => {
     const oa = a.badgeType === 'founder' ? 0 : order[a.role] ?? 5;
     const ob = b.badgeType === 'founder' ? 0 : order[b.role] ?? 5;
     return oa - ob;
   });
-
   container.innerHTML = sorted.map(u => {
     const roleKey = u.badgeType === 'founder' ? 'founder' : u.role === 'admin' ? 'admin' : u.role === 'ta' ? 'ta' : u.role === 'doctor' ? 'doctor' : 'student';
     const roleLabel = roleKey === 'founder' ? 'FOUNDER' : roleKey === 'admin' ? 'ADMIN' : roleKey === 'ta' ? 'TA' : roleKey === 'doctor' ? 'DOCTOR' : 'STUDENT';
     const roleClass = roleKey === 'founder' ? 'role-founder' : roleKey === 'admin' ? 'role-admin' : roleKey === 'ta' ? 'role-ta' : roleKey === 'doctor' ? 'role-doctor' : 'role-student';
-    const isVerified = !!u.isVerified && (!u.verifiedUntil || (u.verifiedUntil.toDate ? u.verifiedUntil.toDate() > new Date() : new Date(u.verifiedUntil) > new Date()));
-    return `
-      <div class="user-card">
-        <div class="user-info">
-          <div class="user-name">
-            ${escapeHtml(u.name || 'بدون اسم')}
-            <span class="user-role-chip ${roleClass}">${roleLabel}</span>
-            ${isVerified ? '<i class="fas fa-check-circle verified-inline" title="Verified"></i>' : ''}
-          </div>
-          <div class="user-email">${escapeHtml(u.email || '')}</div>
-        </div>
-        <button class="action-btn manage" onclick="openDevices('${u.id}', '${escapeHtml(u.name || '')}')" title="الأجهزة"><i class="fas fa-mobile-alt"></i></button>
-      </div>
-    `;
+    let isVerified = false;
+    if (u.isVerified) {
+      try {
+        const until = u.verifiedUntil?.toDate ? u.verifiedUntil.toDate() : (u.verifiedUntil ? new Date(u.verifiedUntil) : null);
+        isVerified = !until || until > new Date();
+      } catch (e) {}
+    }
+    const safeName = escapeHtml(u.name || 'بدون اسم').replace(/'/g, '&#39;');
+    return `<div class="user-card"><div class="user-info"><div class="user-name">${escapeHtml(u.name || 'بدون اسم')}<span class="user-role-chip ${roleClass}">${roleLabel}</span>${isVerified ? '<i class="fas fa-check-circle verified-inline"></i>' : ''}</div><div class="user-email">${escapeHtml(u.email || '')}</div></div><button class="action-btn manage" onclick="openDevices('${u.id}', '${safeName}')"><i class="fas fa-mobile-alt"></i></button></div>`;
   }).join('');
 }
 
@@ -890,17 +659,12 @@ window.openDevices = async function(uid, name) {
   try {
     const snap = await getDocs(collection(db, 'devices', uid, 'list'));
     const devices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (devices.length === 0) {
-      document.getElementById('deviceList').innerHTML = '<p style="text-align:center;">لا يوجد أجهزة.</p>';
-      return;
-    }
+    if (devices.length === 0) { document.getElementById('deviceList').innerHTML = '<p style="text-align:center;">لا يوجد أجهزة.</p>'; return; }
     document.getElementById('deviceList').innerHTML = devices.map(dev => `
       <div style="background:#fafbfc; border:1px solid var(--line); padding:10px; border-radius:8px; margin-bottom:8px;">
         <div style="font-size:11px; color:var(--muted); direction:ltr; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(dev.userAgent || '')}</div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-          <span style="font-weight:800; font-size:11.5px; color:${dev.status === 'approved' ? 'var(--green)' : dev.status === 'blocked' ? 'var(--red)' : 'var(--accent)'};">
-            ${dev.status === 'approved' ? 'متوافق' : dev.status === 'blocked' ? 'محظور' : 'قيد الانتظار'}
-          </span>
+          <span style="font-weight:800; font-size:11.5px; color:${dev.status === 'approved' ? 'var(--green)' : dev.status === 'blocked' ? 'var(--red)' : 'var(--accent)'};">${dev.status === 'approved' ? 'متوافق' : dev.status === 'blocked' ? 'محظور' : 'قيد الانتظار'}</span>
           <div style="display:flex; gap:4px;">
             ${dev.status === 'pending' ? `<button class="action-btn" style="background:var(--green); color:#fff; border:none;" onclick="updateDevice('${uid}', '${dev.id}', 'approved')"><i class="fas fa-check"></i></button>` : ''}
             ${dev.status === 'approved' ? `<button class="action-btn" style="background:#fbeaea; color:var(--red); border-color:#fbeaea;" onclick="updateDevice('${uid}', '${dev.id}', 'blocked')"><i class="fas fa-ban"></i></button>` : ''}
@@ -909,23 +673,23 @@ window.openDevices = async function(uid, name) {
         </div>
       </div>
     `).join('');
-  } catch (e) {
-    document.getElementById('deviceList').innerHTML = '<p style="text-align:center;color:var(--red)">حدث خطأ</p>';
-  }
+  } catch (e) { document.getElementById('deviceList').innerHTML = '<p style="text-align:center;color:var(--red)">حدث خطأ</p>'; }
 };
 
 window.updateDevice = async function(uid, devId, status) {
-  await updateDoc(doc(db, 'devices', uid, 'list', devId), { status });
-  if (status === 'approved') await createNotification(uid, 'device_approved', '✅ تمت الموافقة على جهازك', 'يمكنك الآن الدخول من هذا الجهاز', 'app.html');
-  else if (status === 'blocked') await createNotification(uid, 'device_blocked', '🚫 تم حظر جهازك', 'تم حظر هذا الجهاز بواسطة الإدارة', 'app.html');
-  showToast('تم التحديث');
-  openDevices(uid, '');
+  try {
+    await updateDoc(doc(db, 'devices', uid, 'list', devId), { status });
+    if (status === 'approved') await createNotification(uid, 'device_approved', '✅ تمت الموافقة على جهازك', 'يمكنك الدخول الآن', 'app.html').catch(() => {});
+    else if (status === 'blocked') await createNotification(uid, 'device_blocked', '🚫 تم حظر جهازك', 'تم حظر هذا الجهاز', 'app.html').catch(() => {});
+    showToast('تم');
+    openDevices(uid, '');
+  } catch (e) { showToast('خطأ', 'error'); }
 };
 
 window.deleteDevice = async function(uid, devId) {
-  if (!confirm('حذف هذا الجهاز؟')) return;
+  if (!confirm('حذف؟')) return;
   await deleteDoc(doc(db, 'devices', uid, 'list', devId));
-  showToast('تم الحذف');
+  showToast('تم');
   openDevices(uid, '');
 };
 
@@ -933,21 +697,8 @@ window.deleteDevice = async function(uid, devId) {
 function renderSubRequests() {
   const container = document.getElementById('requestsContainer');
   const pending = allSubRequests.filter(r => r.status === 'pending');
-  if (pending.length === 0) {
-    container.innerHTML = `<div class="empty-box"><i class="fas fa-crown"></i><h3>لا يوجد طلبات جديدة</h3><p>ستظهر هنا طلبات الاشتراك</p></div>`;
-    return;
-  }
-  container.innerHTML = pending.map(req => `
-    <div class="req-card">
-      <div class="req-title">${escapeHtml(req.userName || '')}</div>
-      <div class="req-sub">المادة: ${escapeHtml(req.subjectName || '')}</div>
-      <div class="req-notes"><strong>ملاحظات:</strong> ${escapeHtml(req.notes || '—')}</div>
-      <div class="req-actions">
-        <button class="req-btn approve" onclick="approveSub('${req.id}', '${req.uid}', '${req.subjectId}')"><i class="fas fa-check"></i> موافقة</button>
-        <button class="req-btn reject" onclick="rejectSub('${req.id}')"><i class="fas fa-times"></i> رفض</button>
-      </div>
-    </div>
-  `).join('');
+  if (pending.length === 0) { container.innerHTML = `<div class="empty-box"><i class="fas fa-crown"></i><h3>لا يوجد طلبات</h3></div>`; return; }
+  container.innerHTML = pending.map(req => `<div class="req-card"><div class="req-title">${escapeHtml(req.userName || '')}</div><div class="req-sub">المادة: ${escapeHtml(req.subjectName || '')}</div><div class="req-notes"><strong>ملاحظات:</strong> ${escapeHtml(req.notes || '—')}</div><div class="req-actions"><button class="req-btn approve" onclick="approveSub('${req.id}', '${req.uid}', '${req.subjectId}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectSub('${req.id}')"><i class="fas fa-times"></i> رفض</button></div></div>`).join('');
 }
 
 window.approveSub = async function(reqId, uid, subId) {
@@ -955,8 +706,8 @@ window.approveSub = async function(reqId, uid, subId) {
     await activateSubscription(uid, subId);
     await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'approved', reviewedAt: serverTimestamp() });
     const req = allSubRequests.find(r => r.id === reqId);
-    await createNotification(uid, 'subscription_approved', '✅ تم تفعيل اشتراكك', `تمت الموافقة على اشتراكك في "${req?.subjectName || 'المادة'}" لمدة 30 يوم`, 'app.html');
-    showToast('تم تفعيل الاشتراك');
+    await createNotification(uid, 'subscription_approved', '✅ تم تفعيل اشتراكك', `تمت الموافقة على "${req?.subjectName || 'المادة'}" لمدة 30 يوم`, 'app.html').catch(() => {});
+    showToast('تم');
     loadAllData();
   } catch (e) { showToast('خطأ', 'error'); }
 };
@@ -965,8 +716,8 @@ window.rejectSub = async function(reqId) {
   try {
     const req = allSubRequests.find(r => r.id === reqId);
     await updateDoc(doc(db, 'subscription_requests', reqId), { status: 'rejected', reviewedAt: serverTimestamp() });
-    if (req) await createNotification(req.uid, 'subscription_rejected', '❌ تم رفض طلب الاشتراك', `طلب اشتراكك في "${req.subjectName}" لم يُقبل`, 'app.html');
-    showToast('تم الرفض');
+    if (req) await createNotification(req.uid, 'subscription_rejected', '❌ تم رفض الاشتراك', 'لم يُقبل طلبك', 'app.html').catch(() => {});
+    showToast('تم');
     loadAllData();
   } catch (e) { showToast('خطأ', 'error'); }
 };
@@ -974,22 +725,15 @@ window.rejectSub = async function(reqId) {
 /* ===== Verification ===== */
 function renderVerification() {
   const container = document.getElementById('verificationContainer');
-  const filters = [
-    { key: 'pending', label: 'قيد المراجعة' },
-    { key: 'approved', label: 'مقبولة' },
-    { key: 'rejected', label: 'مرفوضة' },
-    { key: 'all', label: 'الكل' }
-  ];
-  const filtersHtml = `<div class="filter-row">${filters.map(f =>
-    `<button class="filter-chip ${verifFilter === f.key ? 'active' : ''}" onclick="setVerifFilter('${f.key}')">${f.label}</button>`
-  ).join('')}</div>`;
+  const filters = [{ key: 'pending', label: 'قيد المراجعة' }, { key: 'approved', label: 'مقبولة' }, { key: 'rejected', label: 'مرفوضة' }, { key: 'all', label: 'الكل' }];
+  const filtersHtml = `<div class="filter-row">${filters.map(f => `<button class="filter-chip ${verifFilter === f.key ? 'active' : ''}" onclick="setVerifFilter('${f.key}')">${f.label}</button>`).join('')}</div>`;
 
   let list = allVerifications;
   if (verifFilter !== 'all') list = list.filter(v => v.status === verifFilter);
 
   let listHtml = '';
   if (list.length === 0) {
-    listHtml = `<div class="empty-box"><i class="fas fa-check-circle"></i><h3>لا يوجد طلبات</h3><p>${verifFilter === 'pending' ? 'لا يوجد طلبات توثيق قيد المراجعة' : 'لا يوجد طلبات في هذه الفئة'}</p></div>`;
+    listHtml = `<div class="empty-box"><i class="fas fa-check-circle"></i><h3>لا يوجد طلبات</h3></div>`;
   } else {
     listHtml = list.map(v => {
       const roleKey = v.role === 'ta' ? 'ta' : v.role === 'doctor' ? 'doctor' : 'student';
@@ -1000,54 +744,22 @@ function renderVerification() {
       const statusLabel = v.status === 'pending' ? 'قيد المراجعة' : v.status === 'approved' ? 'مقبول' : 'مرفوض';
       const statusClass = v.status === 'pending' ? 'vchip-pending' : v.status === 'approved' ? 'vchip-approved' : 'vchip-rejected';
       const created = v.createdAt?.toDate ? v.createdAt.toDate().toLocaleString('ar-EG') : '—';
-
-      const planLine = v.type === 'paid'
-        ? `<strong>الخطة:</strong> ${escapeHtml(v.plan || '')} — <strong>المبلغ:</strong> ${v.price || 0}ج — <strong>المدة:</strong> ${v.durationDays || 0} يوم`
-        : `<strong>النوع:</strong> توثيق مجاني دائم`;
-
+      const planLine = v.type === 'paid' ? `<strong>الخطة:</strong> ${escapeHtml(v.plan || '')} — <strong>المبلغ:</strong> ${v.price || 0}ج — <strong>المدة:</strong> ${v.durationDays || 0} يوم` : `<strong>النوع:</strong> توثيق مجاني دائم`;
       const notesHtml = v.notes ? `<div class="verif-notes"><strong>ملاحظات:</strong> ${escapeHtml(v.notes)}</div>` : '';
-
-      const actions = v.status === 'pending' ? `
-        <div class="req-actions">
-          <button class="req-btn approve" onclick="approveVerification('${v.id}', '${v.uid}', ${v.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button>
-          <button class="req-btn reject" onclick="rejectVerificationPrompt('${v.id}', '${v.uid}')"><i class="fas fa-times"></i> رفض</button>
-        </div>` : '';
-
-      return `
-        <div class="verif-card">
-          <div class="verif-header">
-            <div>
-              <div class="verif-name">${escapeHtml(v.userName || '')} <span class="user-role-chip ${roleClass}">${roleLabel}</span></div>
-              <div class="verif-time">${created}</div>
-            </div>
-            <div class="verif-badges">
-              <span class="vchip ${typeClass}">${typeLabel}</span>
-              <span class="vchip ${statusClass}">${statusLabel}</span>
-            </div>
-          </div>
-          <div class="verif-details">${planLine}</div>
-          ${notesHtml}
-          ${actions}
-        </div>
-      `;
+      const actions = v.status === 'pending' ? `<div class="req-actions"><button class="req-btn approve" onclick="approveVerification('${v.id}', '${v.uid}', ${v.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectVerificationPrompt('${v.id}', '${v.uid}')"><i class="fas fa-times"></i> رفض</button></div>` : '';
+      return `<div class="verif-card"><div class="verif-header"><div><div class="verif-name">${escapeHtml(v.userName || '')} <span class="user-role-chip ${roleClass}">${roleLabel}</span></div><div class="verif-time">${created}</div></div><div class="verif-badges"><span class="vchip ${typeClass}">${typeLabel}</span><span class="vchip ${statusClass}">${statusLabel}</span></div></div><div class="verif-details">${planLine}</div>${notesHtml}${actions}</div>`;
     }).join('');
   }
 
   container.innerHTML = filtersHtml + listHtml;
 }
 
-window.setVerifFilter = function(f) {
-  verifFilter = f;
-  renderVerification();
-};
+window.setVerifFilter = function(f) { verifFilter = f; renderVerification(); };
 
 window.approveVerification = async function(reqId, uid, durationDays) {
-  if (!confirm('تأكيد الموافقة على التوثيق؟')) return;
+  if (!confirm('تأكيد الموافقة؟')) return;
   try {
-    const updates = {
-      isVerified: true,
-      verifiedAt: serverTimestamp()
-    };
+    const updates = { isVerified: true, verifiedAt: serverTimestamp() };
     if (durationDays > 0) {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + durationDays);
@@ -1056,59 +768,40 @@ window.approveVerification = async function(reqId, uid, durationDays) {
       updates.verifiedUntil = null;
     }
     await updateDoc(doc(db, 'users', uid), updates);
-    await updateDoc(doc(db, 'verification_requests', reqId), {
-      status: 'approved',
-      reviewedAt: serverTimestamp()
-    });
-    const msg = durationDays > 0
-      ? `تم توثيق حسابك لمدة ${durationDays} يوم`
-      : 'تم توثيق حسابك مجاناً — بدون تاريخ انتهاء';
-    await createNotification(uid, 'verification_approved', '✅ تم توثيق حسابك', msg, 'profile.html');
-    showToast('تم التوثيق بنجاح');
+    await updateDoc(doc(db, 'verification_requests', reqId), { status: 'approved', reviewedAt: serverTimestamp() });
+    const msg = durationDays > 0 ? `تم توثيق حسابك لمدة ${durationDays} يوم` : 'تم توثيق حسابك مجاناً — بدون تاريخ انتهاء';
+    await createNotification(uid, 'verification_approved', '✅ تم توثيق حسابك', msg, 'profile.html').catch(() => {});
+    showToast('تم التوثيق ✓');
     loadAllData();
-  } catch (e) { console.error(e); showToast(e.message || 'حدث خطأ', 'error'); }
+  } catch (e) { showToast(e.message || 'حدث خطأ', 'error'); }
 };
 
 window.rejectVerificationPrompt = async function(reqId, uid) {
-  const reason = prompt('سبب الرفض (سيظهر للمستخدم):', 'لم يتم التحقق من الهوية');
+  const reason = prompt('سبب الرفض:', 'لم يتم التحقق من الهوية');
   if (reason === null) return;
   try {
-    await updateDoc(doc(db, 'verification_requests', reqId), {
-      status: 'rejected',
-      rejectReason: reason,
-      reviewedAt: serverTimestamp()
-    });
-    await createNotification(uid, 'verification_rejected', '❌ تم رفض طلب التوثيق', reason || 'تواصل مع الإدارة', 'profile.html');
+    await updateDoc(doc(db, 'verification_requests', reqId), { status: 'rejected', rejectReason: reason, reviewedAt: serverTimestamp() });
+    await createNotification(uid, 'verification_rejected', '❌ تم رفض طلب التوثيق', reason || 'تواصل مع الإدارة', 'profile.html').catch(() => {});
     showToast('تم الرفض');
     loadAllData();
-  } catch (e) { console.error(e); showToast('حدث خطأ', 'error'); }
+  } catch (e) { showToast('حدث خطأ', 'error'); }
 };
 
 /* ===== Notifications ===== */
 function renderNotifBadges() {
   const unread = adminNotifs.filter(n => !n.read).length;
   const dot = document.getElementById('notifDot');
-  if (dot) {
-    dot.classList.toggle('show', unread > 0);
-    dot.textContent = unread > 9 ? '9+' : unread;
-  }
+  if (dot) { dot.classList.toggle('show', unread > 0); dot.textContent = unread > 9 ? '9+' : unread; }
 }
 
 function renderNotifPanel() {
   const body = document.getElementById('notifBody');
   if (!body) return;
-  if (adminNotifs.length === 0) {
-    body.innerHTML = `<p style="text-align:center; color:var(--muted); padding:40px;">لا توجد إشعارات</p>`;
-    return;
-  }
+  if (adminNotifs.length === 0) { body.innerHTML = `<p style="text-align:center; color:var(--muted); padding:40px;">لا توجد إشعارات</p>`; return; }
   body.innerHTML = adminNotifs.map(n => {
     let time = '';
-    try { time = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-EG') : ''; } catch (e) { }
-    return `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="handleNotif('${n.id}')">
-      <div class="n-title">${escapeHtml(n.title || '')}</div>
-      <div class="n-msg">${escapeHtml(n.message || '')}</div>
-      <div class="n-time">${time}</div>
-    </div>`;
+    try { time = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString('ar-EG') : ''; } catch (e) {}
+    return `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="handleNotif('${n.id}')"><div class="n-title">${escapeHtml(n.title || '')}</div><div class="n-msg">${escapeHtml(n.message || '')}</div><div class="n-time">${time}</div></div>`;
   }).join('');
 }
 
@@ -1121,17 +814,14 @@ window.closeNotifPanel = () => {
   document.getElementById('notifOverlay').classList.remove('active');
 };
 window.handleNotif = async (id) => {
-  try { await markAdminNotificationRead(id); } catch (e) { }
+  try { await markAdminNotificationRead(id); } catch (e) {}
   closeNotifPanel();
 };
 window.markAllRead = async () => {
-  try {
-    await markAllAdminNotificationsRead(adminNotifs);
-    showToast('تم تعليم الكل كمقروء');
-  } catch (e) { showToast('حدث خطأ', 'error'); }
+  try { await markAllAdminNotificationsRead(adminNotifs); showToast('تم'); }
+  catch (e) { showToast('خطأ', 'error'); }
 };
 
-/* ===== Utility ===== */
 window.closeModal = function(id) { document.getElementById(id).classList.remove("active"); };
 </script>
 </body>
