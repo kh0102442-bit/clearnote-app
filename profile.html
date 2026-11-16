@@ -7,152 +7,47 @@
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* توافق متغيرات قديمة */
   :root { --white: #ffffff; --muted: #5b6472; }
-
   html, body { background: var(--bg); font-family: var(--font-ar); margin: 0; padding: 0; padding-bottom: 90px; }
 
-  /* ===== Topbar ===== */
-  .topbar {
-    position: sticky; top: 0; z-index: 100;
-    background: var(--navy); color: white;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-  }
+  .topbar { position: sticky; top: 0; z-index: 100; background: var(--navy); color: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
   .topbar-title { font-weight: 800; font-size: 15px; letter-spacing: 0.5px; }
-  .icon-btn {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: rgba(255,255,255,0.1); border: none;
-    color: white; font-size: 16px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: 0.15s;
-  }
+  .icon-btn { width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
   .icon-btn:active { background: rgba(255,255,255,0.25); transform: scale(0.95); }
 
-  /* ===== Cover ===== */
-  .cover {
-    height: 140px;
-    background: linear-gradient(135deg, #152741 0%, #2a3f5f 55%, #a8741a 200%);
-    position: relative;
-    overflow: hidden;
-  }
-  .cover::after {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(circle at 80% 20%, rgba(201,164,74,.28) 0%, transparent 55%),
-                radial-gradient(circle at 20% 80%, rgba(21,39,65,.45) 0%, transparent 60%);
-  }
+  .cover { height: 140px; background: linear-gradient(135deg, #152741 0%, #2a3f5f 55%, #a8741a 200%); position: relative; overflow: hidden; }
+  .cover::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(201,164,74,.28) 0%, transparent 55%), radial-gradient(circle at 20% 80%, rgba(21,39,65,.45) 0%, transparent 60%); }
 
-  /* ===== Head ===== */
-  .head-section {
-    max-width: 900px; margin: 0 auto;
-    padding: 0 16px;
-    position: relative;
-    margin-top: -64px;
-  }
-  .avatar-row {
-    display: flex; align-items: flex-end; gap: 14px;
-    margin-bottom: 14px;
-  }
+  .head-section { max-width: 900px; margin: 0 auto; padding: 0 16px; position: relative; margin-top: -64px; }
+  .avatar-row { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 14px; }
   .avatar-wrap { position: relative; flex-shrink: 0; }
-  .avatar {
-    width: 112px; height: 112px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #152741, #a8741a);
-    color: white; font-size: 42px; font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-    border: 4px solid #fff;
-    box-shadow: 0 6px 22px rgba(21,39,65,.25);
-    overflow: hidden;
-  }
+  .avatar { width: 112px; height: 112px; border-radius: 50%; background: linear-gradient(135deg, #152741, #a8741a); color: white; font-size: 42px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; box-shadow: 0 6px 22px rgba(21,39,65,.25); overflow: hidden; }
   .avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .avatar-edit-btn {
-    position: absolute; bottom: 6px; left: 6px;
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--navy); color: white;
-    border: 3px solid #fff;
-    display: none; align-items: center; justify-content: center;
-    font-size: 13px; cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,.2);
-  }
+  .avatar-edit-btn { position: absolute; bottom: 6px; left: 6px; width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: white; border: 3px solid #fff; display: none; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
   .avatar-edit-btn.show { display: flex; }
 
   .name-block { flex: 1; min-width: 0; padding-bottom: 8px; }
-  .name-line {
-    display: flex; align-items: center; gap: 8px;
-    flex-wrap: wrap;
-  }
-  .name-line h1 {
-    font-size: 22px; margin: 0; color: var(--navy); font-weight: 800;
-    line-height: 1.2;
-    word-break: break-word;
-  }
+  .name-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .name-line h1 { font-size: 22px; margin: 0; color: var(--navy); font-weight: 800; line-height: 1.2; word-break: break-word; }
   .username-line { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 
-  /* ===== Royal Badges ===== */
-  .badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 10px; border-radius: 20px;
-    font-size: 11px; font-weight: 800;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  }
-  .badge-founder {
-    background: linear-gradient(135deg, #d4af37, #f4e5b1);
-    color: #4a2f0a;
-    border: 1px solid #b8912f;
-  }
-  .badge-admin {
-    background: linear-gradient(135deg, #7b1818, #b91c1c);
-    color: #fff;
-    border: 1px solid #5a0f0f;
-  }
-  .badge-doctor {
-    background: linear-gradient(135deg, #4a148c, #7b1fa2);
-    color: #fff;
-    border: 1px solid #38006b;
-  }
-  .badge-ta {
-    background: linear-gradient(135deg, #0d47a1, #1976d2);
-    color: #fff;
-    border: 1px solid #002171;
-  }
-  .badge-student {
-    background: linear-gradient(135deg, #37474f, #546e7a);
-    color: #fff;
-    border: 1px solid #263238;
-  }
-  .verified-mark {
-    display: inline-flex; align-items: center;
-    color: #1da1f2; font-size: 16px;
-    margin-right: 2px;
-  }
+  /* Royal Badges — English */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-family: 'Inter', 'Cairo', sans-serif; }
+  .badge-founder { background: linear-gradient(135deg, #d4af37, #f4e5b1); color: #4a2f0a; border: 1px solid #b8912f; }
+  .badge-admin { background: linear-gradient(135deg, #7b1818, #b91c1c); color: #fff; border: 1px solid #5a0f0f; }
+  .badge-doctor { background: linear-gradient(135deg, #4a148c, #7b1fa2); color: #fff; border: 1px solid #38006b; }
+  .badge-ta { background: linear-gradient(135deg, #0d47a1, #1976d2); color: #fff; border: 1px solid #002171; }
+  .badge-student { background: linear-gradient(135deg, #37474f, #546e7a); color: #fff; border: 1px solid #263238; }
+  .verified-mark { display: inline-flex; align-items: center; color: #1da1f2; font-size: 16px; margin-right: 2px; }
 
-  /* ===== Bio & Meta ===== */
-  .bio-text {
-    color: var(--text); font-size: 14px; line-height: 1.65;
-    margin: 4px 0 12px;
-    max-width: 620px;
-  }
+  .bio-text { color: var(--text); font-size: 14px; line-height: 1.65; margin: 4px 0 12px; max-width: 620px; }
   .bio-empty { color: var(--text-muted); font-style: italic; font-size: 13px; }
-  .meta-info {
-    display: flex; gap: 16px; flex-wrap: wrap;
-    color: var(--text-muted); font-size: 12px;
-    margin-bottom: 16px;
-  }
+  .meta-info { display: flex; gap: 16px; flex-wrap: wrap; color: var(--text-muted); font-size: 12px; margin-bottom: 16px; }
   .meta-info span { display: inline-flex; align-items: center; gap: 5px; }
   .meta-info i { color: var(--navy); font-size: 12px; }
 
-  /* ===== Actions ===== */
   .actions-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-  .btn {
-    padding: 10px 18px; border-radius: 10px;
-    font-family: inherit; font-weight: 800; font-size: 13.5px;
-    border: none; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 6px;
-    transition: 0.15s;
-  }
+  .btn { padding: 10px 18px; border-radius: 10px; font-family: inherit; font-weight: 800; font-size: 13.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; }
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: .6; cursor: wait; }
   .btn-primary { background: var(--navy); color: white; }
@@ -162,97 +57,40 @@
   .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--line); }
   .btn-outline:hover { border-color: var(--navy); }
 
-  /* ===== Stats ===== */
-  .stats-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    overflow: hidden;
-    max-width: 480px;
-    margin-bottom: 22px;
-    box-shadow: var(--sh-sm);
-  }
-  .stat-cell {
-    padding: 14px 6px; text-align: center;
-    cursor: pointer;
-    border-left: 1px solid var(--line-soft);
-    transition: 0.15s;
-  }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; max-width: 480px; margin-bottom: 22px; box-shadow: var(--sh-sm); }
+  .stat-cell { padding: 14px 6px; text-align: center; cursor: pointer; border-left: 1px solid var(--line-soft); transition: 0.15s; }
   .stat-cell:first-child { border-left: none; cursor: default; }
   .stat-cell:hover { background: #fafbfc; }
   .stat-cell b { font-size: 20px; color: var(--navy); font-weight: 800; display: block; }
   .stat-cell span { font-size: 12px; color: var(--text-muted); font-weight: 700; }
 
-  /* ===== Tabs ===== */
-  .tabs-bar {
-    display: flex; gap: 4px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 18px;
-    max-width: 100%;
-    overflow-x: auto;
-  }
-  .tab-btn {
-    padding: 10px 18px; border-radius: 8px;
-    background: transparent; border: none;
-    font-family: inherit; font-weight: 800; font-size: 13px;
-    color: var(--text-muted); cursor: pointer;
-    white-space: nowrap;
-    transition: 0.15s;
-  }
+  .tabs-bar { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 18px; max-width: 100%; overflow-x: auto; }
+  .tab-btn { padding: 10px 18px; border-radius: 8px; background: transparent; border: none; font-family: inherit; font-weight: 800; font-size: 13px; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.15s; }
   .tab-btn.active { background: var(--navy); color: white; }
 
   .tab-pane { display: none; }
   .tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-  .empty-block {
-    text-align: center; padding: 50px 20px;
-    color: var(--text-muted); background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-  }
+  .empty-block { text-align: center; padding: 50px 20px; color: var(--text-muted); background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
   .empty-block i { font-size: 44px; color: var(--line); display: block; margin-bottom: 12px; }
   .empty-block h3 { margin: 0 0 4px; font-size: 15px; color: var(--navy); }
   .empty-block p { margin: 0; font-size: 13px; }
 
-  .info-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 10px;
-  }
+  .info-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 10px; }
   .info-card h4 { margin: 0 0 10px; font-size: 14px; color: var(--navy); }
 
-  .mini-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--line-soft);
-    font-size: 13.5px;
-  }
+  .mini-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line-soft); font-size: 13.5px; }
   .mini-row:last-child { border-bottom: none; }
   .mini-row .lbl { color: var(--text-muted); }
   .mini-row .val { color: var(--navy); font-weight: 700; }
 
-  .sub-item {
-    background: #f8f9fa; border: 1px solid var(--line);
-    border-radius: 10px; padding: 12px;
-    margin-bottom: 8px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
+  .sub-item { background: #f8f9fa; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
   .sub-item .nm { font-weight: 800; color: var(--navy); font-size: 14px; }
   .sub-item .ex { font-size: 11.5px; color: var(--green); margin-top: 2px; }
   .sub-item .ex.warn { color: var(--red); }
 
-  .device-item {
-    background: #f8f9fa; border: 1px solid var(--line);
-    border-radius: 10px; padding: 12px;
-    margin-bottom: 8px;
-  }
+  .device-item { background: #f8f9fa; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
   .device-item .ua { font-size: 11.5px; color: var(--text-muted); direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
   .device-item .st { font-size: 12px; font-weight: 700; }
   .device-item .st.ok { color: var(--green); }
@@ -260,32 +98,14 @@
   .device-item .st.blocked { color: var(--red); }
   .device-item.this-device { border-color: var(--green); background: #e8f5e9; }
 
-  /* ===== Modals ===== */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none; align-items: flex-end;
-    z-index: 1000;
-  }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
-  .modal-box {
-    background: var(--card);
-    border-radius: 22px 22px 0 0;
-    width: 100%; max-width: 500px; margin: 0 auto;
-    padding: 22px 18px;
-    max-height: 92vh; overflow-y: auto;
-    animation: slideUp 0.25s ease;
-  }
+  .modal-box { background: var(--card); border-radius: 22px 22px 0 0; width: 100%; max-width: 500px; margin: 0 auto; padding: 22px 18px; max-height: 92vh; overflow-y: auto; animation: slideUp 0.25s ease; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal-box h3 { margin: 0 0 14px; color: var(--navy); font-size: 17px; text-align: center; }
   .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
-  .form-group input, .form-group textarea {
-    width: 100%; padding: 12px;
-    border: 2px solid var(--line); border-radius: 10px;
-    font-family: inherit; font-size: 14px;
-    background: #fafbfc; box-sizing: border-box;
-  }
+  .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; background: #fafbfc; box-sizing: border-box; }
   .form-group textarea { resize: vertical; min-height: 80px; }
   .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
   .btn-save { flex: 1; background: var(--navy); color: white; border: none; padding: 14px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
@@ -294,85 +114,31 @@
   .btn-danger { width: 100%; background: #fbeaea; color: var(--red); border: 1px solid #f0c6c6; padding: 14px; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 10px; }
 
   .settings-list { display: flex; flex-direction: column; gap: 8px; }
-  .settings-item {
-    background: #fafbfc; border: 1px solid var(--line);
-    border-radius: 10px; padding: 14px;
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; transition: 0.15s;
-  }
+  .settings-item { background: #fafbfc; border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.15s; }
   .settings-item:hover { background: #f0f2f5; }
   .settings-item .si-text { font-weight: 700; color: var(--navy); font-size: 14px; display: flex; align-items: center; gap: 10px; }
   .settings-item .si-text i { color: var(--accent); width: 20px; text-align: center; }
   .settings-item .si-arrow { color: var(--text-muted); font-size: 12px; }
 
   .avatar-preview-wrap { display: flex; justify-content: center; margin-bottom: 16px; position: relative; }
-  .avatar-preview {
-    width: 100px; height: 100px; border-radius: 50%;
-    background: linear-gradient(135deg, #152741, #a8741a);
-    color: white; font-size: 38px; font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; border: 3px solid var(--line);
-  }
+  .avatar-preview { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #152741, #a8741a); color: white; font-size: 38px; font-weight: 800; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid var(--line); }
   .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-  .avatar-progress {
-    position: absolute; inset: 0; margin: auto;
-    width: 100px; height: 100px; border-radius: 50%;
-    background: rgba(21,39,65,0.75);
-    color: white; font-size: 14px; font-weight: 700;
-    display: none; align-items: center; justify-content: center;
-    flex-direction: column; gap: 6px;
-  }
+  .avatar-progress { position: absolute; inset: 0; margin: auto; width: 100px; height: 100px; border-radius: 50%; background: rgba(21,39,65,0.75); color: white; font-size: 14px; font-weight: 700; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 6px; }
   .avatar-progress.show { display: flex; }
 
-  /* ===== Bottom Nav ===== */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: 64px;
-    background: var(--card);
-    border-top: 1px solid var(--line);
-    display: flex; z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom, 0);
-    box-shadow: 0 -2px 12px rgba(21,39,65,.06);
-  }
-  .bottom-nav a {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 3px; color: var(--text-light);
-    text-decoration: none; font-size: 10.5px; font-weight: 700;
-    position: relative;
-  }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--card); border-top: 1px solid var(--line); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0); box-shadow: 0 -2px 12px rgba(21,39,65,.06); }
+  .bottom-nav a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-light); text-decoration: none; font-size: 10.5px; font-weight: 700; position: relative; }
   .bottom-nav a i { font-size: 19px; }
   .bottom-nav a.active { color: var(--navy); }
-  .bottom-nav a.active::before {
-    content: ''; position: absolute; top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 28px; height: 3px;
-    background: var(--accent); border-radius: 0 0 3px 3px;
-  }
+  .bottom-nav a.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 3px; background: var(--accent); border-radius: 0 0 3px 3px; }
 
-  /* ===== User List ===== */
-  .user-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--line-soft);
-    cursor: pointer;
-  }
+  .user-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line-soft); cursor: pointer; }
   .user-row:last-child { border-bottom: none; }
-  .user-row .u-av {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: linear-gradient(135deg, #152741, #a8741a);
-    color: white; font-weight: 800; font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; overflow: hidden;
-  }
+  .user-row .u-av { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #152741, #a8741a); color: white; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
   .user-row .u-av img { width: 100%; height: 100%; object-fit: cover; }
   .user-row .u-info { flex: 1; min-width: 0; }
   .user-row .u-name { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-row .u-username { font-size: 12px; color: var(--text-muted); }
-
-  /* ===== Skeleton ===== */
-  .sk-line { background: linear-gradient(90deg,#f0f2f5,#e9ecef,#f0f2f5); background-size: 200% 100%; animation: sk 1.5s infinite; border-radius: 6px; height: 14px; margin-bottom: 8px; }
-  @keyframes sk { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 </style>
 </head>
 <body>
@@ -416,11 +182,7 @@
   </div>
 
   <div class="tab-pane active" id="pane-posts">
-    <div class="empty-block">
-      <i class="fas fa-newspaper"></i>
-      <h3>لا توجد منشورات بعد</h3>
-      <p>المنشورات قريباً إن شاء الله</p>
-    </div>
+    <div class="empty-block"><i class="fas fa-newspaper"></i><h3>لا توجد منشورات بعد</h3><p>المنشورات قريباً إن شاء الله</p></div>
   </div>
 
   <div class="tab-pane" id="pane-about">
@@ -447,21 +209,18 @@
   <a href="profile.html" class="active"><i class="fas fa-user"></i><span>حسابي</span></a>
 </nav>
 
-<!-- Settings -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
     <h3>الإعدادات</h3>
     <div class="settings-list">
       <div class="settings-item" onclick="openEditProfile()"><div class="si-text"><i class="fas fa-user-edit"></i> تعديل الملف الشخصي</div><i class="fas fa-chevron-left si-arrow"></i></div>
       <div class="settings-item" onclick="openPasswordChange()"><div class="si-text"><i class="fas fa-key"></i> تغيير كلمة المرور</div><i class="fas fa-chevron-left si-arrow"></i></div>
-      <div class="settings-item" onclick="showToast('قريباً')"><div class="si-text"><i class="fas fa-bell"></i> الإشعارات</div><i class="fas fa-chevron-left si-arrow"></i></div>
     </div>
     <button class="btn-danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
     <button class="btn-cancel" style="width:100%; margin-top:8px;" onclick="closeModal('settingsModal')">إغلاق</button>
   </div>
 </div>
 
-<!-- Edit Profile -->
 <div class="modal-overlay" id="editProfileModal">
   <div class="modal-box">
     <h3>تعديل الملف الشخصي</h3>
@@ -484,7 +243,6 @@
   </div>
 </div>
 
-<!-- Change Password -->
 <div class="modal-overlay" id="passwordModal">
   <div class="modal-box">
     <h3>تغيير كلمة المرور</h3>
@@ -498,7 +256,6 @@
   </div>
 </div>
 
-<!-- List Modal -->
 <div class="modal-overlay" id="listModal">
   <div class="modal-box">
     <h3 id="listTitle">المتابعون</h3>
@@ -509,19 +266,18 @@
 
 <script type="module">
 import {
-  db, onAuth, goTo, showToast, signOutUser, getUserData, isAdmin,
+  db, onAuth, goTo, showToast, signOutUser, getUserData,
   uploadAvatar, followUser, unfollowUser, checkIfFollowing,
   listenUserSubscriptions, listenUserDevices, getDeviceFingerprint, escapeHtml
 } from "./shared.js";
 import {
-  doc, getDoc, updateDoc, serverTimestamp,
+  doc, getDoc, updateDoc,
   collection, getDocs, query, where, limit
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   updatePassword, reauthenticateWithCredential, EmailAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* ===== State ===== */
 let currentUser = null;
 let currentUserData = null;
 let profileUid = null;
@@ -535,7 +291,6 @@ let pendingAvatarUrl = null;
 let subsUnsub = null;
 let devicesUnsub = null;
 
-/* ===== Init ===== */
 onAuth(async (user, userData) => {
   if (!user) { goTo('index.html'); return; }
   currentUser = user;
@@ -566,7 +321,6 @@ onAuth(async (user, userData) => {
   }
 });
 
-/* ===== Helpers ===== */
 function toDate(v) {
   try { if (!v) return null; return v.toDate ? v.toDate() : new Date(v); }
   catch { return null; }
@@ -580,7 +334,6 @@ function getAvatarDisplayUrl(url, size = 200) {
   return url;
 }
 
-/* ===== Render ===== */
 function renderAll() {
   renderAvatar();
   renderBadge();
@@ -605,16 +358,17 @@ function renderAvatar() {
   }
 }
 
+/* English badges */
 function getBadgeHTML(u) {
   if (!u) return '';
   const badgeType = u.badgeType || (u.role === 'admin' ? 'admin' : u.role === 'ta' ? 'ta' : u.role === 'doctor' ? 'doctor' : 'student');
 
   const map = {
-    founder: `<span class="badge badge-founder"><i class="fas fa-crown"></i> المؤسس</span>`,
-    admin:   `<span class="badge badge-admin"><i class="fas fa-shield-alt"></i> مسؤول</span>`,
-    doctor:  `<span class="badge badge-doctor"><i class="fas fa-user-md"></i> دكتور</span>`,
-    ta:      `<span class="badge badge-ta"><i class="fas fa-graduation-cap"></i> معيد</span>`,
-    student: `<span class="badge badge-student"><i class="fas fa-user-graduate"></i> طالب</span>`
+    founder: `<span class="badge badge-founder"><i class="fas fa-crown"></i> Founder</span>`,
+    admin:   `<span class="badge badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>`,
+    doctor:  `<span class="badge badge-doctor"><i class="fas fa-user-md"></i> Doctor</span>`,
+    ta:      `<span class="badge badge-ta"><i class="fas fa-graduation-cap"></i> TA</span>`,
+    student: `<span class="badge badge-student"><i class="fas fa-user-graduate"></i> Student</span>`
   };
   let html = map[badgeType] || map.student;
 
@@ -623,7 +377,7 @@ function getBadgeHTML(u) {
     const until = toDate(u.verifiedUntil);
     verified = !until || until > new Date();
   }
-  if (verified) html += ` <span class="verified-mark" title="موثق"><i class="fas fa-check-circle"></i></span>`;
+  if (verified) html += ` <span class="verified-mark" title="Verified"><i class="fas fa-check-circle"></i></span>`;
   return html;
 }
 
@@ -634,15 +388,9 @@ function renderBadge() {
 function renderBasicInfo() {
   document.getElementById('profileName').textContent = profileData?.name || 'بدون اسم';
   document.getElementById('profileUsername').textContent = profileData?.username ? '@' + profileData.username : '';
-
   const bioEl = document.getElementById('profileBio');
-  if (profileData?.bio) {
-    bioEl.textContent = profileData.bio;
-    bioEl.classList.remove('bio-empty');
-  } else {
-    bioEl.textContent = isMyProfile ? 'أضف نبذة عنك من الإعدادات' : 'لا توجد نبذة';
-    bioEl.classList.add('bio-empty');
-  }
+  if (profileData?.bio) { bioEl.textContent = profileData.bio; bioEl.classList.remove('bio-empty'); }
+  else { bioEl.textContent = isMyProfile ? 'أضف نبذة عنك من الإعدادات' : 'لا توجد نبذة'; bioEl.classList.add('bio-empty'); }
 }
 
 function renderMeta() {
@@ -663,10 +411,8 @@ function renderActions() {
     `;
     return;
   }
-
   const badgeType = profileData?.badgeType || profileData?.role;
   const isDoctorOrTA = badgeType === 'doctor' || badgeType === 'ta';
-
   el.innerHTML = `
     <button class="btn ${isFollowing ? 'btn-following' : 'btn-follow'}" onclick="toggleFollow()">
       <i class="fas fa-${isFollowing ? 'user-check' : 'user-plus'}"></i>
@@ -688,33 +434,25 @@ function renderTabs() {
     document.getElementById('subsTabBtn').style.display = 'inline-block';
     document.getElementById('devicesTabBtn').style.display = 'inline-block';
   }
-
-  const aboutName = document.getElementById('aboutName');
-  const aboutUsername = document.getElementById('aboutUsername');
-  const aboutUniversity = document.getElementById('aboutUniversity');
-  const aboutRole = document.getElementById('aboutRole');
-  const aboutJoined = document.getElementById('aboutJoined');
-  const aboutVerified = document.getElementById('aboutVerified');
-
-  if (aboutName) aboutName.textContent = profileData?.name || '—';
-  if (aboutUsername) aboutUsername.textContent = profileData?.username ? '@' + profileData.username : '—';
-  if (aboutUniversity) aboutUniversity.textContent = profileData?.university || '—';
-  if (aboutRole) {
+  if (document.getElementById('aboutName')) document.getElementById('aboutName').textContent = profileData?.name || '—';
+  if (document.getElementById('aboutUsername')) document.getElementById('aboutUsername').textContent = profileData?.username ? '@' + profileData.username : '—';
+  if (document.getElementById('aboutUniversity')) document.getElementById('aboutUniversity').textContent = profileData?.university || '—';
+  if (document.getElementById('aboutRole')) {
     const bt = profileData?.badgeType || profileData?.role || 'student';
-    aboutRole.textContent = bt === 'founder' ? 'المؤسس' : bt === 'admin' ? 'مسؤول' : bt === 'doctor' ? 'دكتور' : bt === 'ta' ? 'معيد' : 'طالب';
+    document.getElementById('aboutRole').textContent = bt === 'founder' ? 'Founder' : bt === 'admin' ? 'Admin' : bt === 'doctor' ? 'Doctor' : bt === 'ta' ? 'TA' : 'Student';
   }
-  if (aboutJoined) {
+  if (document.getElementById('aboutJoined')) {
     const d = toDate(profileData?.createdAt);
-    aboutJoined.textContent = d ? d.toLocaleDateString('ar-EG') : '—';
+    document.getElementById('aboutJoined').textContent = d ? d.toLocaleDateString('ar-EG') : '—';
   }
-  if (aboutVerified) {
+  if (document.getElementById('aboutVerified')) {
     let v = 'غير موثق';
     if (profileData?.isVerified) {
       const until = toDate(profileData.verifiedUntil);
       if (!until) v = 'موثق ✓';
       else if (until > new Date()) v = `موثق حتى ${until.toLocaleDateString('ar-EG')}`;
     }
-    aboutVerified.textContent = v;
+    document.getElementById('aboutVerified').textContent = v;
   }
 }
 
@@ -726,16 +464,10 @@ window.switchTab = function(tab) {
   if (pane) pane.classList.add('active');
 };
 
-/* ===== Load Subs & Devices (real-time) ===== */
 async function loadSubsAndDevices() {
-  subsUnsub = listenUserSubscriptions(currentUser.uid, (subs) => {
-    userSubs = subs;
-    renderSubs();
-  });
+  subsUnsub = listenUserSubscriptions(currentUser.uid, (subs) => { userSubs = subs; renderSubs(); });
   devicesUnsub = listenUserDevices(currentUser.uid, (devices) => {
-    userDevices = {};
-    devices.forEach(d => userDevices[d.id] = d);
-    renderDevices();
+    userDevices = {}; devices.forEach(d => userDevices[d.id] = d); renderDevices();
   });
 }
 
@@ -743,21 +475,12 @@ function renderSubs() {
   const c = document.getElementById('subsListContainer');
   if (!c) return;
   const subs = Object.values(userSubs);
-  if (subs.length === 0) {
-    c.innerHTML = `<div class="empty-block"><i class="fas fa-crown"></i><h3>لا يوجد اشتراكات</h3><p>اشترك من قسم المحتوى</p></div>`;
-    return;
-  }
+  if (subs.length === 0) { c.innerHTML = `<div class="empty-block"><i class="fas fa-crown"></i><h3>لا يوجد اشتراكات</h3><p>اشترك من قسم المحتوى</p></div>`; return; }
   c.innerHTML = subs.map(s => {
     const exp = toDate(s.expiresAt);
     const daysLeft = exp ? Math.ceil((exp - new Date()) / 86400000) : 0;
     const warn = daysLeft <= 5;
-    return `<div class="sub-item">
-      <div>
-        <div class="nm">${escapeHtml(s.subjectName || s.subjectId || 'مادة')}</div>
-        <div class="ex ${warn ? 'warn' : ''}">متبقي ${daysLeft} يوم</div>
-      </div>
-      <i class="fas fa-check-circle" style="color:${warn ? 'var(--red)' : 'var(--green)'};"></i>
-    </div>`;
+    return `<div class="sub-item"><div><div class="nm">${escapeHtml(s.subjectName || s.subjectId || 'مادة')}</div><div class="ex ${warn ? 'warn' : ''}">متبقي ${daysLeft} يوم</div></div><i class="fas fa-check-circle" style="color:${warn ? 'var(--red)' : 'var(--green)'};"></i></div>`;
   }).join('');
 }
 
@@ -765,22 +488,15 @@ function renderDevices() {
   const c = document.getElementById('devicesListContainer');
   if (!c) return;
   const devs = Object.values(userDevices);
-  if (devs.length === 0) {
-    c.innerHTML = `<div class="empty-block"><i class="fas fa-mobile-alt"></i><h3>لا يوجد أجهزة</h3></div>`;
-    return;
-  }
+  if (devs.length === 0) { c.innerHTML = `<div class="empty-block"><i class="fas fa-mobile-alt"></i><h3>لا يوجد أجهزة</h3></div>`; return; }
   c.innerHTML = devs.map(d => {
     const isThis = d.id === currentFp;
     const st = d.status === 'approved' ? 'موافق عليه' : d.status === 'blocked' ? 'محظور' : 'قيد الانتظار';
     const cls = d.status === 'approved' ? 'ok' : d.status === 'blocked' ? 'blocked' : 'pending';
-    return `<div class="device-item ${isThis ? 'this-device' : ''}">
-      <div class="ua">${escapeHtml(d.userAgent || '')}</div>
-      <div class="st ${cls}">${st}${isThis ? ' — الجهاز الحالي' : ''}</div>
-    </div>`;
+    return `<div class="device-item ${isThis ? 'this-device' : ''}"><div class="ua">${escapeHtml(d.userAgent || '')}</div><div class="st ${cls}">${st}${isThis ? ' — الجهاز الحالي' : ''}</div></div>`;
   }).join('');
 }
 
-/* ===== Follow Toggle ===== */
 window.toggleFollow = async function() {
   if (isMyProfile) return;
   try {
@@ -795,15 +511,10 @@ window.toggleFollow = async function() {
       profileData.followersCount = (profileData.followersCount || 0) + 1;
       showToast('تمت المتابعة ✓');
     }
-    renderActions();
-    renderStats();
-  } catch (e) {
-    console.error(e);
-    showToast('حدث خطأ', 'error');
-  }
+    renderActions(); renderStats();
+  } catch (e) { console.error(e); showToast('حدث خطأ', 'error'); }
 };
 
-/* ===== Modals ===== */
 window.openSettings = () => document.getElementById('settingsModal').classList.add('active');
 window.closeModal = (id) => document.getElementById(id).classList.remove('active');
 
@@ -813,11 +524,9 @@ window.openEditProfile = function() {
   document.getElementById('editBioInput').value = profileData?.bio || '';
   document.getElementById('editUniversityInput').value = profileData?.university || '';
   pendingAvatarUrl = null;
-
   const preview = document.getElementById('editAvatarPreview');
   if (profileData?.avatarUrl) preview.innerHTML = `<img src="${getAvatarDisplayUrl(profileData.avatarUrl, 200)}" alt="">`;
   else preview.textContent = (profileData?.name || 'U').charAt(0).toUpperCase();
-
   document.getElementById('editProfileModal').classList.add('active');
 };
 
@@ -829,7 +538,6 @@ window.openPasswordChange = function() {
   document.getElementById('passwordModal').classList.add('active');
 };
 
-/* ===== Avatar Upload (Cloudinary) ===== */
 window.handleAvatarUpload = async function(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -848,15 +556,10 @@ window.handleAvatarUpload = async function(event) {
     pendingAvatarUrl = url;
     preview.innerHTML = `<img src="${getAvatarDisplayUrl(url, 200)}" alt="">`;
     showToast('تم رفع الصورة. اضغط حفظ');
-  } catch (e) {
-    console.error(e);
-    showToast(e.message || 'فشل رفع الصورة', 'error');
-  } finally {
-    progress.classList.remove('show');
-  }
+  } catch (e) { console.error(e); showToast(e.message || 'فشل رفع الصورة', 'error'); }
+  finally { progress.classList.remove('show'); }
 };
 
-/* ===== Save Profile ===== */
 window.saveProfile = async function() {
   const name = document.getElementById('editNameInput').value.trim();
   const bio = document.getElementById('editBioInput').value.trim();
@@ -870,35 +573,25 @@ window.saveProfile = async function() {
     const updates = { name, bio, university };
     if (pendingAvatarUrl) updates.avatarUrl = pendingAvatarUrl;
     await updateDoc(doc(db, 'users', currentUser.uid), updates);
-
     profileData = { ...profileData, ...updates };
     currentUserData = { ...currentUserData, ...updates };
     pendingAvatarUrl = null;
-
     showToast('تم الحفظ بنجاح ✓');
     closeModal('editProfileModal');
     renderAll();
-  } catch (e) {
-    console.error(e);
-    showToast('حدث خطأ أثناء الحفظ', 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = 'حفظ';
-  }
+  } catch (e) { console.error(e); showToast('حدث خطأ أثناء الحفظ', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'حفظ'; }
 };
 
-/* ===== Change Password ===== */
 window.changePassword = async function() {
   const oldPwd = document.getElementById('oldPassword').value;
   const newPwd = document.getElementById('newPassword').value;
   const confirmPwd = document.getElementById('confirmPassword').value;
-
   if (!oldPwd || !newPwd || !confirmPwd) { showToast('املأ كل الحقول', 'error'); return; }
   if (newPwd !== confirmPwd) { showToast('كلمتا المرور غير متطابقتين', 'error'); return; }
   if (newPwd.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل', 'error'); return; }
-
   const btn = document.getElementById('changePassBtn');
   btn.disabled = true; btn.textContent = 'جاري التغيير...';
-
   try {
     const cred = EmailAuthProvider.credential(currentUser.email, oldPwd);
     await reauthenticateWithCredential(currentUser, cred);
@@ -913,30 +606,21 @@ window.changePassword = async function() {
       'auth/weak-password': 'كلمة المرور الجديدة ضعيفة'
     };
     showToast(msgs[e.code] || 'حدث خطأ', 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = 'تغيير';
-  }
+  } finally { btn.disabled = false; btn.textContent = 'تغيير'; }
 };
 
-/* ===== Followers/Following List ===== */
 window.openList = async function(type) {
   document.getElementById('listTitle').textContent = type === 'followers' ? 'المتابعون' : 'يتابع';
   const container = document.getElementById('listContainer');
   container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-muted)">جاري التحميل...</p>';
   document.getElementById('listModal').classList.add('active');
-
   try {
     const field = type === 'followers' ? 'followedUid' : 'followerUid';
     const otherField = type === 'followers' ? 'followerUid' : 'followedUid';
     const q = query(collection(db, 'follows'), where(field, '==', profileUid), limit(50));
     const snap = await getDocs(q);
     const uids = snap.docs.map(d => d.data()[otherField]);
-
-    if (uids.length === 0) {
-      container.innerHTML = `<p style="text-align:center;padding:20px;color:var(--text-muted)">لا يوجد ${type === 'followers' ? 'متابعون' : 'متابَعون'} بعد</p>`;
-      return;
-    }
-
+    if (uids.length === 0) { container.innerHTML = `<p style="text-align:center;padding:20px;color:var(--text-muted)">لا يوجد ${type === 'followers' ? 'متابعون' : 'متابَعون'} بعد</p>`; return; }
     const users = [];
     for (const uid of uids) {
       try {
@@ -944,30 +628,17 @@ window.openList = async function(type) {
         if (s.exists()) users.push({ id: uid, ...s.data() });
       } catch (e) { }
     }
-
     container.innerHTML = users.map(u => {
-      const av = u.avatarUrl
-        ? `<img src="${getAvatarDisplayUrl(u.avatarUrl, 80)}" alt="">`
-        : (u.name || 'U').charAt(0).toUpperCase();
-      return `<div class="user-row" onclick="window.location.href='profile.html?uid=${u.id}'">
-        <div class="u-av">${av}</div>
-        <div class="u-info">
-          <div class="u-name">${escapeHtml(u.name || 'بدون اسم')}</div>
-          <div class="u-username">${u.username ? '@' + escapeHtml(u.username) : ''}</div>
-        </div>
-      </div>`;
+      const av = u.avatarUrl ? `<img src="${getAvatarDisplayUrl(u.avatarUrl, 80)}" alt="">` : (u.name || 'U').charAt(0).toUpperCase();
+      return `<div class="user-row" onclick="window.location.href='profile.html?uid=${u.id}'"><div class="u-av">${av}</div><div class="u-info"><div class="u-name">${escapeHtml(u.name || 'بدون اسم')}</div><div class="u-username">${u.username ? '@' + escapeHtml(u.username) : ''}</div></div></div>`;
     }).join('');
-
-    if (snap.docs.length === 50) {
-      container.innerHTML += `<p style="text-align:center;color:var(--text-muted);font-size:12px;padding:8px;">يتم عرض أول 50...</p>`;
-    }
+    if (snap.docs.length === 50) container.innerHTML += `<p style="text-align:center;color:var(--text-muted);font-size:12px;padding:8px;">يتم عرض أول 50...</p>`;
   } catch (e) {
     console.error(e);
     container.innerHTML = `<p style="text-align:center;padding:20px;color:var(--red)">حدث خطأ في التحميل</p>`;
   }
 };
 
-/* ===== Logout ===== */
 window.doLogout = async function() {
   if (confirm('تسجيل الخروج؟')) {
     if (subsUnsub) subsUnsub();
