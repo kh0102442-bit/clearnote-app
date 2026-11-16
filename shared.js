@@ -23,35 +23,23 @@ export const ROLES = { ADMIN: "admin", STUDENT: "student", TA: "ta", DOCTOR: "do
 const CLOUDINARY_CLOUD_NAME = "nopxs3zt";
 const CLOUDINARY_UPLOAD_PRESET = "clearnote_unsigned";
 
-/* حدود الملفات */
 const LIMITS = {
-  avatar: 10 * 1024 * 1024,   // 10MB
-  post:   10 * 1024 * 1024,   // 10MB
-  pdf:    10 * 1024 * 1024,   // 10MB
+  avatar: 10 * 1024 * 1024,
+  post:   10 * 1024 * 1024,
+  pdf:    10 * 1024 * 1024,
 };
 
-/**
- * رفع ملف إلى Cloudinary وإرجاع الرابط المباشر.
- * @param {File} file - الملف المطلوب رفعه
- * @param {string} type - 'avatar' | 'post' | 'pdf'
- * @returns {Promise<string>} secure_url
- */
 export async function uploadToCloudinary(file, type = 'post') {
   if (!file) throw new Error('لم يتم اختيار ملف');
-
   const maxSize = LIMITS[type] || LIMITS.post;
   if (file.size > maxSize) {
     const mb = (maxSize / 1024 / 1024).toFixed(0);
     throw new Error(`حجم الملف كبير جداً (الحد الأقصى ${mb} ميجابايت)`);
   }
-
-  // تحديد الـ resource_type حسب نوع الملف
   let resourceType = 'image';
   if (file.type === 'application/pdf') resourceType = 'raw';
   else if (file.type.startsWith('video/')) resourceType = 'video';
-  else if (!file.type.startsWith('image/')) {
-    throw new Error('نوع الملف غير مدعوم — الصور و PDF فقط');
-  }
+  else if (!file.type.startsWith('image/')) throw new Error('نوع الملف غير مدعوم — الصور و PDF فقط');
 
   const fd = new FormData();
   fd.append('file', file);
@@ -59,27 +47,17 @@ export async function uploadToCloudinary(file, type = 'post') {
   fd.append('folder', type === 'avatar' ? 'clearnote/avatars' : type === 'pdf' ? 'clearnote/pdfs' : 'clearnote/posts');
 
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, {
-    method: 'POST',
-    body: fd
+    method: 'POST', body: fd
   });
-
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error?.message || 'فشل رفع الملف');
   }
-
   const data = await res.json();
   return data.secure_url;
 }
 
-/**
- * رفع صورة شخصية وإرجاع الرابط.
- * @param {File} file
- * @returns {Promise<string>}
- */
-export async function uploadAvatar(file) {
-  return uploadToCloudinary(file, 'avatar');
-}
+export async function uploadAvatar(file) { return uploadToCloudinary(file, 'avatar'); }
 
 /* ============================================================
    أدوات مساعدة
@@ -105,6 +83,7 @@ export async function signUp(email, password, name, extraData = {}) {
   await setDoc(doc(db, "users", cred.user.uid), {
     uid: cred.user.uid, email, name, ...extraData,
     followersCount: 0, followingCount: 0, postsCount: 0,
+    isVerified: false, verifiedUntil: null,
     createdAt: serverTimestamp()
   });
   await createAdminNotification(
@@ -158,26 +137,21 @@ export async function checkDeviceStatus(uid) {
     await updateDoc(devRef, { lastSeen: serverTimestamp() });
     return { status: devSnap.data().status, fp };
   }
-
   const snap = await getDocs(collection(db, 'devices', uid, 'list'));
   const isFirstDevice = snap.docs.length === 0;
   const newStatus = isFirstDevice ? 'approved' : 'pending';
-
   await setDoc(devRef, {
     deviceId: fp, userAgent: navigator.userAgent,
     status: newStatus, createdAt: serverTimestamp(), lastSeen: serverTimestamp()
   });
-
   if (!isFirstDevice) {
     const userData = await getUserData(uid);
     await createAdminNotification(
-      'new_device',
-      'طلب جهاز جديد',
+      'new_device', 'طلب جهاز جديد',
       `${userData?.name || 'طالب'} يحاول الدخول من جهاز جديد`,
       'admin.html'
     );
   }
-
   return { status: newStatus, fp };
 }
 
@@ -191,8 +165,7 @@ export async function requestSubscription(uid, userName, subjectId, subjectName,
     status: 'pending', createdAt: serverTimestamp()
   });
   await createAdminNotification(
-    'new_subscription_request',
-    'طلب اشتراك جديد',
+    'new_subscription_request', 'طلب اشتراك جديد',
     `${userName} يطلب الاشتراك في "${subjectName}"`,
     'admin.html'
   );
@@ -208,14 +181,12 @@ export async function activateSubscription(uid, subjectId, durationDays = 30) {
 }
 
 /* ============================================================
-   المتابعة (Follow) — Collection منفصل
+   المتابعة (Follow)
    ============================================================ */
 export async function followUser(myUid, targetUid) {
   if (myUid === targetUid) throw new Error('لا يمكن متابعة نفسك');
   const followRef = doc(db, 'follows', `${myUid}_${targetUid}`);
-  await setDoc(followRef, {
-    followerUid: myUid, followedUid: targetUid, createdAt: serverTimestamp()
-  });
+  await setDoc(followRef, { followerUid: myUid, followedUid: targetUid, createdAt: serverTimestamp() });
   await updateDoc(doc(db, 'users', myUid), { followingCount: increment(1) });
   await updateDoc(doc(db, 'users', targetUid), { followersCount: increment(1) });
 }
@@ -230,6 +201,77 @@ export async function unfollowUser(myUid, targetUid) {
 export async function checkIfFollowing(myUid, targetUid) {
   const snap = await getDoc(doc(db, 'follows', `${myUid}_${targetUid}`));
   return snap.exists();
+}
+
+/* ============================================================
+   التوثيق (Verification)
+   ============================================================ */
+export async function requestVerification(uid, userName, role, type, plan, price, durationDays, notes) {
+  // منع الطلبات المكررة
+  const q = query(
+    collection(db, 'verification_requests'),
+    where('uid', '==', uid),
+    where('status', '==', 'pending'),
+    limit(1)
+  );
+  const existing = await getDocs(q);
+  if (!existing.empty) throw new Error('لديك طلب توثيق قيد المراجعة بالفعل');
+
+  const ref = doc(collection(db, 'verification_requests'));
+  await setDoc(ref, {
+    id: ref.id, uid, userName, role, type, plan, price, durationDays, notes,
+    status: 'pending', createdAt: serverTimestamp()
+  });
+
+  const roleLabel = role === 'ta' ? 'معيد' : role === 'doctor' ? 'دكتور' : 'طالب';
+  const typeLabel = type === 'free' ? 'توثيق مجاني' : `توثيق مدفوع - ${plan} - ${price}ج`;
+  await createAdminNotification(
+    'new_verification_request',
+    type === 'free' ? 'طلب توثيق مجاني' : 'طلب توثيق مدفوع',
+    `${userName} (${roleLabel}) - ${typeLabel}`,
+    'admin.html'
+  );
+  return ref.id;
+}
+
+export async function activateVerification(uid, durationDays) {
+  const updates = {
+    isVerified: true,
+    verifiedAt: serverTimestamp()
+  };
+  if (durationDays > 0) {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + durationDays);
+    updates.verifiedUntil = expiresAt;
+  } else {
+    updates.verifiedUntil = null;
+  }
+  await updateDoc(doc(db, 'users', uid), updates);
+}
+
+export async function rejectVerification(reqId, uid, reason = '') {
+  await updateDoc(doc(db, 'verification_requests', reqId), {
+    status: 'rejected',
+    rejectReason: reason,
+    reviewedAt: serverTimestamp()
+  });
+  await createNotification(
+    uid, 'verification_rejected',
+    '❌ تم رفض طلب التوثيق',
+    reason || 'تواصل مع الإدارة للاستفسار',
+    'profile.html'
+  );
+}
+
+export async function checkPendingVerification(uid) {
+  const q = query(
+    collection(db, 'verification_requests'),
+    where('uid', '==', uid),
+    where('status', '==', 'pending'),
+    limit(1)
+  );
+  const snap = await getDocs(q);
+  return !snap.empty;
 }
 
 /* ============================================================
@@ -325,9 +367,8 @@ export function listenUserSubscriptions(uid, callback) {
     snap.forEach(d => {
       const data = d.data();
       if (data.status === 'active' && data.expiresAt) {
-        try {
-          if (data.expiresAt.toDate() > new Date()) subs[data.subjectId] = data;
-        } catch (e) { }
+        try { if (data.expiresAt.toDate() > new Date()) subs[data.subjectId] = data; }
+        catch (e) { }
       }
     });
     callback(subs);
