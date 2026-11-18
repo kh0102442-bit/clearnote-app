@@ -256,6 +256,14 @@ onAuth(async (user, userData) => {
   }
 
   renderHome();
+
+  // ← جديد: استقبال ?subject=<id> من profile
+  const params = new URLSearchParams(location.search);
+  const openSubject = params.get('subject');
+  if (openSubject && treeData.find(n => n.id === openSubject)) {
+    switchView('content');
+    renderLevel(openSubject);
+  }
 });
 
 function hideLoading() { document.getElementById('loadingOverlay').classList.add('hide'); }
