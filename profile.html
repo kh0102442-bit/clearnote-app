@@ -50,7 +50,6 @@
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: .85; cursor: default; }
   .btn-primary { background: var(--navy); color: white; }
-  .btn-primary:hover { background: var(--navy-dark); }
   .btn-following { background: #e8f5e9; color: var(--green); border: 1px solid #c9e6d1; }
   .btn-follow { background: var(--navy); color: white; }
   .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--line); }
@@ -86,10 +85,27 @@
   .mini-row .lbl { color: var(--text-muted); }
   .mini-row .val { color: var(--navy); font-weight: 700; }
 
-  .sub-item { background: #f8f9fa; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .sub-item .nm { font-weight: 800; color: var(--navy); font-size: 14px; }
-  .sub-item .ex { font-size: 11.5px; color: var(--green); margin-top: 2px; }
-  .sub-item .ex.warn { color: var(--red); }
+  /* ===== Subscription Card V2 ===== */
+  .sub-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: 0.18s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .sub-card:hover { border-color: var(--navy); box-shadow: 0 4px 14px rgba(21,39,65,.12); transform: translateY(-1px); }
+  .sub-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .sub-card-title { font-weight: 800; color: var(--navy); font-size: 15px; line-height: 1.4; flex: 1; }
+  .sub-card-days { font-size: 11.5px; font-weight: 800; padding: 4px 10px; border-radius: 20px; background: #e8f5e9; color: var(--green); white-space: nowrap; }
+  .sub-card-days.warn { background: #fbeaea; color: var(--red); }
+  .sub-card-days.danger { background: #fef3c7; color: #92400e; }
+  .sub-card-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: var(--text-muted); }
+  .sub-card-meta span { display: inline-flex; align-items: center; gap: 5px; }
+  .sub-card-meta i { color: var(--accent); font-size: 11px; }
+  .sub-card-arrow { margin-top: 10px; font-size: 11.5px; color: var(--navy); font-weight: 800; display: flex; align-items: center; gap: 4px; }
 
   .device-item { background: #f8f9fa; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
   .device-item .ua { font-size: 11.5px; color: var(--text-muted); direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
@@ -140,43 +156,9 @@
   .user-row .u-info { flex: 1; min-width: 0; }
   .user-row .u-name { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-row .u-username { font-size: 12px; color: var(--text-muted); }
-
-  .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .plan-card { background: #fafbfc; border: 2px solid var(--line); border-radius: 12px; padding: 14px 10px; cursor: pointer; transition: 0.15s; position: relative; text-align: center; }
-  .plan-card:hover { border-color: var(--navy); transform: translateY(-2px); }
-  .plan-card.selected { border-color: #1da1f2; background: #e7f5ff; box-shadow: 0 4px 12px rgba(29,161,242,.2); }
-  .plan-card .p-popular { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; white-space: nowrap; }
-  .plan-card .p-name { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
-  .plan-card .p-price { font-size: 22px; font-weight: 800; color: #1da1f2; line-height: 1; }
-  .plan-card .p-price small { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-  .plan-card .p-per { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
-  .plan-card .p-save { font-size: 10.5px; color: var(--green); font-weight: 800; margin-top: 4px; }
-
-  .verify-info-box { background: #e7f5ff; border: 1px solid #b6e0fe; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
-  .verify-info-box h4 { margin: 0 0 8px; color: #0d47a1; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-  .verify-info-box ul { margin: 0; padding: 0 20px 0 0; font-size: 12.5px; color: #1565c0; line-height: 1.8; }
-
-  .payment-method-box { background: #f8f9fa; border: 2px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
-  .payment-method-box h5 { margin: 0 0 8px; font-size: 13px; color: var(--navy); }
-  .payment-method-box p { margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.7; }
-  .payment-method-box .wallet-num { display: inline-block; background: var(--navy); color: white; padding: 8px 14px; border-radius: 8px; font-family: 'Inter', monospace; font-size: 15px; font-weight: 800; letter-spacing: 1px; margin: 8px 0; direction: ltr; }
-
-  .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 9000; }
-  .loading-overlay.hide { display: none; }
-  .loading-spinner { width: 44px; height: 44px; border: 4px solid var(--line); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-banner { background: #fbeaea; border: 1px solid #f0c6c6; color: var(--red); padding: 12px 16px; border-radius: 10px; margin: 12px 16px; font-size: 13px; display: none; }
-  .error-banner.show { display: block; }
 </style>
 </head>
 <body>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-spinner"></div>
-  <div style="color:var(--text-muted);font-size:14px;">جاري التحميل...</div>
-</div>
-
-<div class="error-banner" id="errorBanner"></div>
 
 <div class="topbar">
   <button class="icon-btn" onclick="window.location.href='app.html'"><i class="fas fa-arrow-right"></i></button>
@@ -189,11 +171,14 @@
 <div class="head-section">
   <div class="avatar-row">
     <div class="avatar-wrap">
-      <div class="avatar" id="avatar">?</div>
+      <div class="avatar" id="avatar"><i class="fas fa-spinner fa-spin"></i></div>
       <button class="avatar-edit-btn" id="avatarEditBtn" onclick="openEditProfile()"><i class="fas fa-camera"></i></button>
     </div>
     <div class="name-block">
-      <div class="name-line"><h1 id="profileName">...</h1><span id="profileBadge"></span></div>
+      <div class="name-line">
+        <h1 id="profileName">جاري التحميل...</h1>
+        <span id="profileBadge"></span>
+      </div>
       <div class="username-line" id="profileUsername"></div>
     </div>
   </div>
@@ -213,7 +198,9 @@
     <button class="tab-btn" data-tab="devices" onclick="switchTab('devices')" id="devicesTabBtn" style="display:none;">الأجهزة</button>
   </div>
 
-  <div class="tab-pane active" id="pane-posts"><div class="empty-block"><i class="fas fa-newspaper"></i><h3>لا توجد منشورات بعد</h3><p>المنشورات قريباً</p></div></div>
+  <div class="tab-pane active" id="pane-posts">
+    <div class="empty-block"><i class="fas fa-newspaper"></i><h3>لا توجد منشورات بعد</h3><p>المنشورات قريباً إن شاء الله</p></div>
+  </div>
 
   <div class="tab-pane" id="pane-about">
     <div class="info-card">
@@ -239,19 +226,64 @@
   <a href="profile.html" class="active"><i class="fas fa-user"></i><span>حسابي</span></a>
 </nav>
 
-<div class="modal-overlay" id="settingsModal"><div class="modal-box"><h3>الإعدادات</h3><div class="settings-list"><div class="settings-item" onclick="openEditProfile()"><div class="si-text"><i class="fas fa-user-edit"></i> تعديل الملف</div><i class="fas fa-chevron-left si-arrow"></i></div><div class="settings-item" onclick="openPasswordChange()"><div class="si-text"><i class="fas fa-key"></i> تغيير كلمة المرور</div><i class="fas fa-chevron-left si-arrow"></i></div></div><button class="btn-danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button><button class="btn-cancel" style="width:100%; margin-top:8px;" onclick="closeModal('settingsModal')">إغلاق</button></div></div>
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box">
+    <h3>الإعدادات</h3>
+    <div class="settings-list">
+      <div class="settings-item" onclick="openEditProfile()"><div class="si-text"><i class="fas fa-user-edit"></i> تعديل الملف الشخصي</div><i class="fas fa-chevron-left si-arrow"></i></div>
+      <div class="settings-item" onclick="openPasswordChange()"><div class="si-text"><i class="fas fa-key"></i> تغيير كلمة المرور</div><i class="fas fa-chevron-left si-arrow"></i></div>
+    </div>
+    <button class="btn-danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+    <button class="btn-cancel" style="width:100%; margin-top:8px;" onclick="closeModal('settingsModal')">إغلاق</button>
+  </div>
+</div>
 
-<div class="modal-overlay" id="editProfileModal"><div class="modal-box"><h3>تعديل الملف الشخصي</h3><div class="avatar-preview-wrap"><div class="avatar-preview" id="editAvatarPreview">?</div><div class="avatar-progress" id="avatarProgress"><i class="fas fa-spinner fa-spin"></i><span>جاري الرفع...</span></div></div><div class="form-group"><label>تغيير الصورة</label><input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)" style="font-size:13px;"><small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:5px;">JPG/PNG، حد 10 ميجا</small></div><div class="form-group"><label>الاسم</label><input type="text" id="editNameInput" maxlength="50"></div><div class="form-group"><label>نبذة</label><textarea id="editBioInput" maxlength="200"></textarea></div><div class="form-group"><label>الجامعة</label><input type="text" id="editUniversityInput" maxlength="60"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('editProfileModal')">إلغاء</button><button class="btn-save" id="saveProfileBtn" onclick="saveProfile()">حفظ</button></div></div></div>
+<div class="modal-overlay" id="editProfileModal">
+  <div class="modal-box">
+    <h3>تعديل الملف الشخصي</h3>
+    <div class="avatar-preview-wrap">
+      <div class="avatar-preview" id="editAvatarPreview">?</div>
+      <div class="avatar-progress" id="avatarProgress"><i class="fas fa-spinner fa-spin"></i><span>جاري الرفع...</span></div>
+    </div>
+    <div class="form-group">
+      <label>تغيير الصورة الشخصية</label>
+      <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)" style="font-size:13px;">
+      <small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:5px;">JPG/PNG، حد أقصى 10 ميجابايت</small>
+    </div>
+    <div class="form-group"><label>الاسم</label><input type="text" id="editNameInput" maxlength="50"></div>
+    <div class="form-group"><label>نبذة عنك</label><textarea id="editBioInput" maxlength="200"></textarea></div>
+    <div class="form-group"><label>الجامعة</label><input type="text" id="editUniversityInput" maxlength="60"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('editProfileModal')">إلغاء</button>
+      <button class="btn-save" id="saveProfileBtn" onclick="saveProfile()">حفظ</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="passwordModal"><div class="modal-box"><h3>تغيير كلمة المرور</h3><div class="form-group"><label>كلمة المرور الحالية</label><input type="password" id="oldPassword"></div><div class="form-group"><label>الجديدة</label><input type="password" id="newPassword"></div><div class="form-group"><label>تأكيد</label><input type="password" id="confirmPassword"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('passwordModal')">إلغاء</button><button class="btn-save" id="changePassBtn" onclick="changePassword()">تغيير</button></div></div></div>
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal-box">
+    <h3>تغيير كلمة المرور</h3>
+    <div class="form-group"><label>كلمة المرور الحالية</label><input type="password" id="oldPassword"></div>
+    <div class="form-group"><label>الجديدة</label><input type="password" id="newPassword"></div>
+    <div class="form-group"><label>تأكيد</label><input type="password" id="confirmPassword"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('passwordModal')">إلغاء</button>
+      <button class="btn-save" id="changePassBtn" onclick="changePassword()">تغيير</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="listModal"><div class="modal-box"><h3 id="listTitle">المتابعون</h3><div id="listContainer"></div><button class="btn-cancel" style="width:100%; margin-top:14px;" onclick="closeModal('listModal')">إغلاق</button></div></div>
+<div class="modal-overlay" id="listModal">
+  <div class="modal-box">
+    <h3 id="listTitle">المتابعون</h3>
+    <div id="listContainer"></div>
+    <button class="btn-cancel" style="width:100%; margin-top:14px;" onclick="closeModal('listModal')">إغلاق</button>
+  </div>
+</div>
 
 <div class="modal-overlay" id="verificationRoleModal"><div class="modal-box"><h3>توثيق الحساب</h3><div id="verificationRoleContent"></div></div></div>
-
-<div class="modal-overlay" id="verificationPlansModal"><div class="modal-box"><h3>اختر خطة التوثيق</h3><div class="verify-info-box"><h4><i class="fas fa-check-circle"></i> ميزات التوثيق</h4><ul><li>شارة زرقاء موثقة</li><li>منشوراتك تظهر للجميع</li><li>ظهور في "صنّاع محتوى مقترحون"</li><li>أولوية في الدعم</li></ul></div><div class="plan-grid" id="plansGrid"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('verificationPlansModal')">إلغاء</button><button class="btn-save" id="selectPlanBtn" onclick="goToPayment()" disabled>متابعة الدفع</button></div></div></div>
-
-<div class="modal-overlay" id="verificationPaymentModal"><div class="modal-box"><h3>تأكيد الدفع</h3><div class="payment-method-box"><h5><i class="fas fa-wallet"></i> الدفع</h5><p>حوّل على رقم المحفظة:</p><div class="wallet-num">01XXXXXXXXX</div></div><div class="form-group"><label>المبلغ</label><input type="text" id="paymentAmount" readonly style="background:#f0f2f5;font-weight:800;color:#1da1f2;"></div><div class="form-group"><label>رقم محفظتك</label><input type="tel" id="paymentWallet" dir="ltr" style="text-align:right;"></div><div class="form-group"><label>ملاحظات</label><textarea id="paymentNotes" style="min-height:60px;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('verificationPaymentModal')">إلغاء</button><button class="btn-save" id="sendVerifBtn" onclick="submitVerificationRequest()">إرسال</button></div></div></div>
+<div class="modal-overlay" id="verificationPlansModal"><div class="modal-box"><h3>اختر خطة التوثيق</h3><div id="plansGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('verificationPlansModal')">إلغاء</button><button class="btn-save" id="selectPlanBtn" onclick="goToPayment()" disabled>متابعة</button></div></div></div>
+<div class="modal-overlay" id="verificationPaymentModal"><div class="modal-box"><h3>تأكيد الدفع</h3><div class="form-group"><label>المبلغ</label><input type="text" id="paymentAmount" readonly></div><div class="form-group"><label>رقم محفظتك</label><input type="tel" id="paymentWallet" dir="ltr"></div><div class="form-group"><label>ملاحظات</label><textarea id="paymentNotes" style="min-height:60px;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('verificationPaymentModal')">إلغاء</button><button class="btn-save" id="sendVerifBtn" onclick="submitVerificationRequest()">إرسال</button></div></div></div>
 
 <script type="module">
 import {
@@ -289,34 +321,23 @@ let subsUnsub = null;
 let devicesUnsub = null;
 let hasPendingVerification = false;
 let selectedPlan = null;
+let contentTree = []; // ← جديد: لتحويل IDs إلى أسماء المواد
 
-/* ===== Init — نمط دفاعي: نرسم ما لدينا ثم نكمل ===== */
 onAuth(async (user, userData) => {
   if (!user) { goTo('index.html'); return; }
   currentUser = user;
   currentUserData = userData;
-  hideLoading();
 
   const params = new URLSearchParams(location.search);
   profileUid = params.get('uid') || user.uid;
   isMyProfile = profileUid === user.uid;
 
-  // رسم فوري بما لدينا من auth
-  if (isMyProfile) {
-    profileData = userData || { name: user.email };
-    renderAll();
-  }
-
-  // تحميل البيانات الإضافية بالخلفية
   try {
     if (isMyProfile) {
-      getDeviceFingerprint().then(fp => { currentFp = fp; renderDevices(); }).catch(() => {});
-      loadSubsAndDevices();
-      // فحص التوثيق بدون حجب
-      checkPendingVerification(user.uid).then(pending => {
-        hasPendingVerification = pending;
-        renderActions();
-      }).catch(() => {});
+      profileData = userData;
+      currentFp = await getDeviceFingerprint();
+      await loadSubsAndDevices();
+      checkPendingVerification(user.uid).then(p => { hasPendingVerification = p; renderActions(); }).catch(() => {});
     } else {
       profileData = await getUserData(profileUid);
       if (!profileData) {
@@ -324,21 +345,14 @@ onAuth(async (user, userData) => {
         setTimeout(() => goTo('app.html'), 1200);
         return;
       }
-      isFollowing = await checkIfFollowing(user.uid, profileUid).catch(() => false);
-      renderAll();
+      isFollowing = await checkIfFollowing(user.uid, profileUid);
     }
+    renderAll();
   } catch (e) {
-    console.error('init error:', e);
-    showBanner('حدث خطأ في تحميل بعض البيانات. الصفحة تعمل بشكل جزئي.');
-    if (profileData) renderAll();
+    console.error(e);
+    showToast('حدث خطأ في التحميل', 'error');
   }
 });
-
-function hideLoading() { document.getElementById('loadingOverlay').classList.add('hide'); }
-function showBanner(msg) {
-  const b = document.getElementById('errorBanner');
-  b.textContent = msg; b.classList.add('show');
-}
 
 function toDate(v) {
   try { if (!v) return null; return v.toDate ? v.toDate() : new Date(v); }
@@ -380,9 +394,9 @@ function getBadgeHTML(u) {
   const bt = u.badgeType || (u.role === 'admin' ? 'admin' : u.role === 'ta' ? 'ta' : u.role === 'doctor' ? 'doctor' : 'student');
   const map = {
     founder: `<span class="badge badge-founder"><i class="fas fa-crown"></i> Founder</span>`,
-    admin: `<span class="badge badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>`,
-    doctor: `<span class="badge badge-doctor"><i class="fas fa-user-md"></i> Doctor</span>`,
-    ta: `<span class="badge badge-ta"><i class="fas fa-graduation-cap"></i> TA</span>`,
+    admin:   `<span class="badge badge-admin"><i class="fas fa-shield-alt"></i> Admin</span>`,
+    doctor:  `<span class="badge badge-doctor"><i class="fas fa-user-md"></i> Doctor</span>`,
+    ta:      `<span class="badge badge-ta"><i class="fas fa-graduation-cap"></i> TA</span>`,
     student: `<span class="badge badge-student"><i class="fas fa-user-graduate"></i> Student</span>`
   };
   let html = map[bt] || map.student;
@@ -468,29 +482,80 @@ window.switchTab = function(tab) {
   if (pane) pane.classList.add('active');
 };
 
-function loadSubsAndDevices() {
+/* ===== Load subs/devices + content_tree for names ===== */
+async function loadSubsAndDevices() {
   try {
     subsUnsub = listenUserSubscriptions(currentUser.uid, (subs) => { userSubs = subs; renderSubs(); });
-  } catch (e) { console.warn('subs listener setup failed:', e); }
+  } catch (e) { console.warn('subs listener failed:', e); }
   try {
     devicesUnsub = listenUserDevices(currentUser.uid, (devices) => {
       userDevices = {}; devices.forEach(d => userDevices[d.id] = d); renderDevices();
     });
-  } catch (e) { console.warn('devices listener setup failed:', e); }
+  } catch (e) { console.warn('devices listener failed:', e); }
+
+  // ← جديد: جلب شجرة المحتوى لتحويل IDs إلى أسماء
+  try {
+    const snap = await getDocs(collection(db, 'content_tree'));
+    contentTree = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderSubs(); // إعادة العرض بالأسماء الحقيقية
+  } catch (e) { console.warn('content_tree load failed:', e); }
 }
 
+/* ← جديد: البحث عن عقدة بالـ ID */
+function findNodeById(id) {
+  return contentTree.find(n => n.id === id);
+}
+
+/* ← جديد: عدّ الدروس المباشرة تحت المادة (children that aren't modules) */
+function countLessonsInSubject(subjectId) {
+  return contentTree.filter(n => n.parentId === subjectId && n.type && !n.type.startsWith('module_')).length;
+}
+
+/* ← جديد: عرض الاشتراكات بشكل احترافي */
 function renderSubs() {
   const c = document.getElementById('subsListContainer');
   if (!c) return;
   const subs = Object.values(userSubs);
-  if (subs.length === 0) { c.innerHTML = `<div class="empty-block"><i class="fas fa-crown"></i><h3>لا يوجد اشتراكات</h3><p>اشترك من قسم المحتوى</p></div>`; return; }
+  if (subs.length === 0) {
+    c.innerHTML = `<div class="empty-block"><i class="fas fa-crown"></i><h3>لا يوجد اشتراكات</h3><p>اشترك من قسم المحتوى</p></div>`;
+    return;
+  }
   c.innerHTML = subs.map(s => {
-    const exp = toDate(s.expiresAt);
-    const daysLeft = exp ? Math.ceil((exp - new Date()) / 86400000) : 0;
-    const warn = daysLeft <= 5;
-    return `<div class="sub-item"><div><div class="nm">${escapeHtml(s.subjectName || s.subjectId || 'مادة')}</div><div class="ex ${warn ? 'warn' : ''}">متبقي ${daysLeft} يوم</div></div><i class="fas fa-check-circle" style="color:${warn ? 'var(--red)' : 'var(--green)'};"></i></div>`;
+    const subjectNode = findNodeById(s.subjectId);
+    const subjectName = subjectNode?.title || s.subjectName || 'مادة';
+    const lessonCount = countLessonsInSubject(s.subjectId);
+    const startDate = toDate(s.createdAt);
+    const endDate = toDate(s.expiresAt);
+    const daysLeft = endDate ? Math.ceil((endDate - new Date()) / 86400000) : 0;
+
+    let dayClass = '';
+    if (daysLeft <= 0) dayClass = 'danger';
+    else if (daysLeft <= 5) dayClass = 'warn';
+
+    const daysText = daysLeft <= 0 ? 'انتهى' : `متبقي ${daysLeft} يوم`;
+    const startStr = startDate ? startDate.toLocaleDateString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+    const endStr = endDate ? endDate.toLocaleDateString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+
+    return `
+      <div class="sub-card" onclick="openSubject('${s.subjectId}')">
+        <div class="sub-card-top">
+          <div class="sub-card-title">${escapeHtml(subjectName)}</div>
+          <div class="sub-card-days ${dayClass}">${daysText}</div>
+        </div>
+        <div class="sub-card-meta">
+          <span><i class="fas fa-layer-group"></i> ${lessonCount} درس</span>
+          <span><i class="fas fa-calendar-plus"></i> ${startStr}</span>
+          <span><i class="fas fa-calendar-check"></i> ${endStr}</span>
+        </div>
+        <div class="sub-card-arrow"><i class="fas fa-arrow-left"></i> الانتقال إلى المادة</div>
+      </div>
+    `;
   }).join('');
 }
+
+window.openSubject = function(subjectId) {
+  window.location.href = `app.html?subject=${encodeURIComponent(subjectId)}`;
+};
 
 function renderDevices() {
   const c = document.getElementById('devicesListContainer');
@@ -520,7 +585,7 @@ window.toggleFollow = async function() {
       showToast('تمت المتابعة ✓');
     }
     renderActions(); renderStats();
-  } catch (e) { showToast('حدث خطأ', 'error'); }
+  } catch (e) { console.error(e); showToast('حدث خطأ', 'error'); }
 };
 
 window.openSettings = () => document.getElementById('settingsModal').classList.add('active');
@@ -637,9 +702,14 @@ window.openVerification = function() {
   if (role === 'ta' || role === 'doctor') {
     const roleLabel = role === 'ta' ? 'معيد' : 'دكتور';
     document.getElementById('verificationRoleContent').innerHTML = `
-      <div class="verify-info-box"><h4><i class="fas fa-gift"></i> توثيق مجاني</h4><p style="margin:0;font-size:13px;color:#1565c0;line-height:1.7;">بصفتك <strong>${roleLabel}</strong>، التوثيق مجاني ودائم. سيتم مراجعة طلبك.</p></div>
-      <div class="verify-info-box"><h4><i class="fas fa-check-circle"></i> الميزات</h4><ul><li>شارة زرقاء دائمة</li><li>ظهور للجميع</li></ul></div>
-      <div class="modal-actions"><button class="btn-cancel" onclick="closeModal('verificationRoleModal')">إلغاء</button><button class="btn-save" id="freeVerifBtn" onclick="submitFreeVerification()">إرسال</button></div>`;
+      <div style="background:#e7f5ff;border:1px solid #b6e0fe;border-radius:12px;padding:14px;margin-bottom:16px;">
+        <h4 style="margin:0 0 8px;color:#0d47a1;font-size:14px;"><i class="fas fa-gift"></i> توثيق مجاني</h4>
+        <p style="margin:0;font-size:13px;color:#1565c0;line-height:1.7;">بصفتك <strong>${roleLabel}</strong>، التوثيق مجاني ودائم.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('verificationRoleModal')">إلغاء</button>
+        <button class="btn-save" id="freeVerifBtn" onclick="submitFreeVerification()">إرسال</button>
+      </div>`;
     document.getElementById('verificationRoleModal').classList.add('active');
   } else {
     renderPlans();
@@ -651,18 +721,22 @@ window.openVerification = function() {
 
 function renderPlans() {
   document.getElementById('plansGrid').innerHTML = VERIFICATION_PLANS.map(p => `
-    <div class="plan-card ${p.popular ? 'popular' : ''}" data-plan="${p.id}" onclick="selectPlan('${p.id}')">
-      ${p.popular ? '<div class="p-popular">الأكثر شعبية</div>' : ''}
-      <div class="p-name">${p.name}</div>
-      <div class="p-price">${p.price}<small> ج</small></div>
-      <div class="p-per">${p.perMonth} ج/شهر</div>
-      ${p.save ? `<div class="p-save">${p.save}</div>` : ''}
+    <div class="plan-card ${p.popular ? 'popular' : ''}" data-plan="${p.id}" onclick="selectPlan('${p.id}')" style="background:#fafbfc;border:2px solid var(--line);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;position:relative;${p.popular ? 'border-color:var(--accent);' : ''}">
+      ${p.popular ? '<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap;">الأكثر شعبية</div>' : ''}
+      <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:6px;">${p.name}</div>
+      <div style="font-size:22px;font-weight:800;color:#1da1f2;line-height:1;">${p.price}<small style="font-size:11px;color:var(--text-muted);"> ج</small></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${p.perMonth} ج/شهر</div>
+      ${p.save ? `<div style="font-size:10.5px;color:var(--green);font-weight:800;margin-top:4px;">${p.save}</div>` : ''}
     </div>`).join('');
 }
 
 window.selectPlan = function(planId) {
   selectedPlan = VERIFICATION_PLANS.find(p => p.id === planId);
-  document.querySelectorAll('.plan-card').forEach(c => c.classList.toggle('selected', c.dataset.plan === planId));
+  document.querySelectorAll('#plansGrid > div').forEach(c => {
+    const isSel = c.dataset.plan === planId;
+    c.style.borderColor = isSel ? '#1da1f2' : 'var(--line)';
+    c.style.background = isSel ? '#e7f5ff' : '#fafbfc';
+  });
   document.getElementById('selectPlanBtn').disabled = false;
 };
 
