@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>ClearNote — الملف الشخصي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -15,31 +18,79 @@
   .icon-btn { width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
   .icon-btn:active { background: rgba(255,255,255,0.25); transform: scale(0.95); }
 
-  .cover { height: 140px; background: linear-gradient(135deg, #152741 0%, #2a3f5f 55%, #a8741a 200%); position: relative; overflow: hidden; }
-  .cover::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(201,164,74,.28) 0%, transparent 55%), radial-gradient(circle at 20% 80%, rgba(21,39,65,.45) 0%, transparent 60%); }
+  /* ===== Cover ===== */
+  .cover { height: 150px; background: linear-gradient(135deg, #152741 0%, #2a3f5f 55%, #a8741a 200%); position: relative; overflow: hidden; }
+  .cover::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(201,164,74,.32) 0%, transparent 55%), radial-gradient(circle at 20% 80%, rgba(21,39,65,.5) 0%, transparent 60%); }
 
-  .head-section { max-width: 900px; margin: 0 auto; padding: 0 16px; position: relative; margin-top: -64px; }
-  .avatar-row { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 14px; }
+  /* ===== Hero Card ===== */
+  .hero-wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; position: relative; }
+  .hero-card {
+    background: #fff;
+    border-radius: 22px;
+    padding: 16px 18px 18px;
+    box-shadow: 0 10px 32px rgba(21,39,65,0.12);
+    margin-top: -58px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-top {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    margin-top: -58px;
+  }
   .avatar-wrap { position: relative; flex-shrink: 0; }
-  .avatar { width: 112px; height: 112px; border-radius: 50%; background: linear-gradient(135deg, #152741, #a8741a); color: white; font-size: 42px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 4px solid #fff; box-shadow: 0 6px 22px rgba(21,39,65,.25); overflow: hidden; }
-  .avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .avatar-edit-btn { position: absolute; bottom: 6px; left: 6px; width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: white; border: 3px solid #fff; display: none; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+  .avatar-large {
+    width: 104px; height: 104px;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    background: linear-gradient(135deg, #152741, #a8741a);
+    box-shadow: 0 10px 28px rgba(21,39,65,0.22);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 40px; font-weight: 800;
+    font-family: 'El Messiri', serif;
+  }
+  .avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-edit-btn {
+    position: absolute; bottom: 2px; left: 2px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--navy); color: #fff;
+    border: 3px solid #fff;
+    display: none; align-items: center; justify-content: center;
+    font-size: 12px; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
   .avatar-edit-btn.show { display: flex; }
 
-  .name-block { flex: 1; min-width: 0; padding-bottom: 8px; }
-  .name-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .name-line h1 { font-size: 22px; margin: 0; color: var(--navy); font-weight: 800; line-height: 1.2; word-break: break-word; }
-  .username-line { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .hero-info { flex: 1; min-width: 0; padding-bottom: 4px; }
+  .hero-name {
+    font-family: 'El Messiri', serif;
+    font-size: 23px;
+    font-weight: 700;
+    color: #152741;
+    margin: 0 0 6px;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+  .hero-username {
+    font-size: 12.5px;
+    color: #8899aa;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .hero-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
+  /* Badges */
   .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-family: 'Inter', 'Cairo', sans-serif; }
   .badge-founder { background: linear-gradient(135deg, #d4af37, #f4e5b1); color: #4a2f0a; border: 1px solid #b8912f; }
   .badge-admin { background: linear-gradient(135deg, #7b1818, #b91c1c); color: #fff; border: 1px solid #5a0f0f; }
   .badge-doctor { background: linear-gradient(135deg, #4a148c, #7b1fa2); color: #fff; border: 1px solid #38006b; }
   .badge-ta { background: linear-gradient(135deg, #0d47a1, #1976d2); color: #fff; border: 1px solid #002171; }
   .badge-student { background: linear-gradient(135deg, #37474f, #546e7a); color: #fff; border: 1px solid #263238; }
-  .verified-mark { display: inline-flex; align-items: center; color: #1da1f2; font-size: 16px; margin-right: 2px; }
+  .verified-mark { display: inline-flex; align-items: center; color: #1da1f2; font-size: 16px; }
 
-  /* ===== Verify Pill — subtle but visible ===== */
+  /* Verify pill */
   .verify-pill {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 3px 10px; border-radius: 20px;
@@ -50,43 +101,22 @@
     cursor: pointer;
     transition: all 0.25s;
     position: relative; overflow: hidden;
-    animation: verifyPillPulse 3s infinite;
     font-family: 'Cairo', sans-serif;
+    animation: verifyPulse 3s infinite;
   }
-  .verify-pill::before {
-    content: ''; position: absolute; top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(29,161,242,0.3), transparent);
-    transition: left 0.7s;
-  }
-  .verify-pill:hover::before { left: 100%; }
-  .verify-pill:hover {
-    background: linear-gradient(135deg, rgba(29,161,242,0.18), rgba(29,161,242,0.28));
-    border-color: rgba(29,161,242,0.6);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(29,161,242,0.25);
-  }
-  .verify-pill:active { transform: scale(0.96); }
-  .verify-pill.pending {
-    background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.22));
-    color: #92400e;
-    border-color: rgba(251,191,36,0.45);
-    cursor: default;
-    animation: none;
-  }
-  .verify-pill.pending::before { display: none; }
-  @keyframes verifyPillPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(29,161,242,0.25); }
-    50% { box-shadow: 0 0 0 5px rgba(29,161,242,0.03); }
-  }
+  .verify-pill:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(29,161,242,0.25); }
+  .verify-pill.pending { background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.22)); color: #92400e; border-color: rgba(251,191,36,0.45); cursor: default; animation: none; }
+  @keyframes verifyPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(29,161,242,0.25); } 50% { box-shadow: 0 0 0 5px rgba(29,161,242,0.03); } }
 
-  .bio-text { color: var(--text); font-size: 14px; line-height: 1.65; margin: 4px 0 12px; max-width: 620px; }
+  /* Bio & meta */
+  .bio-text { color: var(--text); font-size: 14px; line-height: 1.65; margin: 14px 0 10px; padding: 0 4px; }
   .bio-empty { color: var(--text-muted); font-style: italic; font-size: 13px; }
-  .meta-info { display: flex; gap: 16px; flex-wrap: wrap; color: var(--text-muted); font-size: 12px; margin-bottom: 16px; }
+  .meta-info { display: flex; gap: 16px; flex-wrap: wrap; color: var(--text-muted); font-size: 12px; padding: 0 4px 4px; }
   .meta-info span { display: inline-flex; align-items: center; gap: 5px; }
   .meta-info i { color: var(--navy); font-size: 12px; }
 
-  .actions-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  /* Actions */
+  .actions-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding: 0 4px; }
   .btn { padding: 10px 18px; border-radius: 10px; font-family: inherit; font-weight: 800; font-size: 13.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s; }
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: .85; cursor: default; }
@@ -95,14 +125,16 @@
   .btn-follow { background: var(--navy); color: white; }
   .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--line); }
 
-  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; max-width: 480px; margin-bottom: 22px; box-shadow: var(--sh-sm); }
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; max-width: 480px; margin: 0 auto 20px; box-shadow: var(--sh-sm); }
   .stat-cell { padding: 14px 6px; text-align: center; cursor: pointer; border-left: 1px solid var(--line-soft); transition: 0.15s; }
   .stat-cell:first-child { border-left: none; cursor: default; }
   .stat-cell:hover { background: #fafbfc; }
-  .stat-cell b { font-size: 20px; color: var(--navy); font-weight: 800; display: block; }
+  .stat-cell b { font-size: 20px; color: var(--navy); font-weight: 800; display: block; font-family: 'El Messiri', serif; }
   .stat-cell span { font-size: 12px; color: var(--text-muted); font-weight: 700; }
 
-  .tabs-bar { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 18px; max-width: 100%; overflow-x: auto; }
+  /* Tabs */
+  .tabs-bar { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 18px; overflow-x: auto; }
   .tab-btn { padding: 10px 18px; border-radius: 8px; background: transparent; border: none; font-family: inherit; font-weight: 800; font-size: 13px; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.15s; }
   .tab-btn.active { background: var(--navy); color: white; }
 
@@ -115,14 +147,48 @@
   .empty-block h3 { margin: 0 0 4px; font-size: 15px; color: var(--navy); }
   .empty-block p { margin: 0; font-size: 13px; }
 
-  .info-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 10px; }
-  .info-card h4 { margin: 0 0 10px; font-size: 14px; color: var(--navy); }
+  /* ===== About Tab — Field List ===== */
+  .info-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .info-card h4 { margin: 0 0 12px; font-size: 14px; color: var(--navy); font-weight: 800; display: flex; align-items: center; gap: 8px; }
 
-  .mini-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line-soft); font-size: 13.5px; }
-  .mini-row:last-child { border-bottom: none; }
-  .mini-row .lbl { color: var(--text-muted); }
-  .mini-row .val { color: var(--navy); font-weight: 700; }
+  .field-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--line-soft);
+    font-size: 13.5px;
+    min-height: 44px;
+  }
+  .field-row:last-child { border-bottom: none; }
+  .field-row .field-icon { color: var(--accent); width: 20px; text-align: center; font-size: 14px; }
+  .field-row .field-label { color: var(--text-muted); font-weight: 700; flex-shrink: 0; min-width: 90px; }
+  .field-row .field-value { color: var(--navy); font-weight: 700; flex: 1; text-align: left; word-break: break-word; direction: rtl; }
+  .field-row .field-value.masked { color: #a0aec0; font-style: italic; }
+  .field-row .field-value.mono { font-family: monospace; direction: ltr; text-align: left; font-size: 12.5px; }
 
+  .privacy-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--line); background: #fafbfc;
+    cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.15s; flex-shrink: 0;
+  }
+  .privacy-btn:hover { background: #f0f2f5; }
+  .privacy-btn.public { color: #1f6b45; border-color: #c9e6d1; }
+  .privacy-btn.followers { color: #0d47a1; border-color: #b6c9f0; }
+  .privacy-btn.private { color: #7b1818; border-color: #f0c6c6; }
+
+  .history-cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 12px; margin-top: 4px;
+    background: transparent; border: 2px dashed var(--line);
+    border-radius: 12px; cursor: pointer;
+    color: var(--navy); font-weight: 800; font-size: 13px;
+    font-family: inherit;
+    transition: 0.15s;
+  }
+  .history-cta:hover { border-color: var(--navy); background: #eef2fa; }
+
+  /* Subscriptions */
   .sub-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: 0.18s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
   .sub-card:hover { border-color: var(--navy); box-shadow: 0 4px 14px rgba(21,39,65,.12); transform: translateY(-1px); }
   .sub-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
@@ -135,6 +201,7 @@
   .sub-card-meta i { color: var(--accent); font-size: 11px; }
   .sub-card-arrow { margin-top: 10px; font-size: 11.5px; color: var(--navy); font-weight: 800; display: flex; align-items: center; gap: 4px; }
 
+  /* Devices */
   .device-item { background: #f8f9fa; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
   .device-item .ua { font-size: 11.5px; color: var(--text-muted); direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px; }
   .device-item .st { font-size: 12px; font-weight: 700; }
@@ -142,7 +209,9 @@
   .device-item .st.pending { color: var(--accent); }
   .device-item .st.blocked { color: var(--red); }
   .device-item.this-device { border-color: var(--green); background: #e8f5e9; }
+  .device-item .primary-badge { display: inline-block; background: linear-gradient(135deg,#d4af37,#c9a44a); color: #4a2f0a; font-size: 9.5px; padding: 2px 8px; border-radius: 10px; font-weight: 800; margin-right: 6px; }
 
+  /* Modals */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
   .modal-box { background: var(--card); border-radius: 22px 22px 0 0; width: 100%; max-width: 520px; margin: 0 auto; padding: 22px 18px; max-height: 92vh; overflow-y: auto; animation: slideUp 0.25s ease; }
@@ -152,6 +221,8 @@
   .form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
   .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; background: #fafbfc; box-sizing: border-box; }
   .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-group input:disabled { background: #f0f2f5; color: #8899aa; cursor: not-allowed; }
+  .form-hint { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
   .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
   .btn-save { flex: 1; background: var(--navy); color: white; border: none; padding: 14px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
   .btn-save:disabled { opacity: 0.6; cursor: wait; }
@@ -171,6 +242,7 @@
   .avatar-progress { position: absolute; inset: 0; margin: auto; width: 100px; height: 100px; border-radius: 50%; background: rgba(21,39,65,0.75); color: white; font-size: 14px; font-weight: 700; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 6px; }
   .avatar-progress.show { display: flex; }
 
+  /* Bottom Nav */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--card); border-top: 1px solid var(--line); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0); box-shadow: 0 -2px 12px rgba(21,39,65,.06); }
   .bottom-nav a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-light); text-decoration: none; font-size: 10.5px; font-weight: 700; position: relative; }
   .bottom-nav a i { font-size: 19px; }
@@ -185,122 +257,64 @@
   .user-row .u-name { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-row .u-username { font-size: 12px; color: var(--text-muted); }
 
-  /* ===== Verification — Carousel ===== */
-  .verify-info-panel {
-    background: linear-gradient(135deg, #e7f5ff, #f0f9ff);
-    border: 1px solid #b6e0fe;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 16px;
-    display: flex; align-items: flex-start; gap: 12px;
-  }
-  .verify-info-panel .vi-icon {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: linear-gradient(135deg, #1da1f2, #0d8ddb);
-    color: white; font-size: 18px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(29,161,242,0.3);
-  }
+  /* Carousel (verification) */
+  .verify-info-panel { background: linear-gradient(135deg, #e7f5ff, #f0f9ff); border: 1px solid #b6e0fe; border-radius: 14px; padding: 14px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px; }
+  .verify-info-panel .vi-icon { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1da1f2, #0d8ddb); color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(29,161,242,0.3); }
   .verify-info-panel .vi-body h4 { margin: 0 0 4px; color: #0d47a1; font-size: 13.5px; font-weight: 800; }
   .verify-info-panel .vi-body ul { margin: 0; padding: 0 16px 0 0; font-size: 12px; color: #1565c0; line-height: 1.75; }
 
   .carousel-wrapper { position: relative; margin-bottom: 8px; }
-  .plan-carousel {
-    display: flex; gap: 10px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    padding: 12px 40px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    -webkit-overflow-scrolling: touch;
-    cursor: grab;
-  }
+  .plan-carousel { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 12px 40px; scrollbar-width: none; -webkit-overflow-scrolling: touch; cursor: grab; }
   .plan-carousel.dragging { cursor: grabbing; scroll-behavior: auto; }
   .plan-carousel::-webkit-scrollbar { display: none; }
-
-  .carousel-arrow {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--navy); color: white; border: none;
-    cursor: pointer; z-index: 5;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-    font-size: 12px;
-    transition: 0.2s;
-  }
+  .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: var(--navy); color: white; border: none; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.25); font-size: 12px; transition: 0.2s; }
   .carousel-arrow:hover { background: var(--navy-dark); transform: translateY(-50%) scale(1.08); }
   .carousel-arrow.left { left: -4px; }
   .carousel-arrow.right { right: -4px; }
-
-  .plan-card-carousel {
-    flex: 0 0 200px;
-    scroll-snap-align: center;
-    background: #fafbfc;
-    border: 2px solid var(--line);
-    border-radius: 16px;
-    padding: 20px 14px;
-    text-align: center;
-    position: relative;
-    transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
-    opacity: 0.5;
-    transform: scale(0.88);
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .plan-card-carousel.selected {
-    opacity: 1;
-    transform: scale(1);
-    border-color: #1da1f2;
-    background: linear-gradient(160deg, #ffffff 0%, #f0f9ff 100%);
-    box-shadow: 0 10px 28px rgba(29,161,242,0.28);
-  }
-  .plan-card-carousel .plan-check {
-    position: absolute; top: -10px; right: -10px;
-    width: 30px; height: 30px; border-radius: 50%;
-    background: linear-gradient(135deg, #1da1f2, #0d8ddb);
-    color: white;
-    display: none; align-items: center; justify-content: center;
-    font-size: 13px;
-    box-shadow: 0 3px 10px rgba(29,161,242,0.5);
-    border: 3px solid white;
-    animation: popIn 0.35s cubic-bezier(0.34, 1.6, 0.64, 1);
-  }
+  .plan-card-carousel { flex: 0 0 200px; scroll-snap-align: center; background: #fafbfc; border: 2px solid var(--line); border-radius: 16px; padding: 20px 14px; text-align: center; position: relative; transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1); opacity: 0.5; transform: scale(0.88); user-select: none; -webkit-user-select: none; }
+  .plan-card-carousel.selected { opacity: 1; transform: scale(1); border-color: #1da1f2; background: linear-gradient(160deg, #ffffff 0%, #f0f9ff 100%); box-shadow: 0 10px 28px rgba(29,161,242,0.28); }
+  .plan-card-carousel .plan-check { position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #1da1f2, #0d8ddb); color: white; display: none; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 3px 10px rgba(29,161,242,0.5); border: 3px solid white; animation: popIn 0.35s cubic-bezier(0.34, 1.6, 0.64, 1); }
   .plan-card-carousel.selected .plan-check { display: flex; }
-  @keyframes popIn {
-    from { transform: scale(0) rotate(-180deg); }
-    to { transform: scale(1) rotate(0); }
-  }
-  .plan-popular {
-    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-    background: linear-gradient(135deg, var(--accent), #c9a44a);
-    color: white; padding: 3px 12px; border-radius: 20px;
-    font-size: 10px; font-weight: 800; white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(168,116,26,0.4);
-  }
-
+  @keyframes popIn { from { transform: scale(0) rotate(-180deg); } to { transform: scale(1) rotate(0); } }
+  .plan-popular { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--accent), #c9a44a); color: white; padding: 3px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; white-space: nowrap; box-shadow: 0 2px 8px rgba(168,116,26,0.4); }
   .carousel-dots { display: flex; justify-content: center; gap: 6px; margin: 12px 0 16px; }
   .carousel-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: all 0.25s; cursor: pointer; }
   .carousel-dots .dot.active { background: #1da1f2; width: 26px; border-radius: 4px; }
-
-  .plan-selected-info {
-    background: linear-gradient(135deg, #f8f9fa, #f0f2f5);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 12px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 700;
-  }
+  .plan-selected-info { background: linear-gradient(135deg, #f8f9fa, #f0f2f5); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; text-align: center; font-size: 13px; color: var(--text-muted); font-weight: 700; }
   .plan-selected-info strong { color: var(--navy); font-size: 15px; }
   .plan-selected-info .price-tag { color: #1da1f2; font-size: 18px; font-weight: 800; margin: 0 4px; }
 
-  .verify-mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; background: var(--line-soft); padding: 4px; border-radius: 12px; }
-  .verify-mode-tab { flex: 1; padding: 9px; border-radius: 8px; border: none; background: transparent; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--text-muted); cursor: pointer; transition: 0.15s; }
-  .verify-mode-tab.active { background: var(--navy); color: white; }
+  /* Privacy popup */
+  .privacy-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px; border-radius: 10px;
+    border: 2px solid var(--line); background: #fafbfc;
+    cursor: pointer; margin-bottom: 8px;
+    transition: 0.15s;
+  }
+  .privacy-option:hover { border-color: var(--navy); }
+  .privacy-option.active { border-color: #1da1f2; background: #e7f5ff; }
+  .privacy-option .po-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .privacy-option.public .po-icon { background: #e8f5e9; color: #1f6b45; }
+  .privacy-option.followers .po-icon { background: #e3f2fd; color: #0d47a1; }
+  .privacy-option.private .po-icon { background: #fbeaea; color: #7b1818; }
+  .privacy-option .po-text { flex: 1; }
+  .privacy-option .po-title { font-weight: 800; color: var(--navy); font-size: 13.5px; margin-bottom: 2px; }
+  .privacy-option .po-sub { font-size: 11.5px; color: var(--text-muted); }
+  .privacy-option .po-check { font-size: 16px; color: #1da1f2; display: none; }
+  .privacy-option.active .po-check { display: block; }
+
+  /* History */
+  .history-item {
+    background: #fafbfc; border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px; margin-bottom: 8px;
+  }
+  .history-item .hi-field { font-weight: 800; color: var(--navy); font-size: 13px; margin-bottom: 6px; }
+  .history-item .hi-change { font-size: 12px; line-height: 1.7; }
+  .history-item .hi-old { color: var(--red); text-decoration: line-through; opacity: 0.75; }
+  .history-item .hi-new { color: var(--green); font-weight: 700; }
+  .history-item .hi-time { font-size: 10.5px; color: #8899aa; margin-top: 6px; }
+  .history-item .hi-by { font-size: 10.5px; color: #8899aa; }
 </style>
 </head>
 <body>
@@ -313,21 +327,24 @@
 
 <div class="cover"></div>
 
-<div class="head-section">
-  <div class="avatar-row">
-    <div class="avatar-wrap">
-      <div class="avatar" id="avatar"><i class="fas fa-spinner fa-spin"></i></div>
-      <button class="avatar-edit-btn" id="avatarEditBtn" onclick="openEditProfile()"><i class="fas fa-camera"></i></button>
-    </div>
-    <div class="name-block">
-      <div class="name-line">
-        <h1 id="profileName">جاري التحميل...</h1>
-        <span id="profileBadge"></span>
-        <span id="verifyPill"></span>
+<div class="hero-wrap">
+  <div class="hero-card">
+    <div class="hero-top">
+      <div class="avatar-wrap">
+        <div class="avatar-large" id="avatar"><i class="fas fa-spinner fa-spin"></i></div>
+        <button class="avatar-edit-btn" id="avatarEditBtn" onclick="openEditProfile()"><i class="fas fa-camera"></i></button>
       </div>
-      <div class="username-line" id="profileUsername"></div>
+      <div class="hero-info">
+        <h1 class="hero-name" id="profileName">جاري التحميل...</h1>
+        <div class="hero-username" id="profileUsername"></div>
+        <div class="hero-badges">
+          <span id="profileBadge"></span>
+          <span id="verifyPill"></span>
+        </div>
+      </div>
     </div>
   </div>
+
   <p class="bio-text" id="profileBio"></p>
   <div class="meta-info" id="profileMeta"></div>
   <div class="actions-row" id="actionsRow"></div>
@@ -339,7 +356,7 @@
 
   <div class="tabs-bar">
     <button class="tab-btn active" data-tab="posts" onclick="switchTab('posts')">المنشورات</button>
-    <button class="tab-btn" data-tab="about" onclick="switchTab('about')">حول</button>
+    <button class="tab-btn" data-tab="about" onclick="switchTab('about')">البيانات</button>
     <button class="tab-btn" data-tab="subs" onclick="switchTab('subs')" id="subsTabBtn" style="display:none;">الاشتراكات</button>
     <button class="tab-btn" data-tab="devices" onclick="switchTab('devices')" id="devicesTabBtn" style="display:none;">الأجهزة</button>
   </div>
@@ -350,14 +367,12 @@
 
   <div class="tab-pane" id="pane-about">
     <div class="info-card">
-      <h4>معلومات أساسية</h4>
-      <div class="mini-row"><span class="lbl">الاسم</span><span class="val" id="aboutName">—</span></div>
-      <div class="mini-row"><span class="lbl">اسم المستخدم</span><span class="val" id="aboutUsername">—</span></div>
-      <div class="mini-row"><span class="lbl">الجامعة</span><span class="val" id="aboutUniversity">—</span></div>
-      <div class="mini-row"><span class="lbl">الدور</span><span class="val" id="aboutRole">—</span></div>
-      <div class="mini-row"><span class="lbl">تاريخ الانضمام</span><span class="val" id="aboutJoined">—</span></div>
-      <div class="mini-row"><span class="lbl">الحالة</span><span class="val" id="aboutVerified">—</span></div>
+      <h4><i class="fas fa-id-card"></i> البيانات الشخصية</h4>
+      <div id="fieldsContainer"></div>
     </div>
+    <button class="history-cta" onclick="openHistory()" id="historyBtn" style="display:none;">
+      <i class="fas fa-history"></i> عرض سجل التعديلات
+    </button>
   </div>
 
   <div class="tab-pane" id="pane-subs"><div id="subsListContainer"></div></div>
@@ -372,11 +387,12 @@
   <a href="profile.html" class="active"><i class="fas fa-user"></i><span>حسابي</span></a>
 </nav>
 
+<!-- Settings -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
     <h3>الإعدادات</h3>
     <div class="settings-list">
-      <div class="settings-item" onclick="openEditProfile()"><div class="si-text"><i class="fas fa-user-edit"></i> تعديل الملف الشخصي</div><i class="fas fa-chevron-left si-arrow"></i></div>
+      <div class="settings-item" onclick="openEditProfile()"><div class="si-text"><i class="fas fa-user-edit"></i> تعديل البيانات</div><i class="fas fa-chevron-left si-arrow"></i></div>
       <div class="settings-item" onclick="openPasswordChange()"><div class="si-text"><i class="fas fa-key"></i> تغيير كلمة المرور</div><i class="fas fa-chevron-left si-arrow"></i></div>
     </div>
     <button class="btn-danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
@@ -384,21 +400,26 @@
   </div>
 </div>
 
+<!-- Edit Profile (expanded) -->
 <div class="modal-overlay" id="editProfileModal">
   <div class="modal-box">
-    <h3>تعديل الملف الشخصي</h3>
+    <h3>تعديل البيانات</h3>
     <div class="avatar-preview-wrap">
       <div class="avatar-preview" id="editAvatarPreview">?</div>
       <div class="avatar-progress" id="avatarProgress"><i class="fas fa-spinner fa-spin"></i><span>جاري الرفع...</span></div>
     </div>
     <div class="form-group">
-      <label>تغيير الصورة الشخصية</label>
+      <label>الصورة الشخصية</label>
       <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)" style="font-size:13px;">
-      <small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:5px;">JPG/PNG، حد أقصى 10 ميجابايت</small>
+      <div class="form-hint">JPG/PNG، حد أقصى 10 ميجابايت</div>
     </div>
     <div class="form-group"><label>الاسم</label><input type="text" id="editNameInput" maxlength="50"></div>
-    <div class="form-group"><label>نبذة عنك</label><textarea id="editBioInput" maxlength="200"></textarea></div>
+    <div class="form-group"><label>اسم المستخدم</label><input type="text" id="editUsernameInput" maxlength="30" placeholder="بدون مسافات أو رموز" dir="ltr" style="text-align:right;"><div class="form-hint">اختياري — يظهر كـ @username</div></div>
+    <div class="form-group"><label>النبذة</label><textarea id="editBioInput" maxlength="200"></textarea></div>
     <div class="form-group"><label>الجامعة</label><input type="text" id="editUniversityInput" maxlength="60"></div>
+    <div class="form-group"><label>البريد الجامعي</label><input type="email" id="editUniEmailInput" dir="ltr" style="text-align:right;"></div>
+    <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="editPhoneInput" dir="ltr" style="text-align:right;"></div>
+    <div class="form-group"><label>الرقم القومي</label><input type="text" id="editNationalInput" disabled><div class="form-hint">لا يمكن تعديل الرقم القومي بعد التسجيل</div></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('editProfileModal')">إلغاء</button>
       <button class="btn-save" id="saveProfileBtn" onclick="saveProfile()">حفظ</button>
@@ -406,12 +427,13 @@
   </div>
 </div>
 
+<!-- Password Modal -->
 <div class="modal-overlay" id="passwordModal">
   <div class="modal-box">
     <h3>تغيير كلمة المرور</h3>
     <div class="form-group"><label>كلمة المرور الحالية</label><input type="password" id="oldPassword"></div>
     <div class="form-group"><label>الجديدة</label><input type="password" id="newPassword"></div>
-    <div class="form-group"><label>تأكيد</label><input type="password" id="confirmPassword"></div>
+    <div class="form-group"><label>التأكيد</label><input type="password" id="confirmPassword"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('passwordModal')">إلغاء</button>
       <button class="btn-save" id="changePassBtn" onclick="changePassword()">تغيير</button>
@@ -419,6 +441,7 @@
   </div>
 </div>
 
+<!-- Followers list -->
 <div class="modal-overlay" id="listModal">
   <div class="modal-box">
     <h3 id="listTitle">المتابعون</h3>
@@ -427,14 +450,31 @@
   </div>
 </div>
 
-<!-- Free verification modal (for TA/Doctor) -->
+<!-- Privacy modal -->
+<div class="modal-overlay" id="privacyModal">
+  <div class="modal-box">
+    <h3 id="privacyTitle">من يرى هذا الحقل؟</h3>
+    <div id="privacyOptions"></div>
+    <button class="btn-cancel" style="width:100%; margin-top:12px;" onclick="closeModal('privacyModal')">إلغاء</button>
+  </div>
+</div>
+
+<!-- History modal -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-box">
+    <h3>سجل التعديلات</h3>
+    <div id="historyContainer"></div>
+    <button class="btn-cancel" style="width:100%; margin-top:14px;" onclick="closeModal('historyModal')">إغلاق</button>
+  </div>
+</div>
+
+<!-- Verification — free (TA/Doctor) -->
 <div class="modal-overlay" id="verificationRoleModal"><div class="modal-box"><h3>توثيق الحساب</h3><div id="verificationRoleContent"></div></div></div>
 
-<!-- Verification plans — carousel (for students) -->
+<!-- Verification — plans carousel -->
 <div class="modal-overlay" id="verificationPlansModal">
   <div class="modal-box" style="max-width:560px;">
     <h3>اختر خطة التوثيق</h3>
-
     <div class="verify-info-panel">
       <div class="vi-icon"><i class="fas fa-shield-alt"></i></div>
       <div class="vi-body">
@@ -447,17 +487,13 @@
         </ul>
       </div>
     </div>
-
     <div class="carousel-wrapper">
       <button class="carousel-arrow left" onclick="carouselPrev()"><i class="fas fa-chevron-right"></i></button>
       <div class="plan-carousel" id="planCarousel"></div>
       <button class="carousel-arrow right" onclick="carouselNext()"><i class="fas fa-chevron-left"></i></button>
     </div>
-
     <div class="carousel-dots" id="carouselDots"></div>
-
     <div class="plan-selected-info" id="planSelectedInfo"></div>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('verificationPlansModal')">إلغاء</button>
       <button class="btn-save" id="selectPlanBtn" onclick="goToPayment()" disabled>متابعة الدفع</button>
@@ -465,6 +501,7 @@
   </div>
 </div>
 
+<!-- Verification payment -->
 <div class="modal-overlay" id="verificationPaymentModal">
   <div class="modal-box">
     <h3>تأكيد الدفع</h3>
@@ -472,7 +509,6 @@
       <h5 style="margin:0 0 8px;font-size:13px;color:var(--navy);"><i class="fas fa-wallet"></i> طريقة الدفع</h5>
       <p style="margin:0;font-size:12px;color:var(--text-muted);line-height:1.7;">حوّل المبلغ على رقم المحفظة:</p>
       <div style="display:inline-block;background:var(--navy);color:white;padding:8px 14px;border-radius:8px;font-family:'Inter',monospace;font-size:15px;font-weight:800;letter-spacing:1px;margin:8px 0;direction:ltr;">01XXXXXXXXX</div>
-      <p style="margin:0;font-size:12px;color:var(--text-muted);line-height:1.7;">ثم أدخل رقم محفظتك أدناه.</p>
     </div>
     <div class="form-group"><label>المبلغ</label><input type="text" id="paymentAmount" readonly style="background:#f0f2f5;font-weight:800;color:#1da1f2;"></div>
     <div class="form-group"><label>رقم محفظتك</label><input type="tel" id="paymentWallet" dir="ltr" style="text-align:right;"></div>
@@ -489,7 +525,9 @@ import {
   db, onAuth, goTo, showToast, signOutUser, getUserData,
   uploadAvatar, followUser, unfollowUser, checkIfFollowing,
   listenUserSubscriptions, listenUserDevices, getDeviceFingerprint, escapeHtml,
-  requestVerification, checkPendingVerification
+  requestVerification, checkPendingVerification,
+  updateUserProfile, getProfileHistory, canViewField,
+  PRIVACY_OPTIONS, DEFAULT_PRIVACY, FIELD_LABELS_AR
 } from "./shared.js";
 import {
   doc, getDoc, updateDoc,
@@ -505,6 +543,9 @@ const VERIFICATION_PLANS = [
   { id: '6months', name: '6 شهور', price: 270, days: 180, perMonth: 45, save: 'وفّر 90ج', popular: true },
   { id: 'yearly', name: 'سنوي', price: 480, days: 365, perMonth: 40, save: 'وفّر 240ج', popular: false }
 ];
+
+const PRIVACY_LABELS = { public: 'عام', followers: 'المتابعون', private: 'أنا فقط' };
+const PRIVACY_ICONS = { public: 'fa-globe', followers: 'fa-user-friends', private: 'fa-lock' };
 
 let currentUser = null;
 let currentUserData = null;
@@ -578,12 +619,13 @@ function renderAll() {
   renderActions();
   renderStats();
   renderTabs();
+  renderAboutFields();
 }
 
 function renderAvatar() {
   const av = document.getElementById('avatar');
   const editBtn = document.getElementById('avatarEditBtn');
-  if (profileData?.avatarUrl) av.innerHTML = `<img src="${getAvatarDisplayUrl(profileData.avatarUrl, 220)}" alt="">`;
+  if (profileData?.avatarUrl) av.innerHTML = `<img src="${getAvatarDisplayUrl(profileData.avatarUrl, 240)}" alt="">`;
   else av.textContent = (profileData?.name || 'U').charAt(0).toUpperCase();
   if (isMyProfile) {
     editBtn.classList.add('show');
@@ -613,17 +655,14 @@ function getBadgeHTML(u) {
 
 function renderBadge() { document.getElementById('profileBadge').innerHTML = getBadgeHTML(profileData); }
 
-/* ===== Verify Pill — replaces the old button ===== */
 function renderVerifyPill() {
   const el = document.getElementById('verifyPill');
   if (!el) return;
   el.innerHTML = '';
   if (!isMyProfile) return;
   if (profileData?.badgeType === 'founder') return;
-
   const isVerified = profileData?.isVerified && (!profileData.verifiedUntil || toDate(profileData.verifiedUntil) > new Date());
   if (isVerified) return;
-
   if (hasPendingVerification) {
     el.innerHTML = `<span class="verify-pill pending"><i class="fas fa-hourglass-half"></i> قيد المراجعة</span>`;
   } else {
@@ -635,14 +674,21 @@ function renderBasicInfo() {
   document.getElementById('profileName').textContent = profileData?.name || 'بدون اسم';
   document.getElementById('profileUsername').textContent = profileData?.username ? '@' + profileData.username : '';
   const bioEl = document.getElementById('profileBio');
-  if (profileData?.bio) { bioEl.textContent = profileData.bio; bioEl.classList.remove('bio-empty'); }
-  else { bioEl.textContent = isMyProfile ? 'أضف نبذة عنك' : 'لا توجد نبذة'; bioEl.classList.add('bio-empty'); }
+  if (profileData?.bio && canViewField('bio', profileData, currentUser.uid, isFollowing)) {
+    bioEl.textContent = profileData.bio;
+    bioEl.classList.remove('bio-empty');
+  } else {
+    bioEl.textContent = isMyProfile ? 'أضف نبذة عنك' : 'لا توجد نبذة';
+    bioEl.classList.add('bio-empty');
+  }
 }
 
 function renderMeta() {
   const meta = document.getElementById('profileMeta');
   const items = [];
-  if (profileData?.university) items.push(`<span><i class="fas fa-university"></i> ${escapeHtml(profileData.university)}</span>`);
+  if (profileData?.university && canViewField('university', profileData, currentUser.uid, isFollowing)) {
+    items.push(`<span><i class="fas fa-university"></i> ${escapeHtml(profileData.university)}</span>`);
+  }
   const created = toDate(profileData?.createdAt);
   if (created) items.push(`<span><i class="fas fa-calendar"></i> انضم ${created.toLocaleDateString('ar-EG', { month: 'short', year: 'numeric' })}</span>`);
   meta.innerHTML = items.join('');
@@ -652,8 +698,8 @@ function renderActions() {
   const el = document.getElementById('actionsRow');
   if (isMyProfile) {
     el.innerHTML = `
-      <button class="btn btn-outline" onclick="openEditProfile()"><i class="fas fa-edit"></i> تعديل</button>
-      <button class="btn btn-primary" onclick="showToast('المنشورات قريباً')"><i class="fas fa-plus"></i> منشور</button>
+      <button class="btn btn-outline" onclick="openEditProfile()"><i class="fas fa-edit"></i> تعديل البيانات</button>
+      <button class="btn btn-primary" onclick="showToast('المنشورات قريباً')"><i class="fas fa-plus"></i> إنشاء منشور</button>
     `;
     return;
   }
@@ -672,22 +718,138 @@ function renderTabs() {
   if (isMyProfile) {
     document.getElementById('subsTabBtn').style.display = 'inline-block';
     document.getElementById('devicesTabBtn').style.display = 'inline-block';
+    document.getElementById('historyBtn').style.display = 'flex';
   }
-  document.getElementById('aboutName').textContent = profileData?.name || '—';
-  document.getElementById('aboutUsername').textContent = profileData?.username ? '@' + profileData.username : '—';
-  document.getElementById('aboutUniversity').textContent = profileData?.university || '—';
-  const bt = profileData?.badgeType || profileData?.role || 'student';
-  document.getElementById('aboutRole').textContent = bt === 'founder' ? 'Founder' : bt === 'admin' ? 'Admin' : bt === 'doctor' ? 'Doctor' : bt === 'ta' ? 'TA' : 'Student';
-  const d = toDate(profileData?.createdAt);
-  document.getElementById('aboutJoined').textContent = d ? d.toLocaleDateString('ar-EG') : '—';
-  let v = 'غير موثق';
-  if (profileData?.isVerified) {
-    const until = toDate(profileData.verifiedUntil);
-    if (!until) v = 'موثق ✓ (دائم)';
-    else if (until > new Date()) v = `موثق حتى ${until.toLocaleDateString('ar-EG')}`;
-  }
-  document.getElementById('aboutVerified').textContent = v;
 }
+
+/* ===== About Tab — Full fields + privacy ===== */
+function renderAboutFields() {
+  const container = document.getElementById('fieldsContainer');
+  if (!container) return;
+
+  const fields = [
+    { key: 'name', label: 'الاسم', icon: 'fa-user', alwaysVisible: true, mono: false },
+    { key: 'username', label: 'اسم المستخدم', icon: 'fa-at', alwaysVisible: true, mono: false, prefix: '@' },
+    { key: 'bio', label: 'النبذة', icon: 'fa-quote-right', privacy: true },
+    { key: 'university', label: 'الجامعة', icon: 'fa-university', privacy: true },
+    { key: 'uniEmail', label: 'البريد الجامعي', icon: 'fa-envelope', privacy: true, mono: true },
+    { key: 'phone', label: 'رقم الهاتف', icon: 'fa-phone', privacy: true, mono: true },
+    { key: 'nationalId', label: 'الرقم القومي', icon: 'fa-id-card', alwaysPrivate: true, mono: true },
+    { key: 'role', label: 'الدور', icon: 'fa-user-tag', alwaysVisible: true },
+    { key: 'createdAt', label: 'تاريخ الانضمام', icon: 'fa-calendar', alwaysVisible: true },
+    { key: 'verified', label: 'الحالة', icon: 'fa-check-circle', alwaysVisible: true }
+  ];
+
+  let html = '';
+  fields.forEach(f => {
+    // Special case: verified
+    if (f.key === 'verified') {
+      let vText = 'غير موثق';
+      if (profileData.isVerified) {
+        const until = toDate(profileData.verifiedUntil);
+        if (!until) vText = 'موثق ✓ (دائم)';
+        else if (until > new Date()) vText = `موثق حتى ${until.toLocaleDateString('ar-EG')}`;
+      }
+      html += fieldRow(f, vText, null);
+      return;
+    }
+
+    // Special case: role
+    if (f.key === 'role') {
+      const bt = profileData.badgeType || profileData.role || 'student';
+      const roleText = bt === 'founder' ? 'Founder' : bt === 'admin' ? 'Admin' : bt === 'doctor' ? 'Doctor' : bt === 'ta' ? 'TA' : 'Student';
+      html += fieldRow(f, roleText, null);
+      return;
+    }
+
+    // Special case: createdAt
+    if (f.key === 'createdAt') {
+      const d = toDate(profileData.createdAt);
+      html += fieldRow(f, d ? d.toLocaleDateString('ar-EG') : '—', null);
+      return;
+    }
+
+    // National ID — always private
+    if (f.alwaysPrivate) {
+      if (isMyProfile) {
+        html += fieldRow(f, profileData.nationalId || '—', null);
+      } else {
+        html += fieldRow(f, '••••••••••', 'masked');
+      }
+      return;
+    }
+
+    // Privacy check for other users
+    if (!isMyProfile && f.privacy) {
+      if (!canViewField(f.key, profileData, currentUser.uid, isFollowing)) {
+        html += fieldRow(f, 'مخفي', 'masked');
+        return;
+      }
+    }
+
+    // Value
+    let value = profileData[f.key];
+    if (f.key === 'username' && value) value = '@' + value;
+    if (f.key === 'bio' && value && value.length > 60) value = value.slice(0, 60) + '...';
+
+    // Privacy btn for own profile
+    const privacyBtn = (isMyProfile && f.privacy) ? getPrivacyButton(f.key) : '';
+
+    html += fieldRow(f, value || '—', null, privacyBtn, f.mono);
+  });
+
+  container.innerHTML = html;
+}
+
+function fieldRow(f, value, extraClass, privacyBtn = '', mono = false) {
+  return `
+    <div class="field-row">
+      <i class="fas ${f.icon} field-icon"></i>
+      <span class="field-label">${f.label}</span>
+      <span class="field-value ${extraClass || ''} ${mono ? 'mono' : ''}">${escapeHtml(String(value))}</span>
+      ${privacyBtn}
+    </div>
+  `;
+}
+
+function getPrivacyButton(field) {
+  const priv = profileData.privacy?.[field] || DEFAULT_PRIVACY[field] || 'public';
+  return `<button class="privacy-btn ${priv}" onclick="openPrivacyModal('${field}')" title="من يرى ${FIELD_LABELS_AR[field] || field}?"><i class="fas ${PRIVACY_ICONS[priv]}"></i></button>`;
+}
+
+window.openPrivacyModal = function(field) {
+  const priv = profileData.privacy?.[field] || DEFAULT_PRIVACY[field] || 'public';
+  document.getElementById('privacyTitle').textContent = `من يرى ${FIELD_LABELS_AR[field] || field}؟`;
+  document.getElementById('privacyOptions').innerHTML = PRIVACY_OPTIONS.map(opt => {
+    const isActive = opt === priv;
+    return `
+      <div class="privacy-option ${opt} ${isActive ? 'active' : ''}" onclick="setPrivacy('${field}', '${opt}')">
+        <div class="po-icon"><i class="fas ${PRIVACY_ICONS[opt]}"></i></div>
+        <div class="po-text">
+          <div class="po-title">${PRIVACY_LABELS[opt]}</div>
+          <div class="po-sub">${opt === 'public' ? 'يظهر للجميع في حسابك' : opt === 'followers' ? 'يظهر فقط لمتابعيك' : 'لا يراه أحد غيرك'}</div>
+        </div>
+        <i class="fas fa-check-circle po-check"></i>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('privacyModal').dataset.field = field;
+  document.getElementById('privacyModal').classList.add('active');
+};
+
+window.setPrivacy = async function(field, opt) {
+  try {
+    const newPrivacy = { ...(profileData.privacy || {}), [field]: opt };
+    await updateUserProfile(currentUser.uid, { privacy: newPrivacy }, 'self');
+    profileData.privacy = newPrivacy;
+    closeModal('privacyModal');
+    renderAboutFields();
+    showToast(`تم تغيير خصوصية ${FIELD_LABELS_AR[field] || field} إلى "${PRIVACY_LABELS[opt]}"`);
+  } catch (e) {
+    console.error(e);
+    showToast('حدث خطأ', 'error');
+  }
+};
 
 window.switchTab = function(tab) {
   if ((tab === 'subs' || tab === 'devices') && !isMyProfile) return;
@@ -749,7 +911,8 @@ function renderDevices() {
     const isThis = d.id === currentFp;
     const st = d.status === 'approved' ? 'موافق' : d.status === 'blocked' ? 'محظور' : 'قيد الانتظار';
     const cls = d.status === 'approved' ? 'ok' : d.status === 'blocked' ? 'blocked' : 'pending';
-    return `<div class="device-item ${isThis ? 'this-device' : ''}"><div class="ua">${escapeHtml(d.userAgent || '')}</div><div class="st ${cls}">${st}${isThis ? ' — الحالي' : ''}</div></div>`;
+    const primaryBadge = d.isPrimary ? `<span class="primary-badge"><i class="fas fa-star"></i> رئيسي</span>` : '';
+    return `<div class="device-item ${isThis ? 'this-device' : ''}"><div class="ua">${escapeHtml(d.userAgent || '')}</div><div class="st ${cls}">${primaryBadge}${st}${isThis ? ' — الحالي' : ''}</div></div>`;
   }).join('');
 }
 
@@ -767,7 +930,7 @@ window.toggleFollow = async function() {
       profileData.followersCount = (profileData.followersCount || 0) + 1;
       showToast('تمت المتابعة ✓');
     }
-    renderActions(); renderStats();
+    renderActions(); renderStats(); renderAboutFields();
   } catch (e) { console.error(e); showToast('حدث خطأ', 'error'); }
 };
 
@@ -777,8 +940,12 @@ window.closeModal = (id) => document.getElementById(id).classList.remove('active
 window.openEditProfile = function() {
   closeModal('settingsModal');
   document.getElementById('editNameInput').value = profileData?.name || '';
+  document.getElementById('editUsernameInput').value = profileData?.username || '';
   document.getElementById('editBioInput').value = profileData?.bio || '';
   document.getElementById('editUniversityInput').value = profileData?.university || '';
+  document.getElementById('editUniEmailInput').value = profileData?.uniEmail || '';
+  document.getElementById('editPhoneInput').value = profileData?.phone || '';
+  document.getElementById('editNationalInput').value = profileData?.nationalId || '';
   pendingAvatarUrl = null;
   const preview = document.getElementById('editAvatarPreview');
   if (profileData?.avatarUrl) preview.innerHTML = `<img src="${getAvatarDisplayUrl(profileData.avatarUrl, 200)}" alt="">`;
@@ -816,22 +983,29 @@ window.handleAvatarUpload = async function(event) {
 
 window.saveProfile = async function() {
   const name = document.getElementById('editNameInput').value.trim();
+  const username = document.getElementById('editUsernameInput').value.trim().replace(/^@/, '');
   const bio = document.getElementById('editBioInput').value.trim();
   const university = document.getElementById('editUniversityInput').value.trim();
+  const uniEmail = document.getElementById('editUniEmailInput').value.trim();
+  const phone = document.getElementById('editPhoneInput').value.trim();
+
   if (!name) { showToast('الاسم مطلوب', 'error'); return; }
+  if (username && !/^[a-zA-Z0-9_]{3,30}$/.test(username)) { showToast('اسم المستخدم: 3-30 حرف/رقم/underscore', 'error'); return; }
+
   const btn = document.getElementById('saveProfileBtn');
   btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+
   try {
-    const updates = { name, bio, university };
+    const updates = { name, username, bio, university, uniEmail, phone };
     if (pendingAvatarUrl) updates.avatarUrl = pendingAvatarUrl;
-    await updateDoc(doc(db, 'users', currentUser.uid), updates);
-    profileData = { ...profileData, ...updates };
+    const changed = await updateUserProfile(currentUser.uid, updates, 'self');
+    profileData = { ...profileData, ...updates, privacy: profileData.privacy };
     currentUserData = { ...currentUserData, ...updates };
     pendingAvatarUrl = null;
-    showToast('تم الحفظ ✓');
+    showToast(changed.length > 0 ? `تم تحديث ${changed.length} حقل` : 'لا تغييرات');
     closeModal('editProfileModal');
     renderAll();
-  } catch (e) { showToast('حدث خطأ', 'error'); }
+  } catch (e) { console.error(e); showToast('حدث خطأ', 'error'); }
   finally { btn.disabled = false; btn.textContent = 'حفظ'; }
 };
 
@@ -854,6 +1028,43 @@ window.changePassword = async function() {
     const msgs = { 'auth/wrong-password': 'كلمة المرور خطأ', 'auth/invalid-credential': 'كلمة المرور خطأ', 'auth/weak-password': 'كلمة ضعيفة' };
     showToast(msgs[e.code] || 'حدث خطأ', 'error');
   } finally { btn.disabled = false; btn.textContent = 'تغيير'; }
+};
+
+/* ===== History ===== */
+window.openHistory = async function() {
+  const container = document.getElementById('historyContainer');
+  container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-muted)">جاري التحميل...</p>';
+  document.getElementById('historyModal').classList.add('active');
+  try {
+    const history = await getProfileHistory(profileUid, 100);
+    if (history.length === 0) {
+      container.innerHTML = `<div class="empty-block" style="border:none;background:transparent;padding:30px;"><i class="fas fa-history" style="font-size:40px;"></i><h3>لا يوجد سجل تعديلات</h3><p>ستظهر هنا كل تغييرات البيانات</p></div>`;
+      return;
+    }
+    container.innerHTML = history.map(h => {
+      const editedAt = h.editedAt?.toDate ? h.editedAt.toDate() : null;
+      const timeStr = editedAt ? editedAt.toLocaleString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+      const byLabel = h.editedBy === 'self' ? 'أنت' : 'الإدارة';
+      const oldVal = h.oldValue === null || h.oldValue === undefined || h.oldValue === '' ? '(فارغ)' : String(h.oldValue);
+      const newVal = h.newValue === null || h.newValue === undefined || h.newValue === '' ? '(فارغ)' : String(h.newValue);
+      const displayOld = h.field === 'avatarUrl' ? '(صورة)' : oldVal.slice(0, 80);
+      const displayNew = h.field === 'avatarUrl' ? '(صورة جديدة)' : newVal.slice(0, 80);
+      return `
+        <div class="history-item">
+          <div class="hi-field"><i class="fas fa-pen"></i> ${escapeHtml(h.fieldLabel || h.field)}</div>
+          <div class="hi-change">
+            <span class="hi-old">${escapeHtml(displayOld)}</span>
+            <i class="fas fa-arrow-left" style="margin:0 6px;color:#8899aa;font-size:10px;"></i>
+            <span class="hi-new">${escapeHtml(displayNew)}</span>
+          </div>
+          <div class="hi-time"><i class="fas fa-clock"></i> ${timeStr} · <span class="hi-by">بواسطة ${byLabel}</span></div>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    console.error(e);
+    container.innerHTML = `<p style="text-align:center;padding:20px;color:var(--red)">حدث خطأ في التحميل</p>`;
+  }
 };
 
 window.openList = async function(type) {
@@ -886,19 +1097,9 @@ window.openVerification = function() {
     const roleLabel = role === 'ta' ? 'معيد' : 'دكتور';
     document.getElementById('verificationRoleContent').innerHTML = `
       <div style="background:linear-gradient(135deg,#e7f5ff,#f0f9ff);border:1px solid #b6e0fe;border-radius:14px;padding:16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;">
-        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(16,185,129,0.3);"><i class="fas fa-gift"></i></div>
-        <div>
-          <h4 style="margin:0 0 6px;color:#065f46;font-size:14px;font-weight:800;">توثيق مجاني</h4>
-          <p style="margin:0;font-size:12.5px;color:#047857;line-height:1.7;">بصفتك <strong>${roleLabel}</strong>، التوثيق <strong>مجاني ودائم</strong> — بدون تاريخ انتهاء. سيتم مراجعة طلبك من الإدارة.</p>
-        </div>
-      </div>
-      <div style="background:#f8f9fa;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px;">
-        <h5 style="margin:0 0 8px;font-size:13px;color:var(--navy);"><i class="fas fa-check-circle" style="color:#1da1f2;"></i> الميزات</h5>
-        <ul style="margin:0;padding:0 18px 0 0;font-size:12.5px;color:var(--text-muted);line-height:1.8;">
-          <li>شارة زرقاء موثقة دائمة</li>
-          <li>ظهور في "صنّاع محتوى مقترحون"</li>
-          <li>منشوراتك تظهر للجميع</li>
-        </ul>
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-gift"></i></div>
+        <div><h4 style="margin:0 0 6px;color:#065f46;font-size:14px;font-weight:800;">توثيق مجاني</h4>
+        <p style="margin:0;font-size:12.5px;color:#047857;line-height:1.7;">بصفتك <strong>${roleLabel}</strong>، التوثيق <strong>مجاني ودائم</strong>. سيتم مراجعة طلبك من الإدارة.</p></div>
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal('verificationRoleModal')">إلغاء</button>
@@ -923,21 +1124,13 @@ function renderCarousel() {
       ${p.save ? `<div style="font-size:11px;color:var(--green);font-weight:800;margin-top:8px;background:#e8f5e9;padding:4px 10px;border-radius:12px;display:inline-block;">${p.save}</div>` : ''}
     </div>
   `).join('');
-
   document.getElementById('carouselDots').innerHTML = VERIFICATION_PLANS.map((_, i) =>
     `<span class="dot ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="scrollToPlan(${i})"></span>`
   ).join('');
-
   selectedPlan = null;
   updateSelectedInfo();
   document.getElementById('selectPlanBtn').disabled = true;
-
-  // Scroll to first card
-  setTimeout(() => {
-    scrollToPlan(0);
-  }, 100);
-
-  // Wire up scroll (only once per open)
+  setTimeout(() => scrollToPlan(0), 100);
   if (!carouselInitialized) {
     carousel.addEventListener('scroll', debounce(updateCarouselSelection, 100));
     setupDragScroll(carousel);
@@ -948,10 +1141,7 @@ function renderCarousel() {
 function updateSelectedInfo() {
   const el = document.getElementById('planSelectedInfo');
   if (!el) return;
-  if (!selectedPlan) {
-    el.innerHTML = `<i class="fas fa-hand-pointer" style="color:var(--text-muted);"></i> اسحب لتختار خطتك`;
-    return;
-  }
+  if (!selectedPlan) { el.innerHTML = `<i class="fas fa-hand-pointer" style="color:var(--text-muted);"></i> اسحب لتختار خطتك`; return; }
   el.innerHTML = `اخترت: <strong>${selectedPlan.name}</strong> بمبلغ <span class="price-tag">${selectedPlan.price} ج</span>`;
 }
 
@@ -970,59 +1160,37 @@ function updateCarouselSelection() {
   const cards = carousel.querySelectorAll('.plan-card-carousel');
   if (cards.length === 0) return;
   const center = carousel.scrollLeft + carousel.clientWidth / 2;
-
-  let closestIndex = 0;
-  let minDist = Infinity;
+  let closestIndex = 0, minDist = Infinity;
   cards.forEach((card, i) => {
     const cardCenter = card.offsetLeft + card.offsetWidth / 2;
     const dist = Math.abs(center - cardCenter);
     if (dist < minDist) { minDist = dist; closestIndex = i; }
   });
-
   cards.forEach((c, i) => c.classList.toggle('selected', i === closestIndex));
   document.querySelectorAll('#carouselDots .dot').forEach((d, i) => d.classList.toggle('active', i === closestIndex));
-
   selectedPlan = VERIFICATION_PLANS[closestIndex];
   updateSelectedInfo();
   document.getElementById('selectPlanBtn').disabled = false;
 }
 
-window.selectPlanCarousel = function(index) {
-  scrollToPlan(index);
-};
-
+window.selectPlanCarousel = function(index) { scrollToPlan(index); };
 window.carouselPrev = function() {
   const idx = VERIFICATION_PLANS.findIndex(p => p.id === selectedPlan?.id);
   if (idx > 0) scrollToPlan(idx - 1);
 };
-
 window.carouselNext = function() {
   const idx = VERIFICATION_PLANS.findIndex(p => p.id === selectedPlan?.id);
   if (idx >= 0 && idx < VERIFICATION_PLANS.length - 1) scrollToPlan(idx + 1);
 };
 
 function debounce(fn, ms) {
-  let t;
-  return function(...args) {
-    clearTimeout(t);
-    t = setTimeout(() => fn.apply(this, args), ms);
-  };
+  let t; return function(...args) { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), ms); };
 }
 
 function setupDragScroll(el) {
   let isDown = false, startX, startScroll, moved = false;
-
-  el.addEventListener('mousedown', (e) => {
-    isDown = true; moved = false;
-    el.classList.add('dragging');
-    startX = e.pageX - el.offsetLeft;
-    startScroll = el.scrollLeft;
-  });
-  ['mouseleave', 'mouseup'].forEach(ev => el.addEventListener(ev, () => {
-    isDown = false;
-    el.classList.remove('dragging');
-    if (moved) setTimeout(updateCarouselSelection, 50);
-  }));
+  el.addEventListener('mousedown', (e) => { isDown = true; moved = false; el.classList.add('dragging'); startX = e.pageX - el.offsetLeft; startScroll = el.scrollLeft; });
+  ['mouseleave', 'mouseup'].forEach(ev => el.addEventListener(ev, () => { isDown = false; el.classList.remove('dragging'); if (moved) setTimeout(updateCarouselSelection, 50); }));
   el.addEventListener('mousemove', (e) => {
     if (!isDown) return;
     e.preventDefault();
