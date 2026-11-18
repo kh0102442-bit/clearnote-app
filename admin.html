@@ -83,27 +83,18 @@
   .role-founder { background: linear-gradient(135deg,#d4af37,#f4e5b1); color: #4a2f0a; }
   .verified-inline { color: #1da1f2; font-size: 14px; }
 
-  /* ===== Unified Request Card ===== */
-  .unified-req-card {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 12px; padding: 14px; margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    border-right: 4px solid var(--line);
-    transition: border-color 0.2s;
-  }
+  .unified-req-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border-right: 4px solid var(--line); transition: border-color 0.2s; }
   .unified-req-card.status-pending { border-right-color: var(--accent); }
   .unified-req-card.status-approved { border-right-color: var(--green); }
   .unified-req-card.status-rejected { border-right-color: var(--red); }
-  .unified-req-card.highlight {
-    box-shadow: 0 0 0 4px rgba(168,116,26,0.5);
-    background: #fefaf0;
-  }
+  .unified-req-card.highlight { box-shadow: 0 0 0 4px rgba(168,116,26,0.5); background: #fefaf0; }
   .unified-req-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
   .unified-req-user { flex: 1; min-width: 0; }
   .unified-req-name { font-weight: 800; color: var(--navy); font-size: 14.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .unified-req-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
   .req-detail { font-size: 12.5px; color: var(--muted); line-height: 1.7; padding: 8px 10px; background: #fafbfc; border-radius: 7px; margin-bottom: 8px; }
   .req-detail strong { color: var(--navy); }
+  .req-detail .ua-text { direction: ltr; text-align: left; font-size: 11px; color: #8899aa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; font-family: monospace; }
   .req-notes { font-size: 12px; padding: 8px 10px; background: #fefaf0; border-right: 3px solid var(--accent); border-radius: 6px; margin-bottom: 10px; color: var(--muted); line-height: 1.6; }
   .req-actions { display: flex; gap: 8px; margin-top: 10px; }
   .req-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-family: inherit; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
@@ -115,6 +106,7 @@
   .vchip-sub { background: #fff8e1; color: #7b5c00; }
   .vchip-free { background: #e8f5e9; color: #1f6b45; }
   .vchip-paid { background: #e7f5ff; color: #0d47a1; }
+  .vchip-device { background: #f3e5f5; color: #4a148c; }
   .vchip-pending { background: #fef3c7; color: #92400e; }
   .vchip-approved { background: #e8f5e9; color: #1f6b45; }
   .vchip-rejected { background: #fbeaea; color: #b91c1c; }
@@ -261,14 +253,14 @@ let treeData = [];
 let allUsers = [];
 let allSubRequests = [];
 let allVerifications = [];
+let allDevices = []; // ← جديد: كل الأجهزة من كل المستخدمين
 let openNodes = new Set();
 let videoItemCounter = 0;
 let adminNotifs = [];
 let adminNotifUnsub = null;
 let currentTab = 'tree';
 
-// فلاتر الطلبات
-let reqTypeFilter = 'all';       // all | subscription | verification
+let reqTypeFilter = 'all';       // all | subscription | verification | device
 let reqStatusFilter = 'pending'; // all | pending | approved | rejected
 
 /* ===== Init ===== */
@@ -327,6 +319,11 @@ async function loadAllData() {
     allVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { console.warn('verif failed:', e); errors.push('التوثيق'); allVerifications = []; }
 
+  // ← جديد: تحميل أجهزة كل المستخدمين (بالتوازي)
+  try {
+    allDevices = await loadAllDevicesInParallel();
+  } catch (e) { console.warn('devices failed:', e); errors.push('الأجهزة'); allDevices = []; }
+
   const banner = document.getElementById('errorBanner');
   if (errors.length > 0) {
     banner.innerHTML = `<strong>تعذر تحميل بعض البيانات:</strong> ${errors.join('، ')}. الصفحة تعمل بشكل جزئي.`;
@@ -342,6 +339,32 @@ async function loadAllData() {
   updateAllBadges();
 }
 
+/* ← جديد: تحميل الأجهزة لكل المستخدمين بالتوازي */
+async function loadAllDevicesInParallel() {
+  const promises = allUsers.map(async (user) => {
+    try {
+      const snap = await getDocs(collection(db, 'devices', user.id, 'list'));
+      return snap.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        _uid: user.id,
+        _userName: user.name || 'بدون اسم',
+        _userRole: user.badgeType === 'founder' ? 'founder' : (user.role || 'student'),
+        _userVerified: !!user.isVerified && (() => {
+          try {
+            const until = user.verifiedUntil?.toDate ? user.verifiedUntil.toDate() : (user.verifiedUntil ? new Date(user.verifiedUntil) : null);
+            return !until || until > new Date();
+          } catch (e) { return false; }
+        })()
+      }));
+    } catch (e) {
+      return [];
+    }
+  });
+  const results = await Promise.all(promises);
+  return results.flat();
+}
+
 function hideLoading() { document.getElementById('loadingOverlay').classList.add('hide'); }
 
 function showSkeletons() {
@@ -354,7 +377,10 @@ function showSkeletons() {
 
 /* ===== Badges ===== */
 function updateAllBadges() {
-  const totalPending = allSubRequests.filter(r => r.status === 'pending').length + allVerifications.filter(v => v.status === 'pending').length;
+  const pendingSubs = allSubRequests.filter(r => r.status === 'pending').length;
+  const pendingVerif = allVerifications.filter(v => v.status === 'pending').length;
+  const pendingDevices = allDevices.filter(d => d.status === 'pending').length;
+  const totalPending = pendingSubs + pendingVerif + pendingDevices;
 
   const reqDot = document.getElementById('reqDot');
   if (reqDot) { reqDot.style.display = totalPending > 0 ? 'inline-block' : 'none'; reqDot.textContent = totalPending > 9 ? '9+' : totalPending; }
@@ -388,11 +414,9 @@ function buildTreeHTML(nodes) {
     const isOpen = openNodes.has(node.id);
     const iconClass = isModule ? (node.type === 'module_video' ? 'fa-video' : 'fa-file') : 'fa-folder';
     const title = escapeHtml(node.title || '').replace(/'/g, '&#39;');
-
     const actions = isModule
       ? `<button class="action-btn" onclick="editModule('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`
       : `<button class="action-btn" onclick="editNode('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn manage" onclick="openManage('${node.id}', '${title}')"><i class="fas fa-cog"></i></button><button class="action-btn" onclick="openAddModal('${node.id}', '${node.type}')"><i class="fas fa-plus"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`;
-
     return `<div class="tree-group"><div class="node-card"><div class="node-header"><div class="node-title-area" onclick="toggleChildren('${node.id}')"><div class="node-icon"><i class="fas ${iconClass}"></i></div><div class="node-text"><div class="node-title">${escapeHtml(node.title || '')}</div><div class="node-type">${node.type || ''}</div></div></div><div class="node-actions">${actions}</div></div>${!isModule ? `<div class="children-area ${isOpen ? 'active' : ''}" id="children-${node.id}">${children.length > 0 ? buildTreeHTML(children) : '<div style="text-align:center; color:#aaa; font-size:12px; padding:8px;">لا يوجد فروع</div>'}</div>` : ''}</div></div>`;
   }).join('');
 }
@@ -688,7 +712,7 @@ window.deleteDevice = async function(uid, devId) {
   openDevices(uid, '');
 };
 
-/* ===== Unified Requests ===== */
+/* ===== Unified Requests — مع دعم الأجهزة ===== */
 function toDate(v) {
   try { if (!v) return null; return v.toDate ? v.toDate() : new Date(v); }
   catch { return null; }
@@ -698,6 +722,7 @@ function buildUnifiedRequests() {
   const userMap = {};
   allUsers.forEach(u => userMap[u.id] = u);
 
+  // 1. طلبات الاشتراك
   const subReqs = allSubRequests.map(r => {
     const user = userMap[r.uid];
     const roleKey = user?.badgeType === 'founder' ? 'founder' : (user?.role || 'student');
@@ -719,6 +744,7 @@ function buildUnifiedRequests() {
     };
   });
 
+  // 2. طلبات التوثيق
   const verifReqs = allVerifications.map(v => {
     const user = userMap[v.uid];
     const roleKey = user?.badgeType === 'founder' ? 'founder' : (v.role || user?.role || 'student');
@@ -740,7 +766,27 @@ function buildUnifiedRequests() {
     };
   });
 
-  return [...subReqs, ...verifReqs];
+  // 3. ← جديد: طلبات الأجهزة
+  const deviceReqs = allDevices.map(d => {
+    // تحويل حالة الجهاز لحالة موحّدة
+    let status;
+    if (d.status === 'pending') status = 'pending';
+    else if (d.status === 'approved') status = 'approved';
+    else status = 'rejected'; // blocked = rejected
+
+    return {
+      _kind: 'device',
+      id: d.id, uid: d._uid,
+      userName: d._userName || 'بدون اسم',
+      userRole: d._userRole || 'student',
+      userIsVerified: d._userVerified || false,
+      status: status, createdAt: d.createdAt,
+      userAgent: d.userAgent || '',
+      deviceId: d.deviceId || d.id
+    };
+  });
+
+  return [...subReqs, ...verifReqs, ...deviceReqs];
 }
 
 function sortRequests(list) {
@@ -775,7 +821,8 @@ function renderRequests() {
   const typeFilters = [
     { key: 'all', label: 'الكل', count: all.length },
     { key: 'subscription', label: 'اشتراك', count: all.filter(r => r._kind === 'subscription').length },
-    { key: 'verification', label: 'توثيق', count: all.filter(r => r._kind === 'verification').length }
+    { key: 'verification', label: 'توثيق', count: all.filter(r => r._kind === 'verification').length },
+    { key: 'device', label: 'جهاز', count: all.filter(r => r._kind === 'device').length }
   ];
   const statusFilters = [
     { key: 'all', label: 'الكل', count: all.length },
@@ -789,7 +836,7 @@ function renderRequests() {
 
   let listHtml;
   if (filtered.length === 0) {
-    listHtml = `<div class="empty-box"><i class="fas fa-inbox"></i><h3>لا يوجد طلبات</h3><p>ستظهر هنا طلبات الاشتراك والتوثيق</p></div>`;
+    listHtml = `<div class="empty-box"><i class="fas fa-inbox"></i><h3>لا يوجد طلبات</h3><p>ستظهر هنا طلبات الاشتراك والتوثيق والأجهزة</p></div>`;
   } else {
     listHtml = filtered.map(r => renderRequestCard(r)).join('');
   }
@@ -807,40 +854,44 @@ function renderRequestCard(r) {
   const statusLabels = { pending: 'قيد الانتظار', approved: 'مقبول', rejected: 'مرفوض' };
   const statusClasses = { pending: 'vchip-pending', approved: 'vchip-approved', rejected: 'vchip-rejected' };
 
-  const typeBadge = r._kind === 'subscription'
-    ? `<span class="vchip vchip-sub">اشتراك</span>`
-    : (r.verifType === 'free' ? `<span class="vchip vchip-free">توثيق - مجاني</span>` : `<span class="vchip vchip-paid">توثيق - مدفوع</span>`);
+  // Badge النوع
+  let typeBadge;
+  if (r._kind === 'subscription') typeBadge = `<span class="vchip vchip-sub">اشتراك</span>`;
+  else if (r._kind === 'verification') typeBadge = r.verifType === 'free' ? `<span class="vchip vchip-free">توثيق - مجاني</span>` : `<span class="vchip vchip-paid">توثيق - مدفوع</span>`;
+  else typeBadge = `<span class="vchip vchip-device">جهاز جديد</span>`;
 
   const date = toDate(r.createdAt);
   const timeStr = date ? date.toLocaleString('ar-EG', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
+  // التفاصيل
   let detailsHtml = '';
   if (r._kind === 'subscription') {
     detailsHtml = `<div class="req-detail"><strong>المادة:</strong> ${escapeHtml(r.subjectName || '—')}</div>`;
-  } else if (r.verifType === 'paid') {
-    detailsHtml = `<div class="req-detail"><strong>الخطة:</strong> ${escapeHtml(r.plan || '')} — <strong>المبلغ:</strong> ${r.price || 0}ج — <strong>المدة:</strong> ${r.durationDays || 0} يوم</div>`;
-  } else {
-    detailsHtml = `<div class="req-detail"><strong>النوع:</strong> توثيق مجاني دائم</div>`;
+  } else if (r._kind === 'verification') {
+    if (r.verifType === 'paid') {
+      detailsHtml = `<div class="req-detail"><strong>الخطة:</strong> ${escapeHtml(r.plan || '')} — <strong>المبلغ:</strong> ${r.price || 0}ج — <strong>المدة:</strong> ${r.durationDays || 0} يوم</div>`;
+    } else {
+      detailsHtml = `<div class="req-detail"><strong>النوع:</strong> توثيق مجاني دائم</div>`;
+    }
+  } else if (r._kind === 'device') {
+    detailsHtml = `<div class="req-detail"><strong>جهاز جديد يحاول الدخول</strong><div class="ua-text" title="${escapeHtml(r.userAgent)}">${escapeHtml(r.userAgent)}</div></div>`;
   }
   if (r.notes) detailsHtml += `<div class="req-notes"><strong>ملاحظات:</strong> ${escapeHtml(r.notes)}</div>`;
 
+  // أزرار الإجراءات
   let actionsHtml = '';
   if (r.status === 'pending') {
     if (r._kind === 'subscription') {
-      actionsHtml = `<div class="req-actions">
-        <button class="req-btn approve" onclick="event.stopPropagation();approveSub('${r.id}', '${r.uid}', '${r.subjectId}')"><i class="fas fa-check"></i> موافقة</button>
-        <button class="req-btn reject" onclick="event.stopPropagation();rejectSub('${r.id}')"><i class="fas fa-times"></i> رفض</button>
-      </div>`;
-    } else {
-      actionsHtml = `<div class="req-actions">
-        <button class="req-btn approve" onclick="event.stopPropagation();approveVerification('${r.id}', '${r.uid}', ${r.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button>
-        <button class="req-btn reject" onclick="event.stopPropagation();rejectVerificationPrompt('${r.id}', '${r.uid}')"><i class="fas fa-times"></i> رفض</button>
-      </div>`;
+      actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveSub('${r.id}', '${r.uid}', '${r.subjectId}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectSub('${r.id}')"><i class="fas fa-times"></i> رفض</button></div>`;
+    } else if (r._kind === 'verification') {
+      actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveVerification('${r.id}', '${r.uid}', ${r.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectVerificationPrompt('${r.id}', '${r.uid}')"><i class="fas fa-times"></i> رفض</button></div>`;
+    } else if (r._kind === 'device') {
+      actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveDevice('${r.uid}', '${r.id}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectDevicePrompt('${r.uid}', '${r.id}')"><i class="fas fa-times"></i> حظر</button></div>`;
     }
   }
 
   return `
-    <div class="unified-req-card status-${r.status}" data-req-id="${r.id}">
+    <div class="unified-req-card status-${r.status}" data-req-id="${r.id}" data-req-uid="${r.uid}">
       <div class="unified-req-header">
         <div class="unified-req-user">
           <div class="unified-req-name">
@@ -917,6 +968,26 @@ window.rejectVerificationPrompt = async function(reqId, uid) {
   } catch (e) { showToast('حدث خطأ', 'error'); }
 };
 
+/* ← جديد: الموافقة على جهاز / حظره (للطلبات الموحّدة) */
+window.approveDevice = async function(uid, devId) {
+  try {
+    await updateDoc(doc(db, 'devices', uid, 'list', devId), { status: 'approved' });
+    await createNotification(uid, 'device_approved', '✅ تمت الموافقة على جهازك', 'يمكنك الدخول الآن من هذا الجهاز', 'app.html').catch(() => {});
+    showToast('تمت الموافقة على الجهاز ✓');
+    loadAllData();
+  } catch (e) { showToast('خطأ', 'error'); }
+};
+
+window.rejectDevicePrompt = async function(uid, devId) {
+  if (!confirm('حظر هذا الجهاز؟')) return;
+  try {
+    await updateDoc(doc(db, 'devices', uid, 'list', devId), { status: 'blocked' });
+    await createNotification(uid, 'device_blocked', '🚫 تم حظر جهازك', 'تم حظر هذا الجهاز بواسطة الإدارة', 'app.html').catch(() => {});
+    showToast('تم الحظر');
+    loadAllData();
+  } catch (e) { showToast('خطأ', 'error'); }
+};
+
 /* ===== Notifications ===== */
 function renderNotifBadges() {
   const unread = adminNotifs.filter(n => !n.read).length;
@@ -964,8 +1035,14 @@ window.handleNotif = async function(id) {
     renderRequests();
     if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150);
   } else if (type === 'new_device') {
-    switchTab('students');
-    if (notif.meta?.uid) openDevices(notif.meta.uid, '');
+    // ← جديد: النقل لتبويب الطلبات مفلتر على الأجهزة
+    switchTab('requests');
+    reqTypeFilter = 'device';
+    reqStatusFilter = 'pending';
+    renderRequests();
+    // لو لدينا meta.deviceId، نُبرز الطلب
+    if (notif.meta?.deviceId) setTimeout(() => highlightRequest(notif.meta.deviceId), 150);
+    else if (notif.meta?.uid) setTimeout(() => highlightByUid(notif.meta.uid), 150);
   } else if (type === 'new_student') {
     switchTab('students');
   } else {
@@ -979,6 +1056,16 @@ function highlightRequest(reqId) {
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   el.classList.add('highlight');
   setTimeout(() => el.classList.remove('highlight'), 3000);
+}
+
+function highlightByUid(uid) {
+  const els = document.querySelectorAll(`[data-req-uid="${uid}"]`);
+  if (els.length === 0) return;
+  els[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  els.forEach(el => {
+    el.classList.add('highlight');
+    setTimeout(() => el.classList.remove('highlight'), 3000);
+  });
 }
 
 window.markAllRead = async () => {
