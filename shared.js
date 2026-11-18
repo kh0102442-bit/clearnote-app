@@ -176,8 +176,12 @@ export async function requestSubscription(uid, userName, subjectId, subjectName,
     id: reqRef.id, uid, userName, subjectId, subjectName, notes,
     status: 'pending', createdAt: serverTimestamp()
   });
-  await createAdminNotification('new_subscription_request', 'طلب اشتراك جديد',
-    `${userName} يطلب الاشتراك في "${subjectName}"`, 'admin.html');
+  await createAdminNotification(
+    'new_subscription_request', 'طلب اشتراك جديد',
+    `${userName} يطلب الاشتراك في "${subjectName}"`,
+    'admin.html',
+    { reqId: reqRef.id, uid, kind: 'subscription' }
+  );
   return reqRef.id;
 }
 
@@ -242,7 +246,8 @@ export async function requestVerification(uid, userName, role, type, plan, price
     'new_verification_request',
     type === 'free' ? 'طلب توثيق مجاني' : 'طلب توثيق مدفوع',
     `${userName} (${roleLabel}) - ${typeLabel}`,
-    'admin.html'
+    'admin.html',
+    { reqId: ref.id, uid, kind: 'verification' }
   );
   return ref.id;
 }
