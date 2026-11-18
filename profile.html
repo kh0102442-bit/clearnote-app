@@ -39,6 +39,47 @@
   .badge-student { background: linear-gradient(135deg, #37474f, #546e7a); color: #fff; border: 1px solid #263238; }
   .verified-mark { display: inline-flex; align-items: center; color: #1da1f2; font-size: 16px; margin-right: 2px; }
 
+  /* ===== Verify Pill — subtle but visible ===== */
+  .verify-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.3px;
+    background: linear-gradient(135deg, rgba(29,161,242,0.1), rgba(29,161,242,0.18));
+    color: #1565c0;
+    border: 1px solid rgba(29,161,242,0.35);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative; overflow: hidden;
+    animation: verifyPillPulse 3s infinite;
+    font-family: 'Cairo', sans-serif;
+  }
+  .verify-pill::before {
+    content: ''; position: absolute; top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(29,161,242,0.3), transparent);
+    transition: left 0.7s;
+  }
+  .verify-pill:hover::before { left: 100%; }
+  .verify-pill:hover {
+    background: linear-gradient(135deg, rgba(29,161,242,0.18), rgba(29,161,242,0.28));
+    border-color: rgba(29,161,242,0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(29,161,242,0.25);
+  }
+  .verify-pill:active { transform: scale(0.96); }
+  .verify-pill.pending {
+    background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.22));
+    color: #92400e;
+    border-color: rgba(251,191,36,0.45);
+    cursor: default;
+    animation: none;
+  }
+  .verify-pill.pending::before { display: none; }
+  @keyframes verifyPillPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(29,161,242,0.25); }
+    50% { box-shadow: 0 0 0 5px rgba(29,161,242,0.03); }
+  }
+
   .bio-text { color: var(--text); font-size: 14px; line-height: 1.65; margin: 4px 0 12px; max-width: 620px; }
   .bio-empty { color: var(--text-muted); font-style: italic; font-size: 13px; }
   .meta-info { display: flex; gap: 16px; flex-wrap: wrap; color: var(--text-muted); font-size: 12px; margin-bottom: 16px; }
@@ -53,9 +94,6 @@
   .btn-following { background: #e8f5e9; color: var(--green); border: 1px solid #c9e6d1; }
   .btn-follow { background: var(--navy); color: white; }
   .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--line); }
-  .btn-verify { background: linear-gradient(135deg, #1da1f2, #0d8ddb); color: white; }
-  .btn-verified { background: #e0f2f1; color: #0f5b4f; border: 1px solid #a7d9d2; cursor: default; }
-  .btn-pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; cursor: wait; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; max-width: 480px; margin-bottom: 22px; box-shadow: var(--sh-sm); }
   .stat-cell { padding: 14px 6px; text-align: center; cursor: pointer; border-left: 1px solid var(--line-soft); transition: 0.15s; }
@@ -85,17 +123,7 @@
   .mini-row .lbl { color: var(--text-muted); }
   .mini-row .val { color: var(--navy); font-weight: 700; }
 
-  /* ===== Subscription Card V2 ===== */
-  .sub-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: 0.18s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
+  .sub-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: 0.18s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
   .sub-card:hover { border-color: var(--navy); box-shadow: 0 4px 14px rgba(21,39,65,.12); transform: translateY(-1px); }
   .sub-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
   .sub-card-title { font-weight: 800; color: var(--navy); font-size: 15px; line-height: 1.4; flex: 1; }
@@ -117,7 +145,7 @@
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: flex-end; z-index: 1000; }
   .modal-overlay.active { display: flex; }
-  .modal-box { background: var(--card); border-radius: 22px 22px 0 0; width: 100%; max-width: 500px; margin: 0 auto; padding: 22px 18px; max-height: 92vh; overflow-y: auto; animation: slideUp 0.25s ease; }
+  .modal-box { background: var(--card); border-radius: 22px 22px 0 0; width: 100%; max-width: 520px; margin: 0 auto; padding: 22px 18px; max-height: 92vh; overflow-y: auto; animation: slideUp 0.25s ease; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal-box h3 { margin: 0 0 14px; color: var(--navy); font-size: 17px; text-align: center; }
   .form-group { margin-bottom: 14px; }
@@ -156,6 +184,123 @@
   .user-row .u-info { flex: 1; min-width: 0; }
   .user-row .u-name { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-row .u-username { font-size: 12px; color: var(--text-muted); }
+
+  /* ===== Verification — Carousel ===== */
+  .verify-info-panel {
+    background: linear-gradient(135deg, #e7f5ff, #f0f9ff);
+    border: 1px solid #b6e0fe;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 16px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .verify-info-panel .vi-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #1da1f2, #0d8ddb);
+    color: white; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(29,161,242,0.3);
+  }
+  .verify-info-panel .vi-body h4 { margin: 0 0 4px; color: #0d47a1; font-size: 13.5px; font-weight: 800; }
+  .verify-info-panel .vi-body ul { margin: 0; padding: 0 16px 0 0; font-size: 12px; color: #1565c0; line-height: 1.75; }
+
+  .carousel-wrapper { position: relative; margin-bottom: 8px; }
+  .plan-carousel {
+    display: flex; gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 12px 40px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    cursor: grab;
+  }
+  .plan-carousel.dragging { cursor: grabbing; scroll-behavior: auto; }
+  .plan-carousel::-webkit-scrollbar { display: none; }
+
+  .carousel-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--navy); color: white; border: none;
+    cursor: pointer; z-index: 5;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    font-size: 12px;
+    transition: 0.2s;
+  }
+  .carousel-arrow:hover { background: var(--navy-dark); transform: translateY(-50%) scale(1.08); }
+  .carousel-arrow.left { left: -4px; }
+  .carousel-arrow.right { right: -4px; }
+
+  .plan-card-carousel {
+    flex: 0 0 200px;
+    scroll-snap-align: center;
+    background: #fafbfc;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 14px;
+    text-align: center;
+    position: relative;
+    transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+    opacity: 0.5;
+    transform: scale(0.88);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .plan-card-carousel.selected {
+    opacity: 1;
+    transform: scale(1);
+    border-color: #1da1f2;
+    background: linear-gradient(160deg, #ffffff 0%, #f0f9ff 100%);
+    box-shadow: 0 10px 28px rgba(29,161,242,0.28);
+  }
+  .plan-card-carousel .plan-check {
+    position: absolute; top: -10px; right: -10px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, #1da1f2, #0d8ddb);
+    color: white;
+    display: none; align-items: center; justify-content: center;
+    font-size: 13px;
+    box-shadow: 0 3px 10px rgba(29,161,242,0.5);
+    border: 3px solid white;
+    animation: popIn 0.35s cubic-bezier(0.34, 1.6, 0.64, 1);
+  }
+  .plan-card-carousel.selected .plan-check { display: flex; }
+  @keyframes popIn {
+    from { transform: scale(0) rotate(-180deg); }
+    to { transform: scale(1) rotate(0); }
+  }
+  .plan-popular {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent), #c9a44a);
+    color: white; padding: 3px 12px; border-radius: 20px;
+    font-size: 10px; font-weight: 800; white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(168,116,26,0.4);
+  }
+
+  .carousel-dots { display: flex; justify-content: center; gap: 6px; margin: 12px 0 16px; }
+  .carousel-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: all 0.25s; cursor: pointer; }
+  .carousel-dots .dot.active { background: #1da1f2; width: 26px; border-radius: 4px; }
+
+  .plan-selected-info {
+    background: linear-gradient(135deg, #f8f9fa, #f0f2f5);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+  .plan-selected-info strong { color: var(--navy); font-size: 15px; }
+  .plan-selected-info .price-tag { color: #1da1f2; font-size: 18px; font-weight: 800; margin: 0 4px; }
+
+  .verify-mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; background: var(--line-soft); padding: 4px; border-radius: 12px; }
+  .verify-mode-tab { flex: 1; padding: 9px; border-radius: 8px; border: none; background: transparent; font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--text-muted); cursor: pointer; transition: 0.15s; }
+  .verify-mode-tab.active { background: var(--navy); color: white; }
 </style>
 </head>
 <body>
@@ -178,6 +323,7 @@
       <div class="name-line">
         <h1 id="profileName">جاري التحميل...</h1>
         <span id="profileBadge"></span>
+        <span id="verifyPill"></span>
       </div>
       <div class="username-line" id="profileUsername"></div>
     </div>
@@ -281,9 +427,62 @@
   </div>
 </div>
 
+<!-- Free verification modal (for TA/Doctor) -->
 <div class="modal-overlay" id="verificationRoleModal"><div class="modal-box"><h3>توثيق الحساب</h3><div id="verificationRoleContent"></div></div></div>
-<div class="modal-overlay" id="verificationPlansModal"><div class="modal-box"><h3>اختر خطة التوثيق</h3><div id="plansGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('verificationPlansModal')">إلغاء</button><button class="btn-save" id="selectPlanBtn" onclick="goToPayment()" disabled>متابعة</button></div></div></div>
-<div class="modal-overlay" id="verificationPaymentModal"><div class="modal-box"><h3>تأكيد الدفع</h3><div class="form-group"><label>المبلغ</label><input type="text" id="paymentAmount" readonly></div><div class="form-group"><label>رقم محفظتك</label><input type="tel" id="paymentWallet" dir="ltr"></div><div class="form-group"><label>ملاحظات</label><textarea id="paymentNotes" style="min-height:60px;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('verificationPaymentModal')">إلغاء</button><button class="btn-save" id="sendVerifBtn" onclick="submitVerificationRequest()">إرسال</button></div></div></div>
+
+<!-- Verification plans — carousel (for students) -->
+<div class="modal-overlay" id="verificationPlansModal">
+  <div class="modal-box" style="max-width:560px;">
+    <h3>اختر خطة التوثيق</h3>
+
+    <div class="verify-info-panel">
+      <div class="vi-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="vi-body">
+        <h4>ماذا تحصل عليه؟</h4>
+        <ul>
+          <li>شارة زرقاء موثقة على حسابك</li>
+          <li>منشوراتك تظهر للجميع</li>
+          <li>ظهور في "صنّاع محتوى مقترحون"</li>
+          <li>أولوية في الدعم</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="carousel-wrapper">
+      <button class="carousel-arrow left" onclick="carouselPrev()"><i class="fas fa-chevron-right"></i></button>
+      <div class="plan-carousel" id="planCarousel"></div>
+      <button class="carousel-arrow right" onclick="carouselNext()"><i class="fas fa-chevron-left"></i></button>
+    </div>
+
+    <div class="carousel-dots" id="carouselDots"></div>
+
+    <div class="plan-selected-info" id="planSelectedInfo"></div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('verificationPlansModal')">إلغاء</button>
+      <button class="btn-save" id="selectPlanBtn" onclick="goToPayment()" disabled>متابعة الدفع</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="verificationPaymentModal">
+  <div class="modal-box">
+    <h3>تأكيد الدفع</h3>
+    <div style="background:#f8f9fa;border:2px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px;">
+      <h5 style="margin:0 0 8px;font-size:13px;color:var(--navy);"><i class="fas fa-wallet"></i> طريقة الدفع</h5>
+      <p style="margin:0;font-size:12px;color:var(--text-muted);line-height:1.7;">حوّل المبلغ على رقم المحفظة:</p>
+      <div style="display:inline-block;background:var(--navy);color:white;padding:8px 14px;border-radius:8px;font-family:'Inter',monospace;font-size:15px;font-weight:800;letter-spacing:1px;margin:8px 0;direction:ltr;">01XXXXXXXXX</div>
+      <p style="margin:0;font-size:12px;color:var(--text-muted);line-height:1.7;">ثم أدخل رقم محفظتك أدناه.</p>
+    </div>
+    <div class="form-group"><label>المبلغ</label><input type="text" id="paymentAmount" readonly style="background:#f0f2f5;font-weight:800;color:#1da1f2;"></div>
+    <div class="form-group"><label>رقم محفظتك</label><input type="tel" id="paymentWallet" dir="ltr" style="text-align:right;"></div>
+    <div class="form-group"><label>ملاحظات إضافية (اختياري)</label><textarea id="paymentNotes" style="min-height:60px;"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('verificationPaymentModal')">إلغاء</button>
+      <button class="btn-save" id="sendVerifBtn" onclick="submitVerificationRequest()">إرسال الطلب</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import {
@@ -321,8 +520,10 @@ let subsUnsub = null;
 let devicesUnsub = null;
 let hasPendingVerification = false;
 let selectedPlan = null;
-let contentTree = []; // ← جديد: لتحويل IDs إلى أسماء المواد
+let contentTree = [];
+let carouselInitialized = false;
 
+/* ===== Init ===== */
 onAuth(async (user, userData) => {
   if (!user) { goTo('index.html'); return; }
   currentUser = user;
@@ -337,7 +538,7 @@ onAuth(async (user, userData) => {
       profileData = userData;
       currentFp = await getDeviceFingerprint();
       await loadSubsAndDevices();
-      checkPendingVerification(user.uid).then(p => { hasPendingVerification = p; renderActions(); }).catch(() => {});
+      checkPendingVerification(user.uid).then(p => { hasPendingVerification = p; renderVerifyPill(); }).catch(() => {});
     } else {
       profileData = await getUserData(profileUid);
       if (!profileData) {
@@ -371,6 +572,7 @@ function renderAll() {
   if (!profileData) return;
   renderAvatar();
   renderBadge();
+  renderVerifyPill();
   renderBasicInfo();
   renderMeta();
   renderActions();
@@ -411,6 +613,24 @@ function getBadgeHTML(u) {
 
 function renderBadge() { document.getElementById('profileBadge').innerHTML = getBadgeHTML(profileData); }
 
+/* ===== Verify Pill — replaces the old button ===== */
+function renderVerifyPill() {
+  const el = document.getElementById('verifyPill');
+  if (!el) return;
+  el.innerHTML = '';
+  if (!isMyProfile) return;
+  if (profileData?.badgeType === 'founder') return;
+
+  const isVerified = profileData?.isVerified && (!profileData.verifiedUntil || toDate(profileData.verifiedUntil) > new Date());
+  if (isVerified) return;
+
+  if (hasPendingVerification) {
+    el.innerHTML = `<span class="verify-pill pending"><i class="fas fa-hourglass-half"></i> قيد المراجعة</span>`;
+  } else {
+    el.innerHTML = `<span class="verify-pill" onclick="openVerification()"><i class="fas fa-shield-alt"></i> احصل على التوثيق</span>`;
+  }
+}
+
 function renderBasicInfo() {
   document.getElementById('profileName').textContent = profileData?.name || 'بدون اسم';
   document.getElementById('profileUsername').textContent = profileData?.username ? '@' + profileData.username : '';
@@ -428,18 +648,13 @@ function renderMeta() {
   meta.innerHTML = items.join('');
 }
 
-function getVerifyButtonHTML() {
-  if (profileData?.badgeType === 'founder') return '';
-  const isVerified = profileData?.isVerified && (!profileData.verifiedUntil || toDate(profileData.verifiedUntil) > new Date());
-  if (isVerified) return `<button class="btn btn-verified" disabled><i class="fas fa-check-circle"></i> حسابك موثق</button>`;
-  if (hasPendingVerification) return `<button class="btn btn-pending" disabled><i class="fas fa-clock"></i> قيد المراجعة</button>`;
-  return `<button class="btn btn-verify" onclick="openVerification()"><i class="fas fa-check-circle"></i> توثيق الحساب</button>`;
-}
-
 function renderActions() {
   const el = document.getElementById('actionsRow');
   if (isMyProfile) {
-    el.innerHTML = `${getVerifyButtonHTML()}<button class="btn btn-outline" onclick="openEditProfile()"><i class="fas fa-edit"></i> تعديل</button><button class="btn btn-primary" onclick="showToast('المنشورات قريباً')"><i class="fas fa-plus"></i> منشور</button>`;
+    el.innerHTML = `
+      <button class="btn btn-outline" onclick="openEditProfile()"><i class="fas fa-edit"></i> تعديل</button>
+      <button class="btn btn-primary" onclick="showToast('المنشورات قريباً')"><i class="fas fa-plus"></i> منشور</button>
+    `;
     return;
   }
   const bt = profileData?.badgeType || profileData?.role;
@@ -482,7 +697,6 @@ window.switchTab = function(tab) {
   if (pane) pane.classList.add('active');
 };
 
-/* ===== Load subs/devices + content_tree for names ===== */
 async function loadSubsAndDevices() {
   try {
     subsUnsub = listenUserSubscriptions(currentUser.uid, (subs) => { userSubs = subs; renderSubs(); });
@@ -493,33 +707,21 @@ async function loadSubsAndDevices() {
     });
   } catch (e) { console.warn('devices listener failed:', e); }
 
-  // ← جديد: جلب شجرة المحتوى لتحويل IDs إلى أسماء
   try {
     const snap = await getDocs(collection(db, 'content_tree'));
     contentTree = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderSubs(); // إعادة العرض بالأسماء الحقيقية
+    renderSubs();
   } catch (e) { console.warn('content_tree load failed:', e); }
 }
 
-/* ← جديد: البحث عن عقدة بالـ ID */
-function findNodeById(id) {
-  return contentTree.find(n => n.id === id);
-}
+function findNodeById(id) { return contentTree.find(n => n.id === id); }
+function countLessonsInSubject(subjectId) { return contentTree.filter(n => n.parentId === subjectId && n.type && !n.type.startsWith('module_')).length; }
 
-/* ← جديد: عدّ الدروس المباشرة تحت المادة (children that aren't modules) */
-function countLessonsInSubject(subjectId) {
-  return contentTree.filter(n => n.parentId === subjectId && n.type && !n.type.startsWith('module_')).length;
-}
-
-/* ← جديد: عرض الاشتراكات بشكل احترافي */
 function renderSubs() {
   const c = document.getElementById('subsListContainer');
   if (!c) return;
   const subs = Object.values(userSubs);
-  if (subs.length === 0) {
-    c.innerHTML = `<div class="empty-block"><i class="fas fa-crown"></i><h3>لا يوجد اشتراكات</h3><p>اشترك من قسم المحتوى</p></div>`;
-    return;
-  }
+  if (subs.length === 0) { c.innerHTML = `<div class="empty-block"><i class="fas fa-crown"></i><h3>لا يوجد اشتراكات</h3><p>اشترك من قسم المحتوى</p></div>`; return; }
   c.innerHTML = subs.map(s => {
     const subjectNode = findNodeById(s.subjectId);
     const subjectName = subjectNode?.title || s.subjectName || 'مادة';
@@ -527,35 +729,16 @@ function renderSubs() {
     const startDate = toDate(s.createdAt);
     const endDate = toDate(s.expiresAt);
     const daysLeft = endDate ? Math.ceil((endDate - new Date()) / 86400000) : 0;
-
     let dayClass = '';
-    if (daysLeft <= 0) dayClass = 'danger';
-    else if (daysLeft <= 5) dayClass = 'warn';
-
+    if (daysLeft <= 0) dayClass = 'danger'; else if (daysLeft <= 5) dayClass = 'warn';
     const daysText = daysLeft <= 0 ? 'انتهى' : `متبقي ${daysLeft} يوم`;
     const startStr = startDate ? startDate.toLocaleDateString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
     const endStr = endDate ? endDate.toLocaleDateString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-
-    return `
-      <div class="sub-card" onclick="openSubject('${s.subjectId}')">
-        <div class="sub-card-top">
-          <div class="sub-card-title">${escapeHtml(subjectName)}</div>
-          <div class="sub-card-days ${dayClass}">${daysText}</div>
-        </div>
-        <div class="sub-card-meta">
-          <span><i class="fas fa-layer-group"></i> ${lessonCount} درس</span>
-          <span><i class="fas fa-calendar-plus"></i> ${startStr}</span>
-          <span><i class="fas fa-calendar-check"></i> ${endStr}</span>
-        </div>
-        <div class="sub-card-arrow"><i class="fas fa-arrow-left"></i> الانتقال إلى المادة</div>
-      </div>
-    `;
+    return `<div class="sub-card" onclick="openSubject('${s.subjectId}')"><div class="sub-card-top"><div class="sub-card-title">${escapeHtml(subjectName)}</div><div class="sub-card-days ${dayClass}">${daysText}</div></div><div class="sub-card-meta"><span><i class="fas fa-layer-group"></i> ${lessonCount} درس</span><span><i class="fas fa-calendar-plus"></i> ${startStr}</span><span><i class="fas fa-calendar-check"></i> ${endStr}</span></div><div class="sub-card-arrow"><i class="fas fa-arrow-left"></i> الانتقال إلى المادة</div></div>`;
   }).join('');
 }
 
-window.openSubject = function(subjectId) {
-  window.location.href = `app.html?subject=${encodeURIComponent(subjectId)}`;
-};
+window.openSubject = function(subjectId) { window.location.href = `app.html?subject=${encodeURIComponent(subjectId)}`; };
 
 function renderDevices() {
   const c = document.getElementById('devicesListContainer');
@@ -702,9 +885,20 @@ window.openVerification = function() {
   if (role === 'ta' || role === 'doctor') {
     const roleLabel = role === 'ta' ? 'معيد' : 'دكتور';
     document.getElementById('verificationRoleContent').innerHTML = `
-      <div style="background:#e7f5ff;border:1px solid #b6e0fe;border-radius:12px;padding:14px;margin-bottom:16px;">
-        <h4 style="margin:0 0 8px;color:#0d47a1;font-size:14px;"><i class="fas fa-gift"></i> توثيق مجاني</h4>
-        <p style="margin:0;font-size:13px;color:#1565c0;line-height:1.7;">بصفتك <strong>${roleLabel}</strong>، التوثيق مجاني ودائم.</p>
+      <div style="background:linear-gradient(135deg,#e7f5ff,#f0f9ff);border:1px solid #b6e0fe;border-radius:14px;padding:16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(16,185,129,0.3);"><i class="fas fa-gift"></i></div>
+        <div>
+          <h4 style="margin:0 0 6px;color:#065f46;font-size:14px;font-weight:800;">توثيق مجاني</h4>
+          <p style="margin:0;font-size:12.5px;color:#047857;line-height:1.7;">بصفتك <strong>${roleLabel}</strong>، التوثيق <strong>مجاني ودائم</strong> — بدون تاريخ انتهاء. سيتم مراجعة طلبك من الإدارة.</p>
+        </div>
+      </div>
+      <div style="background:#f8f9fa;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px;">
+        <h5 style="margin:0 0 8px;font-size:13px;color:var(--navy);"><i class="fas fa-check-circle" style="color:#1da1f2;"></i> الميزات</h5>
+        <ul style="margin:0;padding:0 18px 0 0;font-size:12.5px;color:var(--text-muted);line-height:1.8;">
+          <li>شارة زرقاء موثقة دائمة</li>
+          <li>ظهور في "صنّاع محتوى مقترحون"</li>
+          <li>منشوراتك تظهر للجميع</li>
+        </ul>
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal('verificationRoleModal')">إلغاء</button>
@@ -712,41 +906,146 @@ window.openVerification = function() {
       </div>`;
     document.getElementById('verificationRoleModal').classList.add('active');
   } else {
-    renderPlans();
-    selectedPlan = null;
-    document.getElementById('selectPlanBtn').disabled = true;
+    renderCarousel();
     document.getElementById('verificationPlansModal').classList.add('active');
   }
 };
 
-function renderPlans() {
-  document.getElementById('plansGrid').innerHTML = VERIFICATION_PLANS.map(p => `
-    <div class="plan-card ${p.popular ? 'popular' : ''}" data-plan="${p.id}" onclick="selectPlan('${p.id}')" style="background:#fafbfc;border:2px solid var(--line);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;position:relative;${p.popular ? 'border-color:var(--accent);' : ''}">
-      ${p.popular ? '<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--accent);color:white;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap;">الأكثر شعبية</div>' : ''}
-      <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:6px;">${p.name}</div>
-      <div style="font-size:22px;font-weight:800;color:#1da1f2;line-height:1;">${p.price}<small style="font-size:11px;color:var(--text-muted);"> ج</small></div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${p.perMonth} ج/شهر</div>
-      ${p.save ? `<div style="font-size:10.5px;color:var(--green);font-weight:800;margin-top:4px;">${p.save}</div>` : ''}
-    </div>`).join('');
+function renderCarousel() {
+  const carousel = document.getElementById('planCarousel');
+  carousel.innerHTML = VERIFICATION_PLANS.map((p, i) => `
+    <div class="plan-card-carousel" data-plan="${p.id}" data-index="${i}" onclick="selectPlanCarousel(${i})">
+      <div class="plan-check"><i class="fas fa-check"></i></div>
+      ${p.popular ? `<div class="plan-popular">الأكثر شعبية</div>` : ''}
+      <div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:10px;">${p.name}</div>
+      <div style="font-size:34px;font-weight:800;color:#1da1f2;line-height:1;">${p.price}<small style="font-size:14px;color:var(--text-muted);font-weight:600;"> ج</small></div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:10px;">${p.perMonth} ج/شهر</div>
+      ${p.save ? `<div style="font-size:11px;color:var(--green);font-weight:800;margin-top:8px;background:#e8f5e9;padding:4px 10px;border-radius:12px;display:inline-block;">${p.save}</div>` : ''}
+    </div>
+  `).join('');
+
+  document.getElementById('carouselDots').innerHTML = VERIFICATION_PLANS.map((_, i) =>
+    `<span class="dot ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="scrollToPlan(${i})"></span>`
+  ).join('');
+
+  selectedPlan = null;
+  updateSelectedInfo();
+  document.getElementById('selectPlanBtn').disabled = true;
+
+  // Scroll to first card
+  setTimeout(() => {
+    scrollToPlan(0);
+  }, 100);
+
+  // Wire up scroll (only once per open)
+  if (!carouselInitialized) {
+    carousel.addEventListener('scroll', debounce(updateCarouselSelection, 100));
+    setupDragScroll(carousel);
+    carouselInitialized = true;
+  }
 }
 
-window.selectPlan = function(planId) {
-  selectedPlan = VERIFICATION_PLANS.find(p => p.id === planId);
-  document.querySelectorAll('#plansGrid > div').forEach(c => {
-    const isSel = c.dataset.plan === planId;
-    c.style.borderColor = isSel ? '#1da1f2' : 'var(--line)';
-    c.style.background = isSel ? '#e7f5ff' : '#fafbfc';
-  });
-  document.getElementById('selectPlanBtn').disabled = false;
+function updateSelectedInfo() {
+  const el = document.getElementById('planSelectedInfo');
+  if (!el) return;
+  if (!selectedPlan) {
+    el.innerHTML = `<i class="fas fa-hand-pointer" style="color:var(--text-muted);"></i> اسحب لتختار خطتك`;
+    return;
+  }
+  el.innerHTML = `اخترت: <strong>${selectedPlan.name}</strong> بمبلغ <span class="price-tag">${selectedPlan.price} ج</span>`;
+}
+
+window.scrollToPlan = function(index) {
+  const carousel = document.getElementById('planCarousel');
+  const cards = carousel.querySelectorAll('.plan-card-carousel');
+  if (!cards[index]) return;
+  const card = cards[index];
+  const target = card.offsetLeft - (carousel.clientWidth - card.offsetWidth) / 2;
+  carousel.scrollTo({ left: target, behavior: 'smooth' });
+  setTimeout(updateCarouselSelection, 350);
 };
+
+function updateCarouselSelection() {
+  const carousel = document.getElementById('planCarousel');
+  const cards = carousel.querySelectorAll('.plan-card-carousel');
+  if (cards.length === 0) return;
+  const center = carousel.scrollLeft + carousel.clientWidth / 2;
+
+  let closestIndex = 0;
+  let minDist = Infinity;
+  cards.forEach((card, i) => {
+    const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+    const dist = Math.abs(center - cardCenter);
+    if (dist < minDist) { minDist = dist; closestIndex = i; }
+  });
+
+  cards.forEach((c, i) => c.classList.toggle('selected', i === closestIndex));
+  document.querySelectorAll('#carouselDots .dot').forEach((d, i) => d.classList.toggle('active', i === closestIndex));
+
+  selectedPlan = VERIFICATION_PLANS[closestIndex];
+  updateSelectedInfo();
+  document.getElementById('selectPlanBtn').disabled = false;
+}
+
+window.selectPlanCarousel = function(index) {
+  scrollToPlan(index);
+};
+
+window.carouselPrev = function() {
+  const idx = VERIFICATION_PLANS.findIndex(p => p.id === selectedPlan?.id);
+  if (idx > 0) scrollToPlan(idx - 1);
+};
+
+window.carouselNext = function() {
+  const idx = VERIFICATION_PLANS.findIndex(p => p.id === selectedPlan?.id);
+  if (idx >= 0 && idx < VERIFICATION_PLANS.length - 1) scrollToPlan(idx + 1);
+};
+
+function debounce(fn, ms) {
+  let t;
+  return function(...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+function setupDragScroll(el) {
+  let isDown = false, startX, startScroll, moved = false;
+
+  el.addEventListener('mousedown', (e) => {
+    isDown = true; moved = false;
+    el.classList.add('dragging');
+    startX = e.pageX - el.offsetLeft;
+    startScroll = el.scrollLeft;
+  });
+  ['mouseleave', 'mouseup'].forEach(ev => el.addEventListener(ev, () => {
+    isDown = false;
+    el.classList.remove('dragging');
+    if (moved) setTimeout(updateCarouselSelection, 50);
+  }));
+  el.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    if (Math.abs(walk) > 5) moved = true;
+    el.scrollLeft = startScroll - walk;
+  });
+}
 
 window.goToPayment = function() {
   if (!selectedPlan) return;
   document.getElementById('paymentAmount').value = `${selectedPlan.price} ج - ${selectedPlan.name}`;
   document.getElementById('paymentWallet').value = '';
   document.getElementById('paymentNotes').value = '';
-  closeModal('verificationPlansModal');
-  document.getElementById('verificationPaymentModal').classList.add('active');
+  const plansModal = document.getElementById('verificationPlansModal');
+  plansModal.style.transition = 'opacity 0.2s';
+  plansModal.style.opacity = '0';
+  setTimeout(() => {
+    plansModal.classList.remove('active');
+    plansModal.style.opacity = '1';
+    document.getElementById('verificationPaymentModal').classList.add('active');
+  }, 200);
 };
 
 window.submitFreeVerification = async function() {
@@ -757,7 +1056,7 @@ window.submitFreeVerification = async function() {
     hasPendingVerification = true;
     showToast('تم الإرسال ✓');
     closeModal('verificationRoleModal');
-    renderActions();
+    renderVerifyPill();
   } catch (e) { showToast(e.message || 'حدث خطأ', 'error'); }
   finally { btn.disabled = false; btn.textContent = 'إرسال'; }
 };
@@ -775,7 +1074,7 @@ window.submitVerificationRequest = async function() {
     showToast('تم الإرسال ✓');
     closeModal('verificationPaymentModal');
     selectedPlan = null;
-    renderActions();
+    renderVerifyPill();
   } catch (e) { showToast(e.message || 'حدث خطأ', 'error'); }
   finally { btn.disabled = false; btn.textContent = 'إرسال'; }
 };
