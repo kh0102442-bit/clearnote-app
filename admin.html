@@ -71,8 +71,7 @@
   .children-area { display: none; padding: 8px 12px 12px; background: #fafbfc; border-top: 1px solid var(--line); }
   .children-area.active { display: block; }
 
-  .user-card, .req-card, .verif-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-  .user-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .user-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
   .user-info { flex: 1; min-width: 0; }
   .user-name { font-weight: 800; color: var(--navy); font-size: 14.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .user-email { font-size: 12px; color: var(--muted); margin-top: 2px; direction: ltr; text-align: right; }
@@ -84,30 +83,44 @@
   .role-founder { background: linear-gradient(135deg,#d4af37,#f4e5b1); color: #4a2f0a; }
   .verified-inline { color: #1da1f2; font-size: 14px; }
 
-  .req-title { font-weight: 800; color: var(--navy); font-size: 14.5px; margin-bottom: 4px; }
-  .req-sub { font-size: 12.5px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
-  .req-notes { font-size: 12px; color: var(--muted); background: #fafbfc; padding: 8px 10px; border-radius: 7px; margin: 8px 0; line-height: 1.6; }
+  /* ===== Unified Request Card ===== */
+  .unified-req-card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px; margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border-right: 4px solid var(--line);
+    transition: border-color 0.2s;
+  }
+  .unified-req-card.status-pending { border-right-color: var(--accent); }
+  .unified-req-card.status-approved { border-right-color: var(--green); }
+  .unified-req-card.status-rejected { border-right-color: var(--red); }
+  .unified-req-card.highlight {
+    box-shadow: 0 0 0 4px rgba(168,116,26,0.5);
+    background: #fefaf0;
+  }
+  .unified-req-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .unified-req-user { flex: 1; min-width: 0; }
+  .unified-req-name { font-weight: 800; color: var(--navy); font-size: 14.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .unified-req-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .req-detail { font-size: 12.5px; color: var(--muted); line-height: 1.7; padding: 8px 10px; background: #fafbfc; border-radius: 7px; margin-bottom: 8px; }
+  .req-detail strong { color: var(--navy); }
+  .req-notes { font-size: 12px; padding: 8px 10px; background: #fefaf0; border-right: 3px solid var(--accent); border-radius: 6px; margin-bottom: 10px; color: var(--muted); line-height: 1.6; }
   .req-actions { display: flex; gap: 8px; margin-top: 10px; }
   .req-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-family: inherit; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
   .req-btn.approve { background: var(--green); color: #fff; }
   .req-btn.reject { background: #fbeaea; color: var(--red); border: 1px solid #f0c6c6; }
 
-  .verif-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-  .verif-name { font-weight: 800; color: var(--navy); font-size: 14.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .verif-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
   .verif-badges { display: flex; gap: 5px; flex-wrap: wrap; }
   .vchip { padding: 3px 10px; border-radius: 20px; font-size: 10.5px; font-weight: 800; white-space: nowrap; }
+  .vchip-sub { background: #fff8e1; color: #7b5c00; }
   .vchip-free { background: #e8f5e9; color: #1f6b45; }
   .vchip-paid { background: #e7f5ff; color: #0d47a1; }
   .vchip-pending { background: #fef3c7; color: #92400e; }
   .vchip-approved { background: #e8f5e9; color: #1f6b45; }
   .vchip-rejected { background: #fbeaea; color: #b91c1c; }
-  .verif-details { font-size: 12.5px; color: var(--muted); line-height: 1.7; padding: 8px 10px; background: #fafbfc; border-radius: 7px; margin-bottom: 10px; }
-  .verif-details strong { color: var(--navy); }
-  .verif-notes { font-size: 12px; padding: 8px 10px; background: #fefaf0; border-right: 3px solid var(--accent); border-radius: 6px; margin-bottom: 10px; color: var(--muted); line-height: 1.6; }
 
-  .filter-row { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
-  .filter-chip { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); color: var(--muted); font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: 0.15s; }
+  .filter-row { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .filter-chip { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); color: var(--muted); font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: 0.15s; display: inline-flex; align-items: center; gap: 4px; }
   .filter-chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
 
   .empty-box { text-align: center; padding: 50px 20px; color: var(--muted); }
@@ -199,8 +212,7 @@
   <div class="seg">
     <button class="seg-btn active" data-tab="tree" onclick="switchTab('tree')"><i class="fas fa-sitemap"></i><span class="lbl">المحتوى</span></button>
     <button class="seg-btn" data-tab="students" onclick="switchTab('students')"><i class="fas fa-users"></i><span class="lbl">المستخدمون</span></button>
-    <button class="seg-btn" data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-crown"></i><span class="lbl">الاشتراكات</span><span class="dot" id="reqDot" style="display:none;">0</span></button>
-    <button class="seg-btn" data-tab="verification" onclick="switchTab('verification')"><i class="fas fa-check-circle"></i><span class="lbl">التوثيق</span><span class="dot" id="verifDot" style="display:none;">0</span></button>
+    <button class="seg-btn" data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-inbox"></i><span class="lbl">الطلبات</span><span class="dot" id="reqDot" style="display:none;">0</span></button>
   </div>
 </div>
 
@@ -209,14 +221,12 @@
   <div id="treeContainer"></div>
   <div id="studentsContainer" style="display:none;"></div>
   <div id="requestsContainer" style="display:none;"></div>
-  <div id="verificationContainer" style="display:none;"></div>
 </div>
 
 <nav class="bottom-nav">
   <button class="active" data-tab="tree" onclick="switchTab('tree')"><i class="fas fa-sitemap"></i><span>المحتوى</span></button>
   <button data-tab="students" onclick="switchTab('students')"><i class="fas fa-users"></i><span>المستخدمون</span></button>
-  <button data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-crown"></i><span>الاشتراكات</span><span class="nav-dot" id="reqDotNav">0</span></button>
-  <button data-tab="verification" onclick="switchTab('verification')"><i class="fas fa-check-circle"></i><span>التوثيق</span><span class="nav-dot" id="verifDotNav">0</span></button>
+  <button data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-inbox"></i><span>الطلبات</span><span class="nav-dot" id="reqDotNav">0</span></button>
 </nav>
 
 <!-- Modals -->
@@ -255,13 +265,15 @@ let openNodes = new Set();
 let videoItemCounter = 0;
 let adminNotifs = [];
 let adminNotifUnsub = null;
-let verifFilter = 'pending';
 let currentTab = 'tree';
+
+// فلاتر الطلبات
+let reqTypeFilter = 'all';       // all | subscription | verification
+let reqStatusFilter = 'pending'; // all | pending | approved | rejected
 
 /* ===== Init ===== */
 onAuth(async (user, userData) => {
   if (!user || !isAdmin(userData)) { goTo("index.html"); return; }
-
   try {
     adminNotifUnsub = listenAdminNotifications((notifs) => {
       adminNotifs = notifs;
@@ -269,7 +281,6 @@ onAuth(async (user, userData) => {
       renderNotifPanel();
     });
   } catch (e) { console.warn('notif listener failed:', e); }
-
   await loadAllData();
 });
 
@@ -283,52 +294,42 @@ window.switchTab = function(tab) {
   currentTab = tab;
   document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  ['tree', 'students', 'requests', 'verification'].forEach(name => {
+  ['tree', 'students', 'requests'].forEach(name => {
     const el = document.getElementById(name + 'Container');
     if (el) el.style.display = name === tab ? 'block' : 'none';
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-/* ===== Load with defensive pattern ===== */
+/* ===== Load ===== */
 async function loadAllData() {
   showSkeletons();
   saveOpenState();
   const errors = [];
 
-  // 1. content_tree
   try {
     const snap = await getDocs(collection(db, "content_tree"));
     treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { console.warn('tree failed:', e); errors.push('المحتوى'); treeData = []; }
 
-  // 2. users
   try {
     const snap = await getDocs(collection(db, "users"));
     allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { console.warn('users failed:', e); errors.push('المستخدمون'); allUsers = []; }
 
-  // 3. subscription_requests
   try {
     const snap = await getDocs(collection(db, "subscription_requests"));
     allSubRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { console.warn('subreqs failed:', e); errors.push('طلبات الاشتراك'); allSubRequests = []; }
 
-  // 4. verification_requests
   try {
     const snap = await getDocs(collection(db, "verification_requests"));
     allVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    allVerifications.sort((a, b) => {
-      const ta = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-      const tb = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-      return tb - ta;
-    });
   } catch (e) { console.warn('verif failed:', e); errors.push('التوثيق'); allVerifications = []; }
 
-  // Error banner
   const banner = document.getElementById('errorBanner');
   if (errors.length > 0) {
-    banner.innerHTML = `<strong>تعذر تحميل بعض البيانات:</strong> ${errors.join('، ')}. الصفحة تعمل بشكل جزئي — راجع الـ Console للأخطاء التفصيلية.`;
+    banner.innerHTML = `<strong>تعذر تحميل بعض البيانات:</strong> ${errors.join('، ')}. الصفحة تعمل بشكل جزئي.`;
     banner.classList.add('show');
   } else {
     banner.classList.remove('show');
@@ -337,8 +338,7 @@ async function loadAllData() {
   hideLoading();
   renderTree();
   renderUsers();
-  renderSubRequests();
-  renderVerification();
+  renderRequests();
   updateAllBadges();
 }
 
@@ -346,7 +346,7 @@ function hideLoading() { document.getElementById('loadingOverlay').classList.add
 
 function showSkeletons() {
   const skel = `<div class="skel skel-card"></div><div class="skel skel-card"></div><div class="skel skel-card"></div>`;
-  ['treeContainer', 'studentsContainer', 'requestsContainer', 'verificationContainer'].forEach(id => {
+  ['treeContainer', 'studentsContainer', 'requestsContainer'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = skel;
   });
@@ -354,21 +354,16 @@ function showSkeletons() {
 
 /* ===== Badges ===== */
 function updateAllBadges() {
-  const reqCount = allSubRequests.filter(r => r.status === 'pending').length;
-  const verifCount = allVerifications.filter(v => v.status === 'pending').length;
+  const totalPending = allSubRequests.filter(r => r.status === 'pending').length + allVerifications.filter(v => v.status === 'pending').length;
 
   const reqDot = document.getElementById('reqDot');
-  const verifDot = document.getElementById('verifDot');
-  if (reqDot) { reqDot.style.display = reqCount > 0 ? 'inline-block' : 'none'; reqDot.textContent = reqCount > 9 ? '9+' : reqCount; }
-  if (verifDot) { verifDot.style.display = verifCount > 0 ? 'inline-block' : 'none'; verifDot.textContent = verifCount > 9 ? '9+' : verifCount; }
+  if (reqDot) { reqDot.style.display = totalPending > 0 ? 'inline-block' : 'none'; reqDot.textContent = totalPending > 9 ? '9+' : totalPending; }
 
   const reqDotNav = document.getElementById('reqDotNav');
-  const verifDotNav = document.getElementById('verifDotNav');
-  if (reqDotNav) { reqDotNav.classList.toggle('show', reqCount > 0); reqDotNav.textContent = reqCount > 9 ? '9+' : reqCount; }
-  if (verifDotNav) { verifDotNav.classList.toggle('show', verifCount > 0); verifDotNav.textContent = verifCount > 9 ? '9+' : verifCount; }
+  if (reqDotNav) { reqDotNav.classList.toggle('show', totalPending > 0); reqDotNav.textContent = totalPending > 9 ? '9+' : totalPending; }
 }
 
-/* ===== Tree ===== */
+/* ===== Tree (unchanged) ===== */
 function saveOpenState() {
   document.querySelectorAll('.children-area').forEach(el => {
     if (el.classList.contains('active')) openNodes.add(el.id.replace('children-', ''));
@@ -459,7 +454,7 @@ window.deleteNode = async function(id) {
   loadAllData();
 };
 
-/* ===== Editors ===== */
+/* ===== Editors (unchanged) ===== */
 window.openCodeEditor = function(moduleKey, moduleTitle) {
   const nodeId = document.getElementById("manageModal").dataset.currentNodeId;
   document.getElementById("codeTitle").textContent = `إعداد ${moduleTitle}`;
@@ -549,7 +544,7 @@ window.editModule = async function(nodeId) {
   }
 };
 
-/* ===== Video manager ===== */
+/* ===== Video manager (unchanged) ===== */
 window.openVideoManager = function() {
   const nodeId = document.getElementById('manageModal').dataset.currentNodeId;
   const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_video');
@@ -627,7 +622,7 @@ window.saveVideos = async function() {
   } catch (e) { showToast('خطأ', 'error'); }
 };
 
-/* ===== Users ===== */
+/* ===== Users (unchanged) ===== */
 function renderUsers() {
   const container = document.getElementById('studentsContainer');
   if (allUsers.length === 0) { container.innerHTML = `<div class="empty-box"><i class="fas fa-users"></i><h3>لا يوجد مستخدمون</h3></div>`; return; }
@@ -693,14 +688,183 @@ window.deleteDevice = async function(uid, devId) {
   openDevices(uid, '');
 };
 
-/* ===== Subscription requests ===== */
-function renderSubRequests() {
-  const container = document.getElementById('requestsContainer');
-  const pending = allSubRequests.filter(r => r.status === 'pending');
-  if (pending.length === 0) { container.innerHTML = `<div class="empty-box"><i class="fas fa-crown"></i><h3>لا يوجد طلبات</h3></div>`; return; }
-  container.innerHTML = pending.map(req => `<div class="req-card"><div class="req-title">${escapeHtml(req.userName || '')}</div><div class="req-sub">المادة: ${escapeHtml(req.subjectName || '')}</div><div class="req-notes"><strong>ملاحظات:</strong> ${escapeHtml(req.notes || '—')}</div><div class="req-actions"><button class="req-btn approve" onclick="approveSub('${req.id}', '${req.uid}', '${req.subjectId}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectSub('${req.id}')"><i class="fas fa-times"></i> رفض</button></div></div>`).join('');
+/* ===== Unified Requests ===== */
+function toDate(v) {
+  try { if (!v) return null; return v.toDate ? v.toDate() : new Date(v); }
+  catch { return null; }
 }
 
+function buildUnifiedRequests() {
+  const userMap = {};
+  allUsers.forEach(u => userMap[u.id] = u);
+
+  const subReqs = allSubRequests.map(r => {
+    const user = userMap[r.uid];
+    const roleKey = user?.badgeType === 'founder' ? 'founder' : (user?.role || 'student');
+    let isVerified = false;
+    if (user?.isVerified) {
+      try {
+        const until = user.verifiedUntil?.toDate ? user.verifiedUntil.toDate() : (user.verifiedUntil ? new Date(user.verifiedUntil) : null);
+        isVerified = !until || until > new Date();
+      } catch (e) {}
+    }
+    return {
+      _kind: 'subscription',
+      id: r.id, uid: r.uid,
+      userName: r.userName || user?.name || 'بدون اسم',
+      userRole: roleKey, userIsVerified: isVerified,
+      status: r.status, createdAt: r.createdAt,
+      subjectId: r.subjectId, subjectName: r.subjectName,
+      notes: r.notes || ''
+    };
+  });
+
+  const verifReqs = allVerifications.map(v => {
+    const user = userMap[v.uid];
+    const roleKey = user?.badgeType === 'founder' ? 'founder' : (v.role || user?.role || 'student');
+    let isVerified = false;
+    if (user?.isVerified) {
+      try {
+        const until = user.verifiedUntil?.toDate ? user.verifiedUntil.toDate() : (user.verifiedUntil ? new Date(user.verifiedUntil) : null);
+        isVerified = !until || until > new Date();
+      } catch (e) {}
+    }
+    return {
+      _kind: 'verification',
+      id: v.id, uid: v.uid,
+      userName: v.userName || user?.name || 'بدون اسم',
+      userRole: roleKey, userIsVerified: isVerified,
+      status: v.status, createdAt: v.createdAt,
+      verifType: v.type, plan: v.plan, price: v.price, durationDays: v.durationDays,
+      notes: v.notes || ''
+    };
+  });
+
+  return [...subReqs, ...verifReqs];
+}
+
+function sortRequests(list) {
+  const roleOrder = { founder: 5, admin: 4, doctor: 3, ta: 2, student: 1 };
+  return list.sort((a, b) => {
+    // 1. الحالة (معلقة أولاً)
+    const aS = a.status === 'pending' ? 3 : a.status === 'approved' ? 2 : 1;
+    const bS = b.status === 'pending' ? 3 : b.status === 'approved' ? 2 : 1;
+    if (aS !== bS) return bS - aS;
+    // 2. الموثقون أولاً
+    if (a.userIsVerified !== b.userIsVerified) return a.userIsVerified ? -1 : 1;
+    // 3. الدور
+    const aR = roleOrder[a.userRole] || 0;
+    const bR = roleOrder[b.userRole] || 0;
+    if (aR !== bR) return bR - aR;
+    // 4. التاريخ
+    const aT = toDate(a.createdAt)?.getTime() || 0;
+    const bT = toDate(b.createdAt)?.getTime() || 0;
+    return bT - aT;
+  });
+}
+
+function renderRequests() {
+  const container = document.getElementById('requestsContainer');
+  const all = buildUnifiedRequests();
+  const sorted = sortRequests(all);
+
+  let filtered = sorted;
+  if (reqTypeFilter !== 'all') filtered = filtered.filter(r => r._kind === reqTypeFilter);
+  if (reqStatusFilter !== 'all') filtered = filtered.filter(r => r.status === reqStatusFilter);
+
+  const typeFilters = [
+    { key: 'all', label: 'الكل', count: all.length },
+    { key: 'subscription', label: 'اشتراك', count: all.filter(r => r._kind === 'subscription').length },
+    { key: 'verification', label: 'توثيق', count: all.filter(r => r._kind === 'verification').length }
+  ];
+  const statusFilters = [
+    { key: 'all', label: 'الكل', count: all.length },
+    { key: 'pending', label: 'معلقة', count: all.filter(r => r.status === 'pending').length },
+    { key: 'approved', label: 'مقبولة', count: all.filter(r => r.status === 'approved').length },
+    { key: 'rejected', label: 'مرفوضة', count: all.filter(r => r.status === 'rejected').length }
+  ];
+
+  const typeChips = typeFilters.map(f => `<button class="filter-chip ${reqTypeFilter === f.key ? 'active' : ''}" onclick="setReqTypeFilter('${f.key}')">${f.label} (${f.count})</button>`).join('');
+  const statusChips = statusFilters.map(f => `<button class="filter-chip ${reqStatusFilter === f.key ? 'active' : ''}" onclick="setReqStatusFilter('${f.key}')">${f.label} (${f.count})</button>`).join('');
+
+  let listHtml;
+  if (filtered.length === 0) {
+    listHtml = `<div class="empty-box"><i class="fas fa-inbox"></i><h3>لا يوجد طلبات</h3><p>ستظهر هنا طلبات الاشتراك والتوثيق</p></div>`;
+  } else {
+    listHtml = filtered.map(r => renderRequestCard(r)).join('');
+  }
+
+  container.innerHTML = `
+    <div class="filter-row">${typeChips}</div>
+    <div class="filter-row">${statusChips}</div>
+    ${listHtml}
+  `;
+}
+
+function renderRequestCard(r) {
+  const roleLabels = { founder: 'FOUNDER', admin: 'ADMIN', doctor: 'DOCTOR', ta: 'TA', student: 'STUDENT' };
+  const roleClasses = { founder: 'role-founder', admin: 'role-admin', doctor: 'role-doctor', ta: 'role-ta', student: 'role-student' };
+  const statusLabels = { pending: 'قيد الانتظار', approved: 'مقبول', rejected: 'مرفوض' };
+  const statusClasses = { pending: 'vchip-pending', approved: 'vchip-approved', rejected: 'vchip-rejected' };
+
+  const typeBadge = r._kind === 'subscription'
+    ? `<span class="vchip vchip-sub">اشتراك</span>`
+    : (r.verifType === 'free' ? `<span class="vchip vchip-free">توثيق - مجاني</span>` : `<span class="vchip vchip-paid">توثيق - مدفوع</span>`);
+
+  const date = toDate(r.createdAt);
+  const timeStr = date ? date.toLocaleString('ar-EG', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
+  let detailsHtml = '';
+  if (r._kind === 'subscription') {
+    detailsHtml = `<div class="req-detail"><strong>المادة:</strong> ${escapeHtml(r.subjectName || '—')}</div>`;
+  } else if (r.verifType === 'paid') {
+    detailsHtml = `<div class="req-detail"><strong>الخطة:</strong> ${escapeHtml(r.plan || '')} — <strong>المبلغ:</strong> ${r.price || 0}ج — <strong>المدة:</strong> ${r.durationDays || 0} يوم</div>`;
+  } else {
+    detailsHtml = `<div class="req-detail"><strong>النوع:</strong> توثيق مجاني دائم</div>`;
+  }
+  if (r.notes) detailsHtml += `<div class="req-notes"><strong>ملاحظات:</strong> ${escapeHtml(r.notes)}</div>`;
+
+  let actionsHtml = '';
+  if (r.status === 'pending') {
+    if (r._kind === 'subscription') {
+      actionsHtml = `<div class="req-actions">
+        <button class="req-btn approve" onclick="event.stopPropagation();approveSub('${r.id}', '${r.uid}', '${r.subjectId}')"><i class="fas fa-check"></i> موافقة</button>
+        <button class="req-btn reject" onclick="event.stopPropagation();rejectSub('${r.id}')"><i class="fas fa-times"></i> رفض</button>
+      </div>`;
+    } else {
+      actionsHtml = `<div class="req-actions">
+        <button class="req-btn approve" onclick="event.stopPropagation();approveVerification('${r.id}', '${r.uid}', ${r.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button>
+        <button class="req-btn reject" onclick="event.stopPropagation();rejectVerificationPrompt('${r.id}', '${r.uid}')"><i class="fas fa-times"></i> رفض</button>
+      </div>`;
+    }
+  }
+
+  return `
+    <div class="unified-req-card status-${r.status}" data-req-id="${r.id}">
+      <div class="unified-req-header">
+        <div class="unified-req-user">
+          <div class="unified-req-name">
+            ${escapeHtml(r.userName)}
+            <span class="user-role-chip ${roleClasses[r.userRole] || 'role-student'}">${roleLabels[r.userRole] || 'STUDENT'}</span>
+            ${r.userIsVerified ? '<i class="fas fa-check-circle verified-inline"></i>' : ''}
+          </div>
+          <div class="unified-req-time">${timeStr}</div>
+        </div>
+        <div class="verif-badges">
+          ${typeBadge}
+          <span class="vchip ${statusClasses[r.status]}">${statusLabels[r.status]}</span>
+        </div>
+      </div>
+      ${detailsHtml}
+      ${actionsHtml}
+    </div>
+  `;
+}
+
+window.setReqTypeFilter = function(f) { reqTypeFilter = f; renderRequests(); };
+window.setReqStatusFilter = function(f) { reqStatusFilter = f; renderRequests(); };
+
+/* ===== Approve / Reject ===== */
 window.approveSub = async function(reqId, uid, subId) {
   try {
     await activateSubscription(uid, subId);
@@ -721,40 +885,6 @@ window.rejectSub = async function(reqId) {
     loadAllData();
   } catch (e) { showToast('خطأ', 'error'); }
 };
-
-/* ===== Verification ===== */
-function renderVerification() {
-  const container = document.getElementById('verificationContainer');
-  const filters = [{ key: 'pending', label: 'قيد المراجعة' }, { key: 'approved', label: 'مقبولة' }, { key: 'rejected', label: 'مرفوضة' }, { key: 'all', label: 'الكل' }];
-  const filtersHtml = `<div class="filter-row">${filters.map(f => `<button class="filter-chip ${verifFilter === f.key ? 'active' : ''}" onclick="setVerifFilter('${f.key}')">${f.label}</button>`).join('')}</div>`;
-
-  let list = allVerifications;
-  if (verifFilter !== 'all') list = list.filter(v => v.status === verifFilter);
-
-  let listHtml = '';
-  if (list.length === 0) {
-    listHtml = `<div class="empty-box"><i class="fas fa-check-circle"></i><h3>لا يوجد طلبات</h3></div>`;
-  } else {
-    listHtml = list.map(v => {
-      const roleKey = v.role === 'ta' ? 'ta' : v.role === 'doctor' ? 'doctor' : 'student';
-      const roleLabel = roleKey === 'ta' ? 'TA' : roleKey === 'doctor' ? 'DOCTOR' : 'STUDENT';
-      const roleClass = roleKey === 'ta' ? 'role-ta' : roleKey === 'doctor' ? 'role-doctor' : 'role-student';
-      const typeLabel = v.type === 'free' ? 'مجاني' : 'مدفوع';
-      const typeClass = v.type === 'free' ? 'vchip-free' : 'vchip-paid';
-      const statusLabel = v.status === 'pending' ? 'قيد المراجعة' : v.status === 'approved' ? 'مقبول' : 'مرفوض';
-      const statusClass = v.status === 'pending' ? 'vchip-pending' : v.status === 'approved' ? 'vchip-approved' : 'vchip-rejected';
-      const created = v.createdAt?.toDate ? v.createdAt.toDate().toLocaleString('ar-EG') : '—';
-      const planLine = v.type === 'paid' ? `<strong>الخطة:</strong> ${escapeHtml(v.plan || '')} — <strong>المبلغ:</strong> ${v.price || 0}ج — <strong>المدة:</strong> ${v.durationDays || 0} يوم` : `<strong>النوع:</strong> توثيق مجاني دائم`;
-      const notesHtml = v.notes ? `<div class="verif-notes"><strong>ملاحظات:</strong> ${escapeHtml(v.notes)}</div>` : '';
-      const actions = v.status === 'pending' ? `<div class="req-actions"><button class="req-btn approve" onclick="approveVerification('${v.id}', '${v.uid}', ${v.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectVerificationPrompt('${v.id}', '${v.uid}')"><i class="fas fa-times"></i> رفض</button></div>` : '';
-      return `<div class="verif-card"><div class="verif-header"><div><div class="verif-name">${escapeHtml(v.userName || '')} <span class="user-role-chip ${roleClass}">${roleLabel}</span></div><div class="verif-time">${created}</div></div><div class="verif-badges"><span class="vchip ${typeClass}">${typeLabel}</span><span class="vchip ${statusClass}">${statusLabel}</span></div></div><div class="verif-details">${planLine}</div>${notesHtml}${actions}</div>`;
-    }).join('');
-  }
-
-  container.innerHTML = filtersHtml + listHtml;
-}
-
-window.setVerifFilter = function(f) { verifFilter = f; renderVerification(); };
 
 window.approveVerification = async function(reqId, uid, durationDays) {
   if (!confirm('تأكيد الموافقة؟')) return;
@@ -813,10 +943,44 @@ window.closeNotifPanel = () => {
   document.getElementById('notifPanel').classList.remove('active');
   document.getElementById('notifOverlay').classList.remove('active');
 };
-window.handleNotif = async (id) => {
+
+window.handleNotif = async function(id) {
+  const notif = adminNotifs.find(n => n.id === id);
   try { await markAdminNotificationRead(id); } catch (e) {}
   closeNotifPanel();
+  if (!notif) return;
+
+  const type = notif.type;
+  if (type === 'new_subscription_request') {
+    switchTab('requests');
+    reqTypeFilter = 'subscription';
+    reqStatusFilter = 'pending';
+    renderRequests();
+    if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150);
+  } else if (type === 'new_verification_request') {
+    switchTab('requests');
+    reqTypeFilter = 'verification';
+    reqStatusFilter = 'pending';
+    renderRequests();
+    if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150);
+  } else if (type === 'new_device') {
+    switchTab('students');
+    if (notif.meta?.uid) openDevices(notif.meta.uid, '');
+  } else if (type === 'new_student') {
+    switchTab('students');
+  } else {
+    switchTab('requests');
+  }
 };
+
+function highlightRequest(reqId) {
+  const el = document.querySelector(`[data-req-id="${reqId}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('highlight');
+  setTimeout(() => el.classList.remove('highlight'), 3000);
+}
+
 window.markAllRead = async () => {
   try { await markAllAdminNotificationsRead(adminNotifs); showToast('تم'); }
   catch (e) { showToast('خطأ', 'error'); }
