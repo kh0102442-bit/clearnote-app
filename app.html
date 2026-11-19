@@ -6,6 +6,8 @@
 <title>ClearNote — منصة المذاكرة</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- ✅ سكربت YouTube API للمشغل المخصص -->
+<script src="https://www.youtube.com/iframe_api"></script>
 <style>
   .device-lock-overlay { position: fixed; inset: 0; background: var(--navy); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white; }
   .device-lock-overlay.active { display: flex; }
@@ -72,14 +74,53 @@
   .error-banner { background: #fbeaea; border: 1px solid #f0c6c6; color: var(--red); padding: 12px 16px; border-radius: 10px; margin: 8px 16px; font-size: 13px; display: none; }
   .error-banner.show { display: block; }
 
-  /* ✅ تنسيق محسن لمشغل الكود ليأخذ مساحة الشاشة على الهاتف */
-  #lessonPlayer .player-frame {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 0;
-  }
+  /* ===== ✅ تنسيقات المشغل المخصص ===== */
+  .lesson-player-container { position: fixed; inset: 0; background: #fff; z-index: 10000; display: none; flex-direction: column; }
+  .lesson-player-container.active { display: flex; }
+  .player-header { background: var(--navy); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .player-title { margin: 0; font-size: 16px; font-weight: 800; }
+  .player-close { background: rgba(255,255,255,.15); border: none; color: #fff; padding: 6px 14px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .player-close:hover { background: rgba(255,255,255,.3); }
+  
+  .player-body { flex: 1; display: flex; flex-direction: column; background: #0f1e33; overflow: hidden; }
+  
+  .video-wrapper { position: relative; width: 100%; background: #000; flex-shrink: 0; }
+  .video-wrapper iframe, .video-wrapper video { width: 100%; height: 100%; border: none; display: block; }
+  
+  .custom-controls { background: #152741; color: #fff; padding: 8px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+  .cc-btn { background: transparent; border: none; color: #fff; font-size: 16px; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; border-radius: 6px; }
+  .cc-btn:hover { background: rgba(255,255,255,0.1); color: var(--accent); }
+  .cc-time { font-size: 12px; font-family: monospace; font-weight: 700; color: #b0c4de; }
+  
+  .cc-seek-container { flex: 1; position: relative; height: 20px; display: flex; align-items: center; min-width: 150px; }
+  .cc-seek { width: 100%; -webkit-appearance: none; background: transparent; position: relative; z-index: 2; cursor: pointer; }
+  .cc-seek::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #2c3e50; border-radius: 3px; }
+  .cc-seek::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; background: var(--accent); border-radius: 50%; margin-top: -4px; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
+  
+  .cc-speed-select { background: #0f1e33; color: #fff; border: 1px solid #2c3e50; padding: 4px 8px; border-radius: 6px; font-family: inherit; font-size: 12px; cursor: pointer; outline: none; }
+  
+  /* العلامات المرجعية */
+  .bookmarks-panel { flex: 1; background: #f8f9fa; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; }
+  .bookmarks-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .bookmarks-header h3 { margin: 0; font-size: 15px; color: var(--navy); }
+  .bookmark-item { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .bookmark-time { background: var(--navy); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 800; font-family: monospace; cursor: pointer; flex-shrink: 0; }
+  .bookmark-content { flex: 1; }
+  .bookmark-note { font-size: 13.5px; color: #333; line-height: 1.5; margin-bottom: 4px; }
+  .bookmark-date { font-size: 10.5px; color: #8899aa; }
+  .bookmark-actions { display: flex; gap: 6px; }
+  .bookmark-del-btn { background: #fbeaea; color: var(--red); border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  
+  /* واجهة الفيديوهات للاختيار */
+  .video-list-container { padding: 16px; overflow-y: auto; flex: 1; background: var(--bg); }
+  .video-list-item { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+  .video-list-item:hover { border-color: var(--navy); box-shadow: 0 2px 8px rgba(21,39,65,0.1); }
+  .video-list-icon { width: 40px; height: 40px; border-radius: 50%; background: #eef2fa; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .video-list-title { font-weight: 800; color: var(--navy); font-size: 14.5px; flex: 1; }
+  .video-list-duration { font-size: 12px; color: var(--text-muted); }
+  
+  /* محتوى HTML العادي */
+  #htmlContentFrame { flex: 1; width: 100%; height: 100%; border: none; display: none; background: #fff; }
 </style>
 </head>
 <body>
@@ -132,6 +173,18 @@
           <div class="stat-card"><div class="stat-icon lessons"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statLessons">0</div><div class="stat-label">درس مكتمل</div></div>
           <div class="stat-card"><div class="stat-icon available"><i class="fas fa-book"></i></div><div class="stat-value" id="statAvailable">0</div><div class="stat-label">درس متاح</div></div>
         </div>
+        <!-- ✅ إحصائيات المذاكرة الجديدة -->
+        <div style="margin-top:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; justify-content:space-around; text-align:center;">
+          <div>
+            <div style="font-size:20px; font-weight:800; color:var(--navy);" id="statStudyTime">0</div>
+            <div style="font-size:12px; color:var(--muted);">دقيقة مذاكرة</div>
+          </div>
+          <div style="width:1px; background:var(--line);"></div>
+          <div>
+            <div style="font-size:20px; font-weight:800; color:var(--green);" id="statVideosCompleted">0</div>
+            <div style="font-size:12px; color:var(--muted);">فيديو مكتمل</div>
+          </div>
+        </div>
       </div>
       <div class="section">
         <h2 class="section-title"><i class="fas fa-bolt"></i> إجراءات سريعة</h2>
@@ -168,13 +221,58 @@
   <button class="nav-item" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i><span>حسابي</span></button>
 </nav>
 
-<div id="lessonPlayer">
+<!-- ✅ مشغل الفيديو المخصص الجديد -->
+<div id="lessonPlayer" class="lesson-player-container">
   <div class="player-header">
     <h2 class="player-title" id="playerTitle">المحتوى</h2>
     <button class="player-close" onclick="closePlayer()"><i class="fas fa-times"></i> خروج</button>
   </div>
-  <!-- ✅ تحسين sandbox للسماح بالتفاعل الداخلي وتشغيل الفيديوهات بحرية -->
-  <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-presentation allow-downloads"></iframe>
+  
+  <div class="player-body" id="playerBody">
+    <!-- قائمة اختيار الفيديوهات (إذا كان هناك أكثر من فيديو) -->
+    <div id="videoListContainer" class="video-list-container" style="display:none;"></div>
+
+    <!-- مشغل الفيديو -->
+    <div id="videoPlayerArea" style="display:none; display:flex; flex-direction:column; flex:1; overflow:hidden;">
+      <div class="video-wrapper" id="videoWrapper" style="position:relative; width:100%; height:0; padding-bottom:56.25%; background:#000;">
+         <div id="ytPlayerContainer" style="position:absolute; inset:0; width:100%; height:100%;"></div>
+         <video id="html5Player" style="position:absolute; inset:0; width:100%; height:100%; display:none;" controlsList="nodownload"></video>
+      </div>
+      
+      <div class="custom-controls">
+        <button class="cc-btn" id="ccPlayBtn" onclick="togglePlay()"><i class="fas fa-play"></i></button>
+        <span class="cc-time" id="ccTime">0:00 / 0:00</span>
+        <div class="cc-seek-container">
+          <input type="range" class="cc-seek" id="ccSeek" min="0" max="100" value="0" step="0.1" oninput="seekTo(this.value)">
+        </div>
+        <select class="cc-speed-select" id="ccSpeed" onchange="changeSpeed(this.value)">
+          <option value="0.5">0.5x</option>
+          <option value="0.8">0.8x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="1.2">1.2x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2.0x</option>
+          <option value="2.5">2.5x</option>
+          <option value="3">3.0x</option>
+          <option value="4">4.0x</option>
+        </select>
+        <button class="cc-btn" onclick="openBookmarkPrompt()" title="إضافة علامة"><i class="fas fa-bookmark"></i></button>
+      </div>
+      
+      <!-- لوحة العلامات -->
+      <div class="bookmarks-panel" id="bookmarksPanel">
+        <div class="bookmarks-header">
+          <h3><i class="fas fa-bookmarks"></i> العلامات والملاحظات</h3>
+        </div>
+        <div id="bookmarksList">
+          <div style="text-align:center; color:var(--muted); font-size:13px; padding:20px;">لا توجد علامات بعد. اضغط على أيقونة الحفظ أثناء الفيديو لإضافة واحدة.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- إطار محتوى HTML -->
+    <iframe id="htmlContentFrame" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-presentation allow-downloads"></iframe>
+  </div>
 </div>
 
 <div class="sub-overlay" id="subModal">
@@ -210,7 +308,9 @@ import {
   db, onAuth, goTo, showToast, signOutUser, checkDeviceStatus, requestSubscription,
   listenUserNotifications, markNotificationRead, markAllNotificationsRead, escapeHtml
 } from "./shared.js";
-import { collection, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { 
+  collection, getDocs, query, where, doc, getDoc, setDoc, updateDoc, increment, addDoc, deleteDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentUser = null;
 let currentUserData = null;
@@ -219,19 +319,26 @@ let userSubs = {};
 let userNotifs = [];
 let userNotifUnsub = null;
 
+// ✅ متغيرات المشغل المخصص
+let currentVideoId = null;
+let currentLessonNodeId = null;
+let ytPlayer = null;
+let html5Player = null;
+let progressInterval = null;
+let studySessionTime = 0; // بالثواني
+let currentVideoDuration = 0;
+
 /* ===== Init ===== */
 onAuth(async (user, userData) => {
   if (!user) { goTo("index.html"); return; }
   currentUser = user;
   currentUserData = userData;
 
-  // رسم سريع بدون انتظار
   const displayName = userData?.name || user.email.split('@')[0];
   document.getElementById("greetName").textContent = displayName;
   renderTopAvatar(userData, displayName);
   hideLoading();
 
-  // فحص الجهاز في الخلفية (بدون حجب)
   checkDeviceStatus(user.uid).then(dev => {
     if (dev.status === 'pending') {
       document.getElementById('deviceLock').classList.add('active');
@@ -239,7 +346,6 @@ onAuth(async (user, userData) => {
     }
   }).catch(e => console.warn('device check failed:', e));
 
-  // الإشعارات
   try {
     userNotifUnsub = listenUserNotifications(user.uid, (notifs) => {
       userNotifs = notifs;
@@ -248,12 +354,11 @@ onAuth(async (user, userData) => {
     });
   } catch (e) { console.warn('notifs listener failed:', e); }
 
-  // تحميل المحتوى والاشتراكات بشكل مستقل
   let errors = [];
   try {
     const snap = await getDocs(collection(db, "content_tree"));
-treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-treeData.sort((a, b) => (a.order || 0) - (b.order || 0));
+    treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    treeData.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (e) { console.warn('tree load failed:', e); errors.push('المحتوى'); }
 
   try {
@@ -268,12 +373,11 @@ treeData.sort((a, b) => (a.order || 0) - (b.order || 0));
 
   renderHome();
 
-  // ✅ إعداد زر الرجوع
   history.replaceState({ view: 'home', parentId: null }, '', location.href);
   
   window.addEventListener('popstate', (e) => {
     if (document.getElementById('lessonPlayer').classList.contains('active')) {
-      closePlayer(true); // true means skip history back
+      closePlayer(true);
     } else if (e.state && e.state.view) {
       if (e.state.view === 'content') {
         switchView('content', true);
@@ -286,7 +390,6 @@ treeData.sort((a, b) => (a.order || 0) - (b.order || 0));
     }
   });
 
-  // ← جديد: استقبال ?subject=<id> من profile
   const params = new URLSearchParams(location.search);
   const openSubject = params.get('subject');
   if (openSubject && treeData.find(n => n.id === openSubject)) {
@@ -318,7 +421,6 @@ window.doLogout = async () => {
   }
 };
 
-// ✅ إضافة isBack لتجنب التكرار في الـ history
 window.switchView = function(view, isBack = false) {
   if (view === 'profile') { window.location.href = 'profile.html'; return; }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -394,6 +496,11 @@ function renderHome() {
   document.getElementById('statDays').textContent = createdDate ? Math.floor((Date.now() - createdDate.getTime()) / 86400000) + 1 : 1;
   document.getElementById('statLessons').textContent = currentUserData?.completedLessons ? Object.keys(currentUserData.completedLessons).length : 0;
   document.getElementById('statAvailable').textContent = treeData.filter(n => n.type && n.type.startsWith('module_')).length;
+  
+  // إحصائيات المذاكرة
+  document.getElementById('statStudyTime').textContent = currentUserData?.studyTime || 0;
+  document.getElementById('statVideosCompleted').textContent = currentUserData?.completedVideos || 0;
+
   renderSuggested();
 }
 
@@ -438,7 +545,6 @@ async function loadMySubscriptions() {
 }
 
 /* ===== Content tree ===== */
-// ✅ إضافة isBack لتجنب التكرار في الـ history
 function renderLevel(parentId, isBack = false) {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '';
@@ -556,10 +662,17 @@ function updateBreadcrumbs(parentId) {
   });
 }
 
-/* ===== Player ===== */
+/* ===== ✅ Player Logic (الجديد كلياً) ===== */
 function escapeHtmlLocal(text) {
   if (!text) return '';
   return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+function formatTime(seconds) {
+  if (isNaN(seconds)) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
 function extractYouTubeId(url) {
@@ -568,64 +681,338 @@ function extractYouTubeId(url) {
   return m ? m[1] : null;
 }
 
-function generateVideoPlayerHTML(videos) {
-  videos = [...videos].sort((a, b) => (a.order || 0) - (b.order || 0));
-  let html = '<div style="padding:14px;font-family:\'Cairo\',sans-serif;">';
-  videos.forEach((v, i) => {
-    html += `<div style="background:#fff;border:2px solid #e9ecef;border-radius:14px;padding:14px;margin-bottom:16px;">
-      <div style="font-weight:800;color:#152741;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
-        <span style="background:#152741;color:#fff;width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;">${i + 1}</span>
-        ${escapeHtmlLocal(v.title || 'فيديو')}
-      </div>`;
-
-    if (v.url) {
-      const ytId = extractYouTubeId(v.url);
-      if (ytId) {
-        html += `<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;background:#000;">
-          <iframe src="https://www.youtube-nocookie.com/embed/${ytId}" referrerpolicy="strict-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-        </div>`;
-      } else if (v.sourceType === 'upload' || /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(v.url)) {
-        html += `<video controls playsinline preload="metadata" style="width:100%;border-radius:10px;max-height:420px;background:#000;display:block;"><source src="${escapeHtmlLocal(v.url)}" type="video/mp4"></video>`;
-      } else {
-        html += `<div style="background:#f4f6f8;border-radius:10px;padding:24px;text-align:center;"><a href="${escapeHtmlLocal(v.url)}" target="_blank" rel="noopener" style="background:#152741;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-flex;gap:6px;font-size:14px;font-weight:bold;">فتح في المتصفح</a></div>`;
-      }
-    } else {
-      html += `<div style="padding:20px;text-align:center;color:#8899aa;font-size:13px;"><i class="fas fa-video-slash" style="font-size:32px;display:block;margin-bottom:8px;color:#cbd5e0;"></i>لا يوجد مصدر</div>`;
-    }
-
-    if (v.notes) {
-      html += `<div style="margin-top:12px;padding:10px 12px;background:#fdfaf3;border-right:3px solid #a8741a;border-radius:6px;font-size:13px;color:#4a5568;line-height:1.65;"><strong style="color:#152741;display:block;margin-bottom:4px;">📝 ملاحظات:</strong>${escapeHtmlLocal(v.notes).replace(/\n/g, '<br>')}</div>`;
-    }
-    html += `</div>`;
-  });
-  html += '</div>';
-  return html;
-}
-
-// ✅ إضافة isBack لمنع تكرار الـ history
 function openPlayer(node, isBack = false) {
+  currentLessonNodeId = node.id;
   document.getElementById('playerTitle').textContent = node.title;
   document.getElementById('lessonPlayer').classList.add('active');
-  const iframe = document.getElementById('playerFrame');
-  let htmlContent;
+  
+  const videoListContainer = document.getElementById('videoListContainer');
+  const videoPlayerArea = document.getElementById('videoPlayerArea');
+  const htmlContentFrame = document.getElementById('htmlContentFrame');
+
   if (node.type === 'module_video') {
+    htmlContentFrame.style.display = 'none';
     const videos = node.videos || [];
-    if (videos.length > 0) htmlContent = generateVideoPlayerHTML(videos);
-    else htmlContent = `<div style="text-align:center;padding:60px 20px;font-family:'Cairo',sans-serif;color:#8899aa;"><i class="fas fa-video-slash" style="font-size:56px;margin-bottom:15px;display:block;color:#cbd5e0;"></i><h2 style="color:#4a5568;font-size:18px;">لا توجد فيديوهات بعد</h2></div>`;
+    
+    // إذا كان هناك أكثر من فيديو، نعرض القائمة أولاً
+    if (videos.length > 1) {
+      videoPlayerArea.style.display = 'none';
+      videoListContainer.style.display = 'block';
+      videoListContainer.innerHTML = `
+        <h3 style="margin:0 0 16px; color:var(--navy);">اختر فيديو للبدء:</h3>
+        ${videos.map((v, i) => `
+          <div class="video-list-item" onclick="startVideo('${v.url}', '${escapeHtmlLocal(v.title).replace(/'/g, "\\'")}')">
+            <div class="video-list-icon"><i class="fas fa-play"></i></div>
+            <div class="video-list-title">${i+1}. ${escapeHtmlLocal(v.title || 'فيديو')}</div>
+          </div>
+        `).join('')}
+      `;
+    } else if (videos.length === 1) {
+      videoListContainer.style.display = 'none';
+      videoPlayerArea.style.display = 'flex';
+      startVideo(videos[0].url, videos[0].title);
+    } else {
+      videoListContainer.style.display = 'none';
+      videoPlayerArea.style.display = 'flex';
+      document.getElementById('videoWrapper').innerHTML = '<div style="padding:40px; text-align:center; color:#fff;">لا توجد فيديوهات بعد</div>';
+    }
   } else {
-    htmlContent = node.htmlContent || '<div style="text-align:center;padding:50px;"><h2>لا يوجد محتوى</h2></div>';
+    // محتوى HTML (شرح، أسئلة، إلخ)
+    videoListContainer.style.display = 'none';
+    videoPlayerArea.style.display = 'none';
+    htmlContentFrame.style.display = 'block';
+    htmlContentFrame.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{font-family:'Cairo',sans-serif;padding:16px;line-height:1.8;margin:0;background:#f8f9fa;} img{max-width:100%;height:auto;border-radius:8px;}</style><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head><body>${node.htmlContent || '<div style="text-align:center;padding:50px;"><h2>لا يوجد محتوى</h2></div>'}</body></html>`;
+    
+    // تسجيل أن المستخدم فتح هذا الدرس (اختياري)
+    recordStudyAction(node.id);
   }
-  iframe.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{font-family:'Cairo',sans-serif;padding:0;line-height:1.8;margin:0;background:#f8f9fa;} img{max-width:100%;height:auto;border-radius:8px;}</style><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head><body>${htmlContent}</body></html>`;
   
   if (!isBack) {
     history.pushState({ view: 'player', nodeId: node.id }, '', location.href);
   }
 }
 
-// ✅ إضافة isBack منعاً للتكرار
+// ✅ دالة بدء الفيديو (يوتيوب أو MP4)
+window.startVideo = async function(url, title) {
+  document.getElementById('videoListContainer').style.display = 'none';
+  document.getElementById('videoPlayerArea').style.display = 'flex';
+  
+  document.getElementById('playerTitle').textContent = title;
+  const ytId = extractYouTubeId(url);
+  const ytContainer = document.getElementById('ytPlayerContainer');
+  const html5Player = document.getElementById('html5Player');
+  
+  // تنظيف المشغل السابق
+  if (ytPlayer) { ytPlayer.destroy(); ytPlayer = null; }
+  html5Player.pause();
+  html5Player.style.display = 'none';
+  ytContainer.style.display = 'none';
+  ytContainer.innerHTML = ''; // تفريغ الحاوية لليوتيوب
+  
+  currentVideoId = ytId || url.split('/').pop(); // معرف فريد للفيديو
+
+  // جلب تقدم المشاهدة السابق
+  let startTime = 0;
+  try {
+    const progRef = doc(db, 'users', currentUser.uid, 'video_progress', currentVideoId);
+    const progSnap = await getDoc(progRef);
+    if (progSnap.exists()) startTime = progSnap.data().lastTime || 0;
+  } catch(e) {}
+
+  // جلب العلامات
+  await loadBookmarks();
+
+  if (ytId) {
+    // إعداد مشغل يوتيوب
+    ytContainer.style.display = 'block';
+    ytPlayer = new YT.Player('ytPlayerContainer', {
+      videoId: ytId,
+      playerVars: { 
+        'autoplay': 0, 'controls': 0, 'disablekb': 1, 'modestbranding': 1, 'rel': 0, 'showinfo': 0, 'origin': window.location.origin 
+      },
+      events: {
+        'onReady': (event) => {
+          currentVideoDuration = event.target.getDuration();
+          event.target.seekTo(startTime, true);
+          updateSeekBar(startTime, currentVideoDuration);
+          startProgressTracker();
+        },
+        'onStateChange': (event) => {
+          if (event.data == YT.PlayerState.PLAYING) {
+            document.getElementById('ccPlayBtn').innerHTML = '<i class="fas fa-pause"></i>';
+            currentVideoDuration = event.target.getDuration();
+            startProgressTracker();
+          } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
+            document.getElementById('ccPlayBtn').innerHTML = '<i class="fas fa-play"></i>';
+            saveVideoProgress();
+          }
+          if (event.data == YT.PlayerState.ENDED) {
+             markVideoCompleted();
+          }
+        }
+      }
+    });
+  } else {
+    // إعداد HTML5 Video (للملفات المرفوعة)
+    html5Player.style.display = 'block';
+    html5Player.src = url;
+    html5Player.currentTime = startTime;
+    
+    html5Player.onloadedmetadata = () => {
+      currentVideoDuration = html5Player.duration;
+      updateSeekBar(startTime, currentVideoDuration);
+      startProgressTracker();
+    };
+    
+    html5Player.onplay = () => {
+      document.getElementById('ccPlayBtn').innerHTML = '<i class="fas fa-pause"></i>';
+      startProgressTracker();
+    };
+    html5Player.onpause = () => {
+      document.getElementById('ccPlayBtn').innerHTML = '<i class="fas fa-play"></i>';
+      saveVideoProgress();
+    };
+    html5Player.onended = () => {
+      document.getElementById('ccPlayBtn').innerHTML = '<i class="fas fa-play"></i>';
+      markVideoCompleted();
+    };
+    html5Player.ontimeupdate = () => {
+      updateSeekBar(html5Player.currentTime, html5Player.duration);
+    };
+  }
+};
+
+// أدوات التحكم
+window.togglePlay = function() {
+  if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+    const state = ytPlayer.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+    else ytPlayer.playVideo();
+  } else {
+    const vid = document.getElementById('html5Player');
+    if (vid.paused) vid.play(); else vid.pause();
+  }
+};
+
+window.seekTo = function(percent) {
+  const targetTime = (percent / 100) * currentVideoDuration;
+  if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+    ytPlayer.seekTo(targetTime, true);
+  } else {
+    document.getElementById('html5Player').currentTime = targetTime;
+  }
+};
+
+window.changeSpeed = function(speed) {
+  const spd = parseFloat(speed);
+  if (ytPlayer && typeof ytPlayer.setPlaybackRate === 'function') {
+    ytPlayer.setPlaybackRate(spd);
+  } else {
+    document.getElementById('html5Player').playbackRate = spd;
+  }
+};
+
+function updateSeekBar(current, total) {
+  if (!total) total = currentVideoDuration;
+  document.getElementById('ccTime').textContent = `${formatTime(current)} / ${formatTime(total)}`;
+  document.getElementById('ccSeek').value = (current / total) * 100 || 0;
+}
+
+// ✅ نظام التتبع والحفظ
+function startProgressTracker() {
+  if (progressInterval) clearInterval(progressInterval);
+  progressInterval = setInterval(() => {
+    let isPlaying = false;
+    let currentTime = 0;
+    
+    if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+      isPlaying = ytPlayer.getPlayerState() === YT.PlayerState.PLAYING;
+      currentTime = ytPlayer.getCurrentTime() || 0;
+    } else {
+      const vid = document.getElementById('html5Player');
+      isPlaying = !vid.paused && !vid.ended;
+      currentTime = vid.currentTime;
+    }
+
+    if (isPlaying) {
+      studySessionTime++;
+      updateSeekBar(currentTime, currentVideoDuration);
+      // حفظ كل 10 ثواني
+      if (studySessionTime % 10 === 0) saveVideoProgress(currentTime);
+    }
+  }, 1000);
+}
+
+async function saveVideoProgress(currentTime = null) {
+  if (!currentVideoId || !currentUser) return;
+  if (currentTime === null) {
+    if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') currentTime = ytPlayer.getCurrentTime() || 0;
+    else currentTime = document.getElementById('html5Player').currentTime;
+  }
+  
+  try {
+    const progRef = doc(db, 'users', currentUser.uid, 'video_progress', currentVideoId);
+    await setDoc(progRef, {
+      videoId: currentVideoId,
+      lessonId: currentLessonNodeId,
+      lastTime: currentTime,
+      duration: currentVideoDuration,
+      updatedAt: new Date()
+    }, { merge: true });
+  } catch (e) { console.warn('failed to save progress', e); }
+}
+
+async function markVideoCompleted() {
+  if (!currentUser) return;
+  try {
+    const userRef = doc(db, 'users', currentUser.uid);
+    // زيادة عدد الفيديوهات المكتملة
+    await updateDoc(userRef, { completedVideos: increment(1) });
+    currentUserData.completedVideos = (currentUserData.completedVideos || 0) + 1;
+  } catch(e) {}
+}
+
+/* ===== ✅ العلامات والملاحظات ===== */
+async function loadBookmarks() {
+  const list = document.getElementById('bookmarksList');
+  if (!currentVideoId) return;
+  
+  list.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">جاري التحميل...</div>';
+  try {
+    const bRef = collection(db, 'users', currentUser.uid, 'video_bookmarks');
+    const q = query(bRef, where('videoId', '==', currentVideoId));
+    const snap = await getDocs(q);
+    const bookmarks = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.time - b.time);
+    
+    if (bookmarks.length === 0) {
+      list.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:13px; padding:20px;">لا توجد علامات بعد. اضغط على أيقونة الحفظ أثناء الفيديو لإضافة واحدة.</div>';
+      return;
+    }
+    
+    list.innerHTML = bookmarks.map(b => `
+      <div class="bookmark-item">
+        <div class="bookmark-time" onclick="jumpToTime(${b.time})">${formatTime(b.time)}</div>
+        <div class="bookmark-content">
+          <div class="bookmark-note">${escapeHtmlLocal(b.note)}</div>
+        </div>
+        <button class="bookmark-del-btn" onclick="deleteBookmark('${b.id}')"><i class="fas fa-trash"></i></button>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="color:red; font-size:12px;">حدث خطأ في تحميل العلامات</div>';
+  }
+}
+
+window.jumpToTime = function(time) {
+  if (ytPlayer && typeof ytPlayer.seekTo === 'function') ytPlayer.seekTo(time, true);
+  else document.getElementById('html5Player').currentTime = time;
+  if (ytPlayer) ytPlayer.playVideo(); else document.getElementById('html5Player').play();
+};
+
+window.openBookmarkPrompt = function() {
+  let currentTime = 0;
+  if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') currentTime = ytPlayer.getCurrentTime() || 0;
+  else currentTime = document.getElementById('html5Player').currentTime;
+
+  // نستخدم نافذة إدخال بسيطة
+  const note = prompt(`إضافة علامة عند الدقيقة ${formatTime(currentTime)}\nاكتب ملاحظتك هنا:`);
+  if (note && note.trim()) {
+    saveBookmark(currentTime, note.trim());
+  }
+};
+
+async function saveBookmark(time, note) {
+  try {
+    const bRef = collection(db, 'users', currentUser.uid, 'video_bookmarks');
+    await addDoc(bRef, {
+      videoId: currentVideoId,
+      lessonId: currentLessonNodeId,
+      time: time,
+      note: note,
+      createdAt: new Date()
+    });
+    showToast('تم حفظ العلامة ✓');
+    await loadBookmarks();
+  } catch(e) {
+    showToast('فشل حفظ العلامة', 'error');
+  }
+}
+
+window.deleteBookmark = async function(id) {
+  if (!confirm('حذف هذه العلامة؟')) return;
+  try {
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'video_bookmarks', id));
+    await loadBookmarks();
+  } catch(e) { showToast('فشل الحذف', 'error'); }
+};
+
+/* ===== ✅ وقت المذاكرة والإغلاق ===== */
+async function recordStudyAction(lessonId) {
+  // مجرد دالة مساعدة لو أردنا تسجيل فتح ملفات HTML
+}
+
 window.closePlayer = function(isBack = false) {
   document.getElementById('lessonPlayer').classList.remove('active');
-  document.getElementById('playerFrame').srcdoc = '';
+  document.getElementById('htmlContentFrame').srcdoc = '';
+  
+  // حفظ الوقت المتبقي
+  saveVideoProgress();
+  
+  // حفظ وقت المذاكرة في قاعدة البيانات (بالدقائق)
+  const minutesToAdd = Math.floor(studySessionTime / 60);
+  if (minutesToAdd > 0 && currentUser) {
+    updateDoc(doc(db, 'users', currentUser.uid), { studyTime: increment(minutesToAdd) }).catch(() => {});
+    // تحديث محلي فوري
+    currentUserData.studyTime = (currentUserData.studyTime || 0) + minutesToAdd;
+  }
+  
+  if (progressInterval) clearInterval(progressInterval);
+  
+  if (ytPlayer) { ytPlayer.destroy(); ytPlayer = null; }
+  const vid = document.getElementById('html5Player');
+  vid.pause();
+  vid.src = '';
+  
   if (!isBack) {
     history.back();
   }
