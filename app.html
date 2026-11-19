@@ -71,6 +71,15 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .error-banner { background: #fbeaea; border: 1px solid #f0c6c6; color: var(--red); padding: 12px 16px; border-radius: 10px; margin: 8px 16px; font-size: 13px; display: none; }
   .error-banner.show { display: block; }
+
+  /* ✅ تنسيق محسن لمشغل الكود ليأخذ مساحة الشاشة على الهاتف */
+  #lessonPlayer .player-frame {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+  }
 </style>
 </head>
 <body>
@@ -164,7 +173,8 @@
     <h2 class="player-title" id="playerTitle">المحتوى</h2>
     <button class="player-close" onclick="closePlayer()"><i class="fas fa-times"></i> خروج</button>
   </div>
-  <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-modals allow-presentation"></iframe>
+  <!-- ✅ تحسين sandbox للسماح بالتفاعل الداخلي وتشغيل الفيديوهات بحرية -->
+  <iframe id="playerFrame" class="player-frame" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-presentation allow-downloads"></iframe>
 </div>
 
 <div class="sub-overlay" id="subModal">
@@ -257,6 +267,24 @@ onAuth(async (user, userData) => {
 
   renderHome();
 
+  // ✅ إعداد زر الرجوع
+  history.replaceState({ view: 'home', parentId: null }, '', location.href);
+  
+  window.addEventListener('popstate', (e) => {
+    if (document.getElementById('lessonPlayer').classList.contains('active')) {
+      closePlayer(true); // true means skip history back
+    } else if (e.state && e.state.view) {
+      if (e.state.view === 'content') {
+        switchView('content', true);
+        renderLevel(e.state.parentId || 'root', true);
+      } else {
+        switchView(e.state.view, true);
+      }
+    } else {
+      switchView('home', true);
+    }
+  });
+
   // ← جديد: استقبال ?subject=<id> من profile
   const params = new URLSearchParams(location.search);
   const openSubject = params.get('subject');
@@ -289,15 +317,21 @@ window.doLogout = async () => {
   }
 };
 
-window.switchView = function(view) {
+// ✅ إضافة isBack لتجنب التكرار في الـ history
+window.switchView = function(view, isBack = false) {
   if (view === 'profile') { window.location.href = 'profile.html'; return; }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById(view + 'View');
   if (target) target.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  
   if (view === 'home') renderHome();
   if (view === 'content') renderLevel('root');
+  
+  if (!isBack) {
+    history.pushState({ view: view }, '', location.href);
+  }
 };
 
 /* ===== Notifications ===== */
@@ -403,7 +437,8 @@ async function loadMySubscriptions() {
 }
 
 /* ===== Content tree ===== */
-function renderLevel(parentId) {
+// ✅ إضافة isBack لتجنب التكرار في الـ history
+function renderLevel(parentId, isBack = false) {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '';
   updateBreadcrumbs(parentId);
@@ -413,6 +448,10 @@ function renderLevel(parentId) {
   container.querySelectorAll('[data-node]').forEach(el => {
     el.onclick = () => handleNodeClick(nodes.find(n => n.id === el.dataset.node));
   });
+  
+  if (!isBack && parentId !== 'root') {
+    history.pushState({ view: 'content', parentId: parentId }, '', location.href);
+  }
 }
 
 function renderCard(node) {
@@ -527,6 +566,7 @@ function extractYouTubeId(url) {
   const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   return m ? m[1] : null;
 }
+
 function generateVideoPlayerHTML(videos) {
   videos = [...videos].sort((a, b) => (a.order || 0) - (b.order || 0));
   let html = '<div style="padding:14px;font-family:\'Cairo\',sans-serif;">';
@@ -540,15 +580,12 @@ function generateVideoPlayerHTML(videos) {
     if (v.url) {
       const ytId = extractYouTubeId(v.url);
       if (ytId) {
-        // فيديو يوتيوب — nocookie + strict-origin
         html += `<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;background:#000;">
           <iframe src="https://www.youtube-nocookie.com/embed/${ytId}" referrerpolicy="strict-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>`;
       } else if (v.sourceType === 'upload' || /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(v.url)) {
-        // فيديو مرفوع على Cloudinary أو ملف مباشر
         html += `<video controls playsinline preload="metadata" style="width:100%;border-radius:10px;max-height:420px;background:#000;display:block;"><source src="${escapeHtmlLocal(v.url)}" type="video/mp4"></video>`;
       } else {
-        // رابط خارجي غير مدعوم
         html += `<div style="background:#f4f6f8;border-radius:10px;padding:24px;text-align:center;"><a href="${escapeHtmlLocal(v.url)}" target="_blank" rel="noopener" style="background:#152741;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-flex;gap:6px;font-size:14px;font-weight:bold;">فتح في المتصفح</a></div>`;
       }
     } else {
@@ -563,7 +600,9 @@ function generateVideoPlayerHTML(videos) {
   html += '</div>';
   return html;
 }
-function openPlayer(node) {
+
+// ✅ إضافة isBack لمنع تكرار الـ history
+function openPlayer(node, isBack = false) {
   document.getElementById('playerTitle').textContent = node.title;
   document.getElementById('lessonPlayer').classList.add('active');
   const iframe = document.getElementById('playerFrame');
@@ -576,11 +615,19 @@ function openPlayer(node) {
     htmlContent = node.htmlContent || '<div style="text-align:center;padding:50px;"><h2>لا يوجد محتوى</h2></div>';
   }
   iframe.srcdoc = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{font-family:'Cairo',sans-serif;padding:0;line-height:1.8;margin:0;background:#f8f9fa;} img{max-width:100%;height:auto;border-radius:8px;}</style><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head><body>${htmlContent}</body></html>`;
+  
+  if (!isBack) {
+    history.pushState({ view: 'player', nodeId: node.id }, '', location.href);
+  }
 }
 
-window.closePlayer = function() {
+// ✅ إضافة isBack منعاً للتكرار
+window.closePlayer = function(isBack = false) {
   document.getElementById('lessonPlayer').classList.remove('active');
   document.getElementById('playerFrame').srcdoc = '';
+  if (!isBack) {
+    history.back();
+  }
 };
 </script>
 </body>
