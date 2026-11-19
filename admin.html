@@ -152,7 +152,11 @@
 
   .video-item { background: #fafbfc; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
   .video-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .video-file-preview { margin-top: 8px; padding: 8px 10px; background: #fff; border-radius: 6px; font-size: 12.5px; color: #333; }
+  .video-file-preview { margin-top: 8px; padding: 8px 10px; background: #fff; border-radius: 6px; font-size: 12.5px; color: #333; border: 1px solid var(--line); }
+  .video-upload-status { font-size: 12px; font-weight: 700; margin-top: 6px; min-height: 18px; }
+  .yt-preview { margin-top: 8px; }
+  .yt-preview img { width: 140px; height: 79px; object-fit: cover; border-radius: 8px; border: 2px solid var(--green); display: block; }
+  .yt-preview .yt-label { font-size: 11px; font-weight: 800; margin-top: 4px; display: block; }
 
   .html-upload-zone { border: 2px dashed #c9d6ee; background: #f8fbff; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; }
   .html-upload-zone:hover, .html-upload-zone.drag-over { border-color: var(--navy); background: #eef2fa; }
@@ -184,7 +188,6 @@
   .notif-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99998; display: none; }
   .notif-overlay.active { display: block; }
 
-  /* ===== NEW: History modal styles ===== */
   .history-item { background: #fafbfc; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
   .history-item .hi-field { font-weight: 800; color: var(--navy); font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
   .history-item .hi-field i { color: var(--accent); font-size: 11px; }
@@ -232,10 +235,8 @@
   <button data-tab="requests" onclick="switchTab('requests')"><i class="fas fa-inbox"></i><span>الطلبات</span><span class="nav-dot" id="reqDotNav">0</span></button>
 </nav>
 
-<!-- Modals -->
 <div class="modal-overlay" id="deviceModal"><div class="modal-box"><h3>الأجهزة</h3><div id="deviceList" style="margin-top:15px;"></div><button class="btn-cancel" style="width:100%; margin-top:15px;" onclick="closeModal('deviceModal')">إغلاق</button></div></div>
 
-<!-- NEW: History Modal -->
 <div class="modal-overlay" id="historyModal">
   <div class="modal-box">
     <h3 id="historyModalTitle">سجل التعديلات</h3>
@@ -250,7 +251,7 @@
 
 <div class="modal-overlay" id="codeModal"><div class="modal-box"><h3 id="codeTitle">إضافة كود</h3><input type="hidden" id="currentNodeId"><input type="hidden" id="currentModuleKey"><div class="form-group"><label>عنوان</label><input type="text" id="moduleTitleInput"></div><div class="form-group"><label>الصلاحية</label><select id="moduleAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div class="form-group"><label>ارفع ملف HTML</label><div class="html-upload-zone" id="htmlUploadZone" onclick="document.getElementById('htmlFileInput').click()"><i class="fas fa-cloud-upload-alt"></i><div class="up-text">اضغط لاختيار</div><div class="up-sub">.html</div></div><input type="file" id="htmlFileInput" accept=".html,.htm,text/html" style="display:none" onchange="handleHtmlFileUpload(event)"><div class="html-file-info" id="htmlFileInfo"></div></div><div class="divider-text">أو</div><div class="form-group"><label>الصق الكود</label><textarea id="moduleCode" rows="8" style="font-family:monospace;font-size:13px;"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('codeModal')">إلغاء</button><button class="btn-save" onclick="saveModuleCode()">حفظ</button></div></div></div>
 
-<div class="modal-overlay" id="videoModal"><div class="modal-box" style="max-height:95vh;"><h3>الفيديوهات</h3><div class="form-group"><label>عنوان القسم</label><input type="text" id="videoSectionTitle"></div><div class="form-group"><label>الصلاحية</label><select id="videoAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div id="videoItemsContainer"></div><button class="btn-save" style="width:100%; background:var(--green); margin-bottom:12px;" onclick="addVideoItem()"><i class="fas fa-plus"></i> إضافة</button><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('videoModal')">إلغاء</button><button class="btn-save" onclick="saveVideos()">حفظ</button></div></div></div>
+<div class="modal-overlay" id="videoModal"><div class="modal-box" style="max-height:95vh;"><h3>الفيديوهات</h3><div class="form-group"><label>عنوان القسم</label><input type="text" id="videoSectionTitle"></div><div class="form-group"><label>الصلاحية</label><select id="videoAccessInput"><option value="public">عام</option><option value="paid">مدفوع</option></select></div><div id="videoItemsContainer"></div><button class="btn-save" style="width:100%; background:var(--green); margin-bottom:12px;" onclick="addVideoItem()"><i class="fas fa-plus"></i> إضافة فيديو آخر</button><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('videoModal')">إلغاء</button><button class="btn-save" onclick="saveVideos()">حفظ</button></div></div></div>
 
 <div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
 <div class="notif-panel" id="notifPanel">
@@ -263,7 +264,7 @@
 import {
   db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription,
   listenAdminNotifications, markAdminNotificationRead, markAllAdminNotificationsRead,
-  createNotification, escapeHtml, getProfileHistory
+  createNotification, escapeHtml, getProfileHistory, uploadVideo
 } from "./shared.js";
 import {
   collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
@@ -339,9 +340,8 @@ async function loadAllData() {
     allVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { console.warn('verif failed:', e); errors.push('التوثيق'); allVerifications = []; }
 
-  try {
-    allDevices = await loadAllDevicesInParallel();
-  } catch (e) { console.warn('devices failed:', e); errors.push('الأجهزة'); allDevices = []; }
+  try { allDevices = await loadAllDevicesInParallel(); }
+  catch (e) { console.warn('devices failed:', e); errors.push('الأجهزة'); allDevices = []; }
 
   const banner = document.getElementById('errorBanner');
   if (errors.length > 0) {
@@ -363,8 +363,7 @@ async function loadAllDevicesInParallel() {
     try {
       const snap = await getDocs(collection(db, 'devices', user.id, 'list'));
       return snap.docs.map(d => ({
-        id: d.id,
-        ...d.data(),
+        id: d.id, ...d.data(),
         _uid: user.id,
         _userName: user.name || 'بدون اسم',
         _userRole: user.badgeType === 'founder' ? 'founder' : (user.role || 'student'),
@@ -375,9 +374,7 @@ async function loadAllDevicesInParallel() {
           } catch (e) { return false; }
         })()
       }));
-    } catch (e) {
-      return [];
-    }
+    } catch (e) { return []; }
   });
   const results = await Promise.all(promises);
   return results.flat();
@@ -606,11 +603,59 @@ window.openVideoManager = function() {
 
 function addVideoItem() { addVideoItemWithData(null); }
 
+function extractYtId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
 function addVideoItemWithData(v) {
   const index = videoItemCounter++;
   const container = document.getElementById('videoItemsContainer');
   const sourceType = v && v.sourceType ? v.sourceType : 'link';
-  const html = `<div class="video-item" data-index="${index}"><div class="video-item-header"><strong style="color:var(--navy);font-size:13px;">فيديو</strong><button class="action-btn danger" onclick="removeVideoItem(this)"><i class="fas fa-trash"></i></button></div><div class="form-group"><label>عنوان</label><input type="text" class="video-title-input" value="${v ? escapeHtml(v.title || '') : ''}"></div><div class="form-group"><label>المصدر</label><select class="video-source-type" onchange="toggleVideoSource(this)"><option value="link" ${sourceType === 'link' ? 'selected' : ''}>رابط</option><option value="upload" ${sourceType === 'upload' ? 'selected' : ''}>رفع</option></select></div><div class="form-group video-link-group" style="display:${sourceType === 'upload' ? 'none' : 'block'};"><label>الرابط</label><input type="text" class="video-url-input" value="${v && v.url ? escapeHtml(v.url) : ''}" dir="ltr"></div><div class="form-group video-upload-group" style="display:${sourceType === 'upload' ? 'block' : 'none'};"><label>ملف</label><input type="file" accept="video/*" class="video-file-input" onchange="handleVideoFileSelect(this)"><div class="video-file-preview" style="display:${v && v.fileName ? 'block' : 'none'};">${v && v.fileName ? escapeHtml(v.fileName) : ''}</div></div><div class="form-group"><label>ملاحظات</label><textarea class="video-notes-input" rows="2">${v && v.notes ? escapeHtml(v.notes) : ''}</textarea></div></div>`;
+  const linkUrl = v && v.sourceType === 'link' && v.url ? v.url : '';
+  const uploadUrl = v && v.sourceType === 'upload' && v.url ? v.url : '';
+  const fileName = v && v.sourceType === 'upload' ? (v.fileName || '') : '';
+  const ytId = extractYtId(linkUrl);
+  const ytPreviewHtml = ytId
+    ? `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt=""><span class="yt-label" style="color:var(--green);">✓ فيديو يوتيوب</span>`
+    : (linkUrl ? `<span class="yt-label" style="color:var(--muted);">🔗 رابط خارجي</span>` : '');
+
+  const html = `
+  <div class="video-item" data-index="${index}">
+    <div class="video-item-header">
+      <strong style="color:var(--navy);font-size:13px;">فيديو</strong>
+      <button class="action-btn danger" onclick="removeVideoItem(this)"><i class="fas fa-trash"></i></button>
+    </div>
+    <div class="form-group">
+      <label>عنوان الفيديو</label>
+      <input type="text" class="video-title-input" value="${v ? escapeHtml(v.title || '') : ''}">
+    </div>
+    <div class="form-group">
+      <label>نوع المصدر</label>
+      <select class="video-source-type" onchange="toggleVideoSource(this)">
+        <option value="link" ${sourceType === 'link' ? 'selected' : ''}>رابط (يوتيوب أو MP4)</option>
+        <option value="upload" ${sourceType === 'upload' ? 'selected' : ''}>رفع ملف (أقل من 100 ميجا)</option>
+      </select>
+    </div>
+    <div class="form-group video-link-group" style="display:${sourceType === 'upload' ? 'none' : 'block'};">
+      <label>الرابط</label>
+      <input type="text" class="video-url-input" value="${escapeHtml(linkUrl)}" dir="ltr" placeholder="https://www.youtube.com/watch?v=..." oninput="onVideoLinkInput(this)">
+      <div class="form-hint" style="font-size:11.5px;color:var(--muted);margin-top:4px;">يمكنك لصق رابط يوتيوب عادي (watch?v=) أو رابط MP4 مباشر</div>
+      <div class="yt-preview">${ytPreviewHtml}</div>
+    </div>
+    <div class="form-group video-upload-group" style="display:${sourceType === 'upload' ? 'block' : 'none'};">
+      <label>ملف الفيديو (حد أقصى 100 ميجا)</label>
+      <input type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/*" class="video-file-input" onchange="handleVideoFileSelect(this)">
+      <input type="hidden" class="video-uploaded-url" value="${escapeHtml(uploadUrl)}">
+      <div class="video-file-preview" style="display:${fileName || uploadUrl ? 'block' : 'none'};" data-filename="${escapeHtml(fileName)}">${fileName || (uploadUrl ? 'فيديو مرفوع ✓' : '')}</div>
+      <div class="video-upload-status">${uploadUrl ? '<span style="color:var(--green);">✓ محفوظ مسبقاً</span>' : ''}</div>
+    </div>
+    <div class="form-group">
+      <label>ملاحظات (اختياري)</label>
+      <textarea class="video-notes-input" rows="2">${v && v.notes ? escapeHtml(v.notes) : ''}</textarea>
+    </div>
+  </div>`;
   container.insertAdjacentHTML('beforeend', html);
   updateVideoLabels();
 }
@@ -623,17 +668,72 @@ function updateVideoLabels() {
 }
 
 window.removeVideoItem = function(btn) { btn.closest('.video-item').remove(); updateVideoLabels(); };
+
 window.toggleVideoSource = function(select) {
   const item = select.closest('.video-item');
   item.querySelector('.video-link-group').style.display = select.value === 'link' ? 'block' : 'none';
   item.querySelector('.video-upload-group').style.display = select.value === 'upload' ? 'block' : 'none';
 };
-window.handleVideoFileSelect = function(input) {
+
+window.onVideoLinkInput = function(input) {
+  const item = input.closest('.video-item');
+  const preview = item.querySelector('.yt-preview');
+  if (!preview) return;
+  const url = input.value.trim();
+  const ytId = extractYtId(url);
+  if (ytId) {
+    preview.innerHTML = `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt=""><span class="yt-label" style="color:var(--green);">✓ فيديو يوتيوب — جاهز</span>`;
+  } else if (url && /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url)) {
+    preview.innerHTML = `<span class="yt-label" style="color:var(--blue);">🎬 فيديو مباشر (MP4/WebM)</span>`;
+  } else if (url) {
+    preview.innerHTML = `<span class="yt-label" style="color:var(--muted);">🔗 رابط خارجي (سيُفتح في تبويب جديد)</span>`;
+  } else {
+    preview.innerHTML = '';
+  }
+};
+
+window.handleVideoFileSelect = async function(input) {
   const file = input.files[0];
   if (!file) return;
-  const preview = input.parentElement.querySelector('.video-file-preview');
+
+  if (!file.type.startsWith('video/')) {
+    showToast('الرجاء اختيار ملف فيديو', 'error');
+    input.value = '';
+    return;
+  }
+  const MAX = 100 * 1024 * 1024;
+  if (file.size > MAX) {
+    showToast(`الحد الأقصى 100 ميجا. حجم ملفك: ${(file.size / 1024 / 1024).toFixed(1)} ميجا`, 'error');
+    input.value = '';
+    return;
+  }
+
+  const item = input.closest('.video-item');
+  const preview = item.querySelector('.video-file-preview');
+  const status = item.querySelector('.video-upload-status');
+  const hiddenUrl = item.querySelector('.video-uploaded-url');
+
   preview.style.display = 'block';
-  preview.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+  preview.dataset.filename = file.name;
+  preview.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} ميجا)`;
+  status.style.color = 'var(--accent)';
+  status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع... 0%';
+
+  try {
+    const url = await uploadVideo(file, (pct) => {
+      status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> جاري الرفع... ${pct}%`;
+    });
+    hiddenUrl.value = url;
+    status.style.color = 'var(--green)';
+    status.innerHTML = '✓ تم الرفع بنجاح — جاهز للحفظ';
+    showToast('تم رفع الفيديو ✓');
+  } catch (e) {
+    console.error('Video upload error:', e);
+    hiddenUrl.value = '';
+    status.style.color = 'var(--red)';
+    status.innerHTML = '❌ ' + (e.message || 'فشل الرفع');
+    showToast(e.message || 'فشل الرفع', 'error');
+  }
 };
 
 window.saveVideos = async function() {
@@ -641,19 +741,47 @@ window.saveVideos = async function() {
   const editId = document.getElementById('videoModal').dataset.editId;
   const title = document.getElementById('videoSectionTitle').value.trim();
   const access = document.getElementById('videoAccessInput').value;
-  if (!title) { showToast('أدخل عنوان', 'error'); return; }
+  if (!title) { showToast('أدخل عنوان القسم', 'error'); return; }
+
   const videos = [];
+  let hasError = false;
+
   document.querySelectorAll('#videoItemsContainer .video-item').forEach((item, i) => {
     const vTitle = item.querySelector('.video-title-input').value.trim();
     const sourceType = item.querySelector('.video-source-type').value;
-    const url = item.querySelector('.video-url-input').value.trim();
-    const notes = item.querySelector('.video-notes-input').value.trim();
+    const linkUrl = item.querySelector('.video-url-input').value.trim();
+    const uploadUrl = item.querySelector('.video-uploaded-url').value.trim();
     const preview = item.querySelector('.video-file-preview');
-    const fileName = preview && preview.style.display !== 'none' ? preview.textContent.trim() : '';
-    if (!vTitle) return;
-    videos.push({ title: vTitle, sourceType, url: sourceType === 'link' ? url : null, fileName: sourceType === 'upload' ? fileName : null, notes, order: i + 1 });
+    const fileName = preview && preview.style.display !== 'none' ? (preview.dataset.filename || '') : '';
+    const notes = item.querySelector('.video-notes-input').value.trim();
+
+    if (!vTitle) return; // تخطى الفيديوهات بلا عنوان
+
+    let url = null;
+    let savedFileName = null;
+
+    if (sourceType === 'link') {
+      if (!linkUrl) { showToast(`الفيديو ${i + 1}: أدخل الرابط`, 'error'); hasError = true; return; }
+      url = linkUrl;
+    } else {
+      if (!uploadUrl) { showToast(`الفيديو ${i + 1}: ارفع الملف أولاً`, 'error'); hasError = true; return; }
+      url = uploadUrl;
+      savedFileName = fileName || 'فيديو';
+    }
+
+    videos.push({
+      title: vTitle,
+      sourceType,
+      url,
+      fileName: savedFileName,
+      notes,
+      order: i + 1
+    });
   });
-  if (videos.length === 0) { showToast('أضف فيديو', 'error'); return; }
+
+  if (hasError) return;
+  if (videos.length === 0) { showToast('أضف فيديو واحد على الأقل بعنوان', 'error'); return; }
+
   try {
     if (editId) await updateDoc(doc(db, 'content_tree', editId), { title, access, videos, updatedAt: serverTimestamp() });
     else await addDoc(collection(db, 'content_tree'), { parentId: nodeId, type: 'module_video', title, access, videos, createdAt: serverTimestamp() });
@@ -661,7 +789,10 @@ window.saveVideos = async function() {
     showToast('تم الحفظ ✓');
     closeModal('videoModal');
     loadAllData();
-  } catch (e) { showToast('خطأ', 'error'); }
+  } catch (e) {
+    console.error('saveVideos failed:', e);
+    showToast('خطأ في الحفظ', 'error');
+  }
 };
 
 /* ===== Users ===== */
@@ -690,12 +821,11 @@ function renderUsers() {
   }).join('');
 }
 
-/* ===== NEW: History modal ===== */
+/* ===== History modal ===== */
 window.openHistoryModal = async function(uid, name) {
   const modal = document.getElementById('historyModal');
   const title = document.getElementById('historyModalTitle');
   const content = document.getElementById('historyContent');
-
   title.textContent = `سجل التعديلات${name ? ' — ' + name : ''}`;
   content.innerHTML = `<p style="text-align:center; padding:30px; color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:20px;"></i><br>جاري التحميل...</p>`;
   modal.classList.add('active');
@@ -706,40 +836,17 @@ window.openHistoryModal = async function(uid, name) {
       content.innerHTML = `<div class="empty-box" style="border:none; background:transparent; padding:30px 20px;"><i class="fas fa-history" style="font-size:40px;"></i><h3>لا يوجد سجل تعديلات</h3><p>لم يقم هذا المستخدم بأي تعديل على بياناته بعد</p></div>`;
       return;
     }
-
     content.innerHTML = history.map(h => {
       const editedAt = h.editedAt?.toDate ? h.editedAt.toDate() : (h.editedAt ? new Date(h.editedAt) : null);
       const timeStr = editedAt ? editedAt.toLocaleString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
       const byLabel = h.editedBy === 'self' ? 'بواسطة المستخدم' : h.editedBy === 'admin' ? 'بواسطة الإدارة' : (h.editedBy || '—');
-
       let oldVal = h.oldValue === null || h.oldValue === undefined || h.oldValue === '' ? '(فارغ)' : String(h.oldValue);
       let newVal = h.newValue === null || h.newValue === undefined || h.newValue === '' ? '(فارغ)' : String(h.newValue);
-
-      if (h.field === 'avatarUrl') {
-        oldVal = h.oldValue ? '(صورة)' : '(بدون صورة)';
-        newVal = h.newValue ? '(صورة جديدة)' : '(بدون صورة)';
-      } else if (h.field === 'privacy') {
-        oldVal = h.oldValue ? JSON.stringify(h.oldValue) : '(فارغ)';
-        newVal = h.newValue ? JSON.stringify(h.newValue) : '(فارغ)';
-      }
-
+      if (h.field === 'avatarUrl') { oldVal = h.oldValue ? '(صورة)' : '(بدون صورة)'; newVal = h.newValue ? '(صورة جديدة)' : '(بدون صورة)'; }
+      else if (h.field === 'privacy') { oldVal = h.oldValue ? JSON.stringify(h.oldValue) : '(فارغ)'; newVal = h.newValue ? JSON.stringify(h.newValue) : '(فارغ)'; }
       const displayOld = oldVal.length > 120 ? oldVal.slice(0, 120) + '…' : oldVal;
       const displayNew = newVal.length > 120 ? newVal.slice(0, 120) + '…' : newVal;
-
-      return `
-        <div class="history-item">
-          <div class="hi-field"><i class="fas fa-pen"></i> ${escapeHtml(h.fieldLabel || h.field || '—')}</div>
-          <div class="hi-change">
-            <span class="hi-old">${escapeHtml(displayOld)}</span>
-            <i class="fas fa-arrow-left hi-arrow"></i>
-            <span class="hi-new">${escapeHtml(displayNew)}</span>
-          </div>
-          <div class="hi-time">
-            <span><i class="fas fa-clock"></i> ${timeStr}</span>
-            <span class="hi-by">${escapeHtml(byLabel)}</span>
-          </div>
-        </div>
-      `;
+      return `<div class="history-item"><div class="hi-field"><i class="fas fa-pen"></i> ${escapeHtml(h.fieldLabel || h.field || '—')}</div><div class="hi-change"><span class="hi-old">${escapeHtml(displayOld)}</span><i class="fas fa-arrow-left hi-arrow"></i><span class="hi-new">${escapeHtml(displayNew)}</span></div><div class="hi-time"><span><i class="fas fa-clock"></i> ${timeStr}</span><span class="hi-by">${escapeHtml(byLabel)}</span></div></div>`;
     }).join('');
   } catch (e) {
     console.error('openHistoryModal failed:', e);
@@ -808,15 +915,7 @@ function buildUnifiedRequests() {
         isVerified = !until || until > new Date();
       } catch (e) {}
     }
-    return {
-      _kind: 'subscription',
-      id: r.id, uid: r.uid,
-      userName: r.userName || user?.name || 'بدون اسم',
-      userRole: roleKey, userIsVerified: isVerified,
-      status: r.status, createdAt: r.createdAt,
-      subjectId: r.subjectId, subjectName: r.subjectName,
-      notes: r.notes || ''
-    };
+    return { _kind: 'subscription', id: r.id, uid: r.uid, userName: r.userName || user?.name || 'بدون اسم', userRole: roleKey, userIsVerified: isVerified, status: r.status, createdAt: r.createdAt, subjectId: r.subjectId, subjectName: r.subjectName, notes: r.notes || '' };
   });
 
   const verifReqs = allVerifications.map(v => {
@@ -829,15 +928,7 @@ function buildUnifiedRequests() {
         isVerified = !until || until > new Date();
       } catch (e) {}
     }
-    return {
-      _kind: 'verification',
-      id: v.id, uid: v.uid,
-      userName: v.userName || user?.name || 'بدون اسم',
-      userRole: roleKey, userIsVerified: isVerified,
-      status: v.status, createdAt: v.createdAt,
-      verifType: v.type, plan: v.plan, price: v.price, durationDays: v.durationDays,
-      notes: v.notes || ''
-    };
+    return { _kind: 'verification', id: v.id, uid: v.uid, userName: v.userName || user?.name || 'بدون اسم', userRole: roleKey, userIsVerified: isVerified, status: v.status, createdAt: v.createdAt, verifType: v.type, plan: v.plan, price: v.price, durationDays: v.durationDays, notes: v.notes || '' };
   });
 
   const deviceReqs = allDevices.map(d => {
@@ -845,17 +936,7 @@ function buildUnifiedRequests() {
     if (d.status === 'pending') status = 'pending';
     else if (d.status === 'approved') status = 'approved';
     else status = 'rejected';
-
-    return {
-      _kind: 'device',
-      id: d.id, uid: d._uid,
-      userName: d._userName || 'بدون اسم',
-      userRole: d._userRole || 'student',
-      userIsVerified: d._userVerified || false,
-      status: status, createdAt: d.createdAt,
-      userAgent: d.userAgent || '',
-      deviceId: d.deviceId || d.id
-    };
+    return { _kind: 'device', id: d.id, uid: d._uid, userName: d._userName || 'بدون اسم', userRole: d._userRole || 'student', userIsVerified: d._userVerified || false, status: status, createdAt: d.createdAt, userAgent: d.userAgent || '', deviceId: d.deviceId || d.id };
   });
 
   return [...subReqs, ...verifReqs, ...deviceReqs];
@@ -909,11 +990,7 @@ function renderRequests() {
     listHtml = filtered.map(r => renderRequestCard(r)).join('');
   }
 
-  container.innerHTML = `
-    <div class="filter-row">${typeChips}</div>
-    <div class="filter-row">${statusChips}</div>
-    ${listHtml}
-  `;
+  container.innerHTML = `<div class="filter-row">${typeChips}</div><div class="filter-row">${statusChips}</div>${listHtml}`;
 }
 
 function renderRequestCard(r) {
@@ -931,50 +1008,21 @@ function renderRequestCard(r) {
   const timeStr = date ? date.toLocaleString('ar-EG', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
   let detailsHtml = '';
-  if (r._kind === 'subscription') {
-    detailsHtml = `<div class="req-detail"><strong>المادة:</strong> ${escapeHtml(r.subjectName || '—')}</div>`;
-  } else if (r._kind === 'verification') {
-    if (r.verifType === 'paid') {
-      detailsHtml = `<div class="req-detail"><strong>الخطة:</strong> ${escapeHtml(r.plan || '')} — <strong>المبلغ:</strong> ${r.price || 0}ج — <strong>المدة:</strong> ${r.durationDays || 0} يوم</div>`;
-    } else {
-      detailsHtml = `<div class="req-detail"><strong>النوع:</strong> توثيق مجاني دائم</div>`;
-    }
-  } else if (r._kind === 'device') {
-    detailsHtml = `<div class="req-detail"><strong>جهاز جديد يحاول الدخول</strong><div class="ua-text" title="${escapeHtml(r.userAgent)}">${escapeHtml(r.userAgent)}</div></div>`;
-  }
+  if (r._kind === 'subscription') detailsHtml = `<div class="req-detail"><strong>المادة:</strong> ${escapeHtml(r.subjectName || '—')}</div>`;
+  else if (r._kind === 'verification') {
+    if (r.verifType === 'paid') detailsHtml = `<div class="req-detail"><strong>الخطة:</strong> ${escapeHtml(r.plan || '')} — <strong>المبلغ:</strong> ${r.price || 0}ج — <strong>المدة:</strong> ${r.durationDays || 0} يوم</div>`;
+    else detailsHtml = `<div class="req-detail"><strong>النوع:</strong> توثيق مجاني دائم</div>`;
+  } else if (r._kind === 'device') detailsHtml = `<div class="req-detail"><strong>جهاز جديد يحاول الدخول</strong><div class="ua-text" title="${escapeHtml(r.userAgent)}">${escapeHtml(r.userAgent)}</div></div>`;
   if (r.notes) detailsHtml += `<div class="req-notes"><strong>ملاحظات:</strong> ${escapeHtml(r.notes)}</div>`;
 
   let actionsHtml = '';
   if (r.status === 'pending') {
-    if (r._kind === 'subscription') {
-      actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveSub('${r.id}', '${r.uid}', '${r.subjectId}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectSub('${r.id}')"><i class="fas fa-times"></i> رفض</button></div>`;
-    } else if (r._kind === 'verification') {
-      actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveVerification('${r.id}', '${r.uid}', ${r.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectVerificationPrompt('${r.id}', '${r.uid}')"><i class="fas fa-times"></i> رفض</button></div>`;
-    } else if (r._kind === 'device') {
-      actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveDevice('${r.uid}', '${r.id}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectDevicePrompt('${r.uid}', '${r.id}')"><i class="fas fa-times"></i> حظر</button></div>`;
-    }
+    if (r._kind === 'subscription') actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveSub('${r.id}', '${r.uid}', '${r.subjectId}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectSub('${r.id}')"><i class="fas fa-times"></i> رفض</button></div>`;
+    else if (r._kind === 'verification') actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveVerification('${r.id}', '${r.uid}', ${r.durationDays || 0})"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectVerificationPrompt('${r.id}', '${r.uid}')"><i class="fas fa-times"></i> رفض</button></div>`;
+    else if (r._kind === 'device') actionsHtml = `<div class="req-actions"><button class="req-btn approve" onclick="approveDevice('${r.uid}', '${r.id}')"><i class="fas fa-check"></i> موافقة</button><button class="req-btn reject" onclick="rejectDevicePrompt('${r.uid}', '${r.id}')"><i class="fas fa-times"></i> حظر</button></div>`;
   }
 
-  return `
-    <div class="unified-req-card status-${r.status}" data-req-id="${r.id}" data-req-uid="${r.uid}">
-      <div class="unified-req-header">
-        <div class="unified-req-user">
-          <div class="unified-req-name">
-            ${escapeHtml(r.userName)}
-            <span class="user-role-chip ${roleClasses[r.userRole] || 'role-student'}">${roleLabels[r.userRole] || 'STUDENT'}</span>
-            ${r.userIsVerified ? '<i class="fas fa-check-circle verified-inline"></i>' : ''}
-          </div>
-          <div class="unified-req-time">${timeStr}</div>
-        </div>
-        <div class="verif-badges">
-          ${typeBadge}
-          <span class="vchip ${statusClasses[r.status]}">${statusLabels[r.status]}</span>
-        </div>
-      </div>
-      ${detailsHtml}
-      ${actionsHtml}
-    </div>
-  `;
+  return `<div class="unified-req-card status-${r.status}" data-req-id="${r.id}" data-req-uid="${r.uid}"><div class="unified-req-header"><div class="unified-req-user"><div class="unified-req-name">${escapeHtml(r.userName)}<span class="user-role-chip ${roleClasses[r.userRole] || 'role-student'}">${roleLabels[r.userRole] || 'STUDENT'}</span>${r.userIsVerified ? '<i class="fas fa-check-circle verified-inline"></i>' : ''}</div><div class="unified-req-time">${timeStr}</div></div><div class="verif-badges">${typeBadge}<span class="vchip ${statusClasses[r.status]}">${statusLabels[r.status]}</span></div></div>${detailsHtml}${actionsHtml}</div>`;
 }
 
 window.setReqTypeFilter = function(f) { reqTypeFilter = f; renderRequests(); };
@@ -1006,13 +1054,8 @@ window.approveVerification = async function(reqId, uid, durationDays) {
   if (!confirm('تأكيد الموافقة؟')) return;
   try {
     const updates = { isVerified: true, verifiedAt: serverTimestamp() };
-    if (durationDays > 0) {
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + durationDays);
-      updates.verifiedUntil = expiresAt;
-    } else {
-      updates.verifiedUntil = null;
-    }
+    if (durationDays > 0) { const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + durationDays); updates.verifiedUntil = expiresAt; }
+    else updates.verifiedUntil = null;
     await updateDoc(doc(db, 'users', uid), updates);
     await updateDoc(doc(db, 'verification_requests', reqId), { status: 'approved', reviewedAt: serverTimestamp() });
     const msg = durationDays > 0 ? `تم توثيق حسابك لمدة ${durationDays} يوم` : 'تم توثيق حسابك مجاناً — بدون تاريخ انتهاء';
@@ -1070,46 +1113,20 @@ function renderNotifPanel() {
   }).join('');
 }
 
-window.openNotifPanel = () => {
-  document.getElementById('notifPanel').classList.add('active');
-  document.getElementById('notifOverlay').classList.add('active');
-};
-window.closeNotifPanel = () => {
-  document.getElementById('notifPanel').classList.remove('active');
-  document.getElementById('notifOverlay').classList.remove('active');
-};
+window.openNotifPanel = () => { document.getElementById('notifPanel').classList.add('active'); document.getElementById('notifOverlay').classList.add('active'); };
+window.closeNotifPanel = () => { document.getElementById('notifPanel').classList.remove('active'); document.getElementById('notifOverlay').classList.remove('active'); };
 
 window.handleNotif = async function(id) {
   const notif = adminNotifs.find(n => n.id === id);
   try { await markAdminNotificationRead(id); } catch (e) {}
   closeNotifPanel();
   if (!notif) return;
-
   const type = notif.type;
-  if (type === 'new_subscription_request') {
-    switchTab('requests');
-    reqTypeFilter = 'subscription';
-    reqStatusFilter = 'pending';
-    renderRequests();
-    if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150);
-  } else if (type === 'new_verification_request') {
-    switchTab('requests');
-    reqTypeFilter = 'verification';
-    reqStatusFilter = 'pending';
-    renderRequests();
-    if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150);
-  } else if (type === 'new_device') {
-    switchTab('requests');
-    reqTypeFilter = 'device';
-    reqStatusFilter = 'pending';
-    renderRequests();
-    if (notif.meta?.deviceId) setTimeout(() => highlightRequest(notif.meta.deviceId), 150);
-    else if (notif.meta?.uid) setTimeout(() => highlightByUid(notif.meta.uid), 150);
-  } else if (type === 'new_student') {
-    switchTab('students');
-  } else {
-    switchTab('requests');
-  }
+  if (type === 'new_subscription_request') { switchTab('requests'); reqTypeFilter = 'subscription'; reqStatusFilter = 'pending'; renderRequests(); if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150); }
+  else if (type === 'new_verification_request') { switchTab('requests'); reqTypeFilter = 'verification'; reqStatusFilter = 'pending'; renderRequests(); if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150); }
+  else if (type === 'new_device') { switchTab('requests'); reqTypeFilter = 'device'; reqStatusFilter = 'pending'; renderRequests(); if (notif.meta?.deviceId) setTimeout(() => highlightRequest(notif.meta.deviceId), 150); else if (notif.meta?.uid) setTimeout(() => highlightByUid(notif.meta.uid), 150); }
+  else if (type === 'new_student') { switchTab('students'); }
+  else { switchTab('requests'); }
 };
 
 function highlightRequest(reqId) {
@@ -1124,10 +1141,7 @@ function highlightByUid(uid) {
   const els = document.querySelectorAll(`[data-req-uid="${uid}"]`);
   if (els.length === 0) return;
   els[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-  els.forEach(el => {
-    el.classList.add('highlight');
-    setTimeout(() => el.classList.remove('highlight'), 3000);
-  });
+  els.forEach(el => { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 3000); });
 }
 
 window.markAllRead = async () => {
