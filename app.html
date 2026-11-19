@@ -252,7 +252,8 @@ onAuth(async (user, userData) => {
   let errors = [];
   try {
     const snap = await getDocs(collection(db, "content_tree"));
-    treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+treeData.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (e) { console.warn('tree load failed:', e); errors.push('المحتوى'); }
 
   try {
