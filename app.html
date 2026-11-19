@@ -341,9 +341,11 @@ let currentLessonNodeId = null;
 let ytPlayer = null;
 let progressInterval = null;
 let studySessionTime = 0; // بالثواني
+let sessionVideosCompleted = 0; // عدد الفيديوهات المكتملة في الجلسة الحالية
 let currentVideoDuration = 0;
 let currentBookmarks = [];
 let currentLocalProgress = 0;
+let isLiveSyncing = false; // لمنع التكرار أثناء الحفظ الدوري
 
 /* ===== Init ===== */
 onAuth(async (user, userData) => {
@@ -679,7 +681,7 @@ function updateBreadcrumbs(parentId) {
   });
 }
 
-/* ===== ✅ Player Logic (المعدل بالكامل) ===== */
+/* ===== ✅ Player Logic (معدل الإحصائيات) ===== */
 function escapeHtmlLocal(text) {
   if (!text) return '';
   return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
@@ -698,7 +700,6 @@ function extractYouTubeId(url) {
   return m ? m[1] : null;
 }
 
-// ✅ أدوات التخزين المحلي
 function getLocalVideoData(videoId) {
   try {
     const data = localStorage.getItem(`cn_video_${videoId}`);
@@ -718,6 +719,10 @@ function openPlayer(node, isBack = false) {
   const videoListContainer = document.getElementById('videoListContainer');
   const videoPlayerArea = document.getElementById('videoPlayerArea');
   const htmlContentFrame = document.getElementById('htmlContentFrame');
+
+  // ✅ إعادة تعيين متغيرات الجلسة
+  studySessionTime = 0;
+  sessionVideosCompleted = 0;
 
   if (node.type === 'module_video') {
     htmlContentFrame.style.display = 'none';
@@ -773,7 +778,6 @@ window.startVideo = async function(url, title) {
   
   currentVideoId = ytId || url.split('/').pop();
 
-  // ✅ جلب التقدم والعلامات من الذاكرة المحلية (سريع جداً)
   const localData = getLocalVideoData(currentVideoId);
   currentLocalProgress = localData.progress || 0;
   currentBookmarks = localData.bookmarks || [];
@@ -872,7 +876,6 @@ function updateSeekBar(current, total) {
   document.getElementById('ccSeek').value = (current / total) * 100 || 0;
 }
 
-// ✅ ملء الشاشة
 window.toggleFullscreen = function() {
   const elem = document.getElementById('videoWrapper');
   const icon = document.getElementById('fsIcon');
@@ -902,7 +905,6 @@ document.addEventListener('fullscreenchange', () => {
   if (icon) icon.className = isFs ? 'fas fa-compress' : 'fas fa-expand';
 });
 
-// ✅ تتبع وحفظ التقدم محلياً
 function startProgressTracker() {
   if (progressInterval) clearInterval(progressInterval);
   progressInterval = setInterval(() => {
@@ -921,8 +923,12 @@ function startProgressTracker() {
     if (isPlaying) {
       studySessionTime++;
       updateSeekBar(currentTime, currentVideoDuration);
-      // حفظ محلي كل 5 ثواني (سريع جداً ولا يستهلك إنترنت)
       if (studySessionTime % 5 === 0) saveVideoProgress(currentTime);
+
+      // ✅ الحفظ الدوري للتقرير (كل 60 ثانية)
+      if (studySessionTime % 60 === 0 && studySessionTime > 0) {
+        syncStatsToFirebase();
+      }
     }
   }, 1000);
 }
@@ -937,9 +943,39 @@ function saveVideoProgress(currentTime = null) {
   const localData = getLocalVideoData(currentVideoId);
   localData.progress = currentTime;
   saveLocalVideoData(currentVideoId, localData);
+
+  // ✅ التحقق من إكمال الفيديو
+  if (currentVideoDuration > 0 && currentTime >= currentVideoDuration * 0.95 && !localData.completed) {
+    localData.completed = true;
+    saveLocalVideoData(currentVideoId, localData);
+    sessionVideosCompleted++;
+  }
 }
 
-/* ===== ✅ العلامات والملاحظات (محلياً) ===== */
+// ✅ دالة الحفظ الدوري في Firebase
+async function syncStatsToFirebase() {
+  if (!currentUser) return;
+  const minutesToAdd = Math.floor(studySessionTime / 60);
+  if (minutesToAdd <= 0 && sessionVideosCompleted <= 0) return;
+
+  const updates = {};
+  if (minutesToAdd > 0) updates.studyTime = increment(minutesToAdd);
+  if (sessionVideosCompleted > 0) updates.completedVideos = increment(sessionVideosCompleted);
+
+  try {
+    await updateDoc(doc(db, 'users', currentUser.uid), updates);
+    // تحديث محلي فوري
+    if (minutesToAdd > 0) currentUserData.studyTime = (currentUserData.studyTime || 0) + minutesToAdd;
+    if (sessionVideosCompleted > 0) currentUserData.completedVideos = (currentUserData.completedVideos || 0) + sessionVideosCompleted;
+
+    // إعادة تعيين عداد الجلسة لتجنب الحفظ المزدوج
+    studySessionTime = 0; 
+    sessionVideosCompleted = 0;
+  } catch(e) {
+    console.warn('Failed to sync stats:', e);
+  }
+}
+
 function renderBookmarks() {
   const list = document.getElementById('bookmarksList');
   if (!list) return;
@@ -980,7 +1016,6 @@ window.openBookmarkPrompt = function() {
     });
     currentBookmarks.sort((a,b) => a.time - b.time);
     
-    // الحفظ في الذاكرة المحلية
     const localData = getLocalVideoData(currentVideoId);
     localData.bookmarks = currentBookmarks;
     saveLocalVideoData(currentVideoId, localData);
@@ -1002,40 +1037,20 @@ window.deleteBookmark = function(id) {
   showToast('تم الحذف');
 };
 
-/* ===== ✅ وقت المذاكرة والإغلاق ===== */
 window.closePlayer = function(isBack = false) {
   document.getElementById('lessonPlayer').classList.remove('active');
   document.getElementById('htmlContentFrame').srcdoc = '';
   
-  saveVideoProgress(); // حفظ التقدم محلياً
+  saveVideoProgress(); 
   
-  // ✅ إرسال التقرير إلى قاعدة البيانات (فقط وقت المذاكرة والفيديوهات المكتملة)
-  const minutesToAdd = Math.floor(studySessionTime / 60);
-  let videosCompletedToAdd = 0;
-  
-  if (currentVideoId) {
-    const localData = getLocalVideoData(currentVideoId);
-    if (currentVideoDuration > 0 && localData.progress >= currentVideoDuration * 0.95 && !localData.completed) {
-      localData.completed = true;
-      saveLocalVideoData(currentVideoId, localData);
-      videosCompletedToAdd = 1;
-    }
-  }
+  // ✅ مزامنة الإحصائيات فور الخروج
+  syncStatsToFirebase().then(() => {
+    renderHome(); // تحديث الأرقام في الشاشة الرئيسية فوراً
+  });
 
-  if ((minutesToAdd > 0 || videosCompletedToAdd > 0) && currentUser) {
-    const updates = {};
-    if (minutesToAdd > 0) updates.studyTime = increment(minutesToAdd);
-    if (videosCompletedToAdd > 0) updates.completedVideos = increment(videosCompletedToAdd);
-    
-    updateDoc(doc(db, 'users', currentUser.uid), updates).catch(() => {});
-    
-    // تحديث محلي فوري
-    if (minutesToAdd > 0) currentUserData.studyTime = (currentUserData.studyTime || 0) + minutesToAdd;
-    if (videosCompletedToAdd > 0) currentUserData.completedVideos = (currentUserData.completedVideos || 0) + videosCompletedToAdd;
-  }
-  
   if (progressInterval) clearInterval(progressInterval);
   studySessionTime = 0;
+  sessionVideosCompleted = 0;
   
   if (ytPlayer) { ytPlayer.destroy(); ytPlayer = null; }
   const vid = document.getElementById('html5Player');
