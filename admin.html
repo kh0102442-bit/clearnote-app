@@ -183,6 +183,17 @@
   .notif-item .n-time { font-size: 10.5px; color: #8899aa; }
   .notif-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99998; display: none; }
   .notif-overlay.active { display: block; }
+
+  /* ===== NEW: History modal styles ===== */
+  .history-item { background: #fafbfc; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+  .history-item .hi-field { font-weight: 800; color: var(--navy); font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .history-item .hi-field i { color: var(--accent); font-size: 11px; }
+  .history-item .hi-change { font-size: 12px; line-height: 1.75; word-break: break-word; }
+  .history-item .hi-old { color: var(--red); text-decoration: line-through; opacity: 0.75; }
+  .history-item .hi-new { color: var(--green); font-weight: 700; }
+  .history-item .hi-arrow { margin: 0 6px; color: #8899aa; font-size: 10px; }
+  .history-item .hi-time { font-size: 10.5px; color: #8899aa; margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .history-item .hi-by { font-size: 10.5px; color: #8899aa; padding: 1px 8px; background: #f0f2f5; border-radius: 10px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -224,6 +235,15 @@
 <!-- Modals -->
 <div class="modal-overlay" id="deviceModal"><div class="modal-box"><h3>الأجهزة</h3><div id="deviceList" style="margin-top:15px;"></div><button class="btn-cancel" style="width:100%; margin-top:15px;" onclick="closeModal('deviceModal')">إغلاق</button></div></div>
 
+<!-- NEW: History Modal -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-box">
+    <h3 id="historyModalTitle">سجل التعديلات</h3>
+    <div id="historyContent" style="margin-top:8px;"></div>
+    <button class="btn-cancel" style="width:100%; margin-top:14px;" onclick="closeModal('historyModal')">إغلاق</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="nodeModal"><div class="modal-box"><h3 id="modalTitle">إضافة</h3><input type="hidden" id="nodeParentId"><input type="hidden" id="nodeType"><div class="form-group"><label>العنوان</label><input type="text" id="nodeTitle"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('nodeModal')">إلغاء</button><button class="btn-save" onclick="saveNode()">حفظ</button></div></div></div>
 
 <div class="modal-overlay" id="manageModal"><div class="modal-box"><h3 id="manageTitle">إدارة</h3><div class="modules-grid"><div class="module-item" onclick="openCodeEditor('explain', 'الشرح')"><div class="module-icon icon-explain"><i class="fas fa-file-alt"></i></div><div class="module-title">الشرح</div></div><div class="module-item" onclick="openVideoManager()"><div class="module-icon icon-video"><i class="fas fa-video"></i></div><div class="module-title">فيديو</div></div><div class="module-item" onclick="openCodeEditor('questions', 'أسئلة')"><div class="module-icon icon-questions"><i class="fas fa-question-circle"></i></div><div class="module-title">أسئلة</div></div><div class="module-item" onclick="openCodeEditor('summary', 'ملخص')"><div class="module-icon icon-summary"><i class="fas fa-clipboard-list"></i></div><div class="module-title">ملخص</div></div><div class="module-item" onclick="openCodeEditor('terms', 'مصطلحات')"><div class="module-icon icon-terms"><i class="fas fa-book"></i></div><div class="module-title">مصطلحات</div></div></div><button class="btn-cancel" style="width:100%;" onclick="closeModal('manageModal')">إغلاق</button></div></div>
@@ -243,7 +263,7 @@
 import {
   db, onAuth, isAdmin, goTo, showToast, signOutUser, activateSubscription,
   listenAdminNotifications, markAdminNotificationRead, markAllAdminNotificationsRead,
-  createNotification, escapeHtml
+  createNotification, escapeHtml, getProfileHistory
 } from "./shared.js";
 import {
   collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
@@ -253,15 +273,15 @@ let treeData = [];
 let allUsers = [];
 let allSubRequests = [];
 let allVerifications = [];
-let allDevices = []; // ← جديد: كل الأجهزة من كل المستخدمين
+let allDevices = [];
 let openNodes = new Set();
 let videoItemCounter = 0;
 let adminNotifs = [];
 let adminNotifUnsub = null;
 let currentTab = 'tree';
 
-let reqTypeFilter = 'all';       // all | subscription | verification | device
-let reqStatusFilter = 'pending'; // all | pending | approved | rejected
+let reqTypeFilter = 'all';
+let reqStatusFilter = 'pending';
 
 /* ===== Init ===== */
 onAuth(async (user, userData) => {
@@ -319,7 +339,6 @@ async function loadAllData() {
     allVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { console.warn('verif failed:', e); errors.push('التوثيق'); allVerifications = []; }
 
-  // ← جديد: تحميل أجهزة كل المستخدمين (بالتوازي)
   try {
     allDevices = await loadAllDevicesInParallel();
   } catch (e) { console.warn('devices failed:', e); errors.push('الأجهزة'); allDevices = []; }
@@ -339,7 +358,6 @@ async function loadAllData() {
   updateAllBadges();
 }
 
-/* ← جديد: تحميل الأجهزة لكل المستخدمين بالتوازي */
 async function loadAllDevicesInParallel() {
   const promises = allUsers.map(async (user) => {
     try {
@@ -389,7 +407,7 @@ function updateAllBadges() {
   if (reqDotNav) { reqDotNav.classList.toggle('show', totalPending > 0); reqDotNav.textContent = totalPending > 9 ? '9+' : totalPending; }
 }
 
-/* ===== Tree (unchanged) ===== */
+/* ===== Tree ===== */
 function saveOpenState() {
   document.querySelectorAll('.children-area').forEach(el => {
     if (el.classList.contains('active')) openNodes.add(el.id.replace('children-', ''));
@@ -478,7 +496,7 @@ window.deleteNode = async function(id) {
   loadAllData();
 };
 
-/* ===== Editors (unchanged) ===== */
+/* ===== Editors ===== */
 window.openCodeEditor = function(moduleKey, moduleTitle) {
   const nodeId = document.getElementById("manageModal").dataset.currentNodeId;
   document.getElementById("codeTitle").textContent = `إعداد ${moduleTitle}`;
@@ -568,7 +586,7 @@ window.editModule = async function(nodeId) {
   }
 };
 
-/* ===== Video manager (unchanged) ===== */
+/* ===== Video manager ===== */
 window.openVideoManager = function() {
   const nodeId = document.getElementById('manageModal').dataset.currentNodeId;
   const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_video');
@@ -646,7 +664,7 @@ window.saveVideos = async function() {
   } catch (e) { showToast('خطأ', 'error'); }
 };
 
-/* ===== Users (unchanged) ===== */
+/* ===== Users ===== */
 function renderUsers() {
   const container = document.getElementById('studentsContainer');
   if (allUsers.length === 0) { container.innerHTML = `<div class="empty-box"><i class="fas fa-users"></i><h3>لا يوجد مستخدمون</h3></div>`; return; }
@@ -668,10 +686,68 @@ function renderUsers() {
       } catch (e) {}
     }
     const safeName = escapeHtml(u.name || 'بدون اسم').replace(/'/g, '&#39;');
-    return `<div class="user-card"><div class="user-info"><div class="user-name">${escapeHtml(u.name || 'بدون اسم')}<span class="user-role-chip ${roleClass}">${roleLabel}</span>${isVerified ? '<i class="fas fa-check-circle verified-inline"></i>' : ''}</div><div class="user-email">${escapeHtml(u.email || '')}</div></div><button class="action-btn manage" onclick="openDevices('${u.id}', '${safeName}')"><i class="fas fa-mobile-alt"></i></button></div>`;
+    return `<div class="user-card"><div class="user-info"><div class="user-name">${escapeHtml(u.name || 'بدون اسم')}<span class="user-role-chip ${roleClass}">${roleLabel}</span>${isVerified ? '<i class="fas fa-check-circle verified-inline"></i>' : ''}</div><div class="user-email">${escapeHtml(u.email || '')}</div></div><div style="display:flex; gap:6px; flex-shrink:0;"><button class="action-btn manage" title="سجل التعديلات" onclick="openHistoryModal('${u.id}', '${safeName}')"><i class="fas fa-history"></i></button><button class="action-btn manage" title="الأجهزة" onclick="openDevices('${u.id}', '${safeName}')"><i class="fas fa-mobile-alt"></i></button></div></div>`;
   }).join('');
 }
 
+/* ===== NEW: History modal ===== */
+window.openHistoryModal = async function(uid, name) {
+  const modal = document.getElementById('historyModal');
+  const title = document.getElementById('historyModalTitle');
+  const content = document.getElementById('historyContent');
+
+  title.textContent = `سجل التعديلات${name ? ' — ' + name : ''}`;
+  content.innerHTML = `<p style="text-align:center; padding:30px; color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:20px;"></i><br>جاري التحميل...</p>`;
+  modal.classList.add('active');
+
+  try {
+    const history = await getProfileHistory(uid, 100);
+    if (!history || history.length === 0) {
+      content.innerHTML = `<div class="empty-box" style="border:none; background:transparent; padding:30px 20px;"><i class="fas fa-history" style="font-size:40px;"></i><h3>لا يوجد سجل تعديلات</h3><p>لم يقم هذا المستخدم بأي تعديل على بياناته بعد</p></div>`;
+      return;
+    }
+
+    content.innerHTML = history.map(h => {
+      const editedAt = h.editedAt?.toDate ? h.editedAt.toDate() : (h.editedAt ? new Date(h.editedAt) : null);
+      const timeStr = editedAt ? editedAt.toLocaleString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+      const byLabel = h.editedBy === 'self' ? 'بواسطة المستخدم' : h.editedBy === 'admin' ? 'بواسطة الإدارة' : (h.editedBy || '—');
+
+      let oldVal = h.oldValue === null || h.oldValue === undefined || h.oldValue === '' ? '(فارغ)' : String(h.oldValue);
+      let newVal = h.newValue === null || h.newValue === undefined || h.newValue === '' ? '(فارغ)' : String(h.newValue);
+
+      if (h.field === 'avatarUrl') {
+        oldVal = h.oldValue ? '(صورة)' : '(بدون صورة)';
+        newVal = h.newValue ? '(صورة جديدة)' : '(بدون صورة)';
+      } else if (h.field === 'privacy') {
+        oldVal = h.oldValue ? JSON.stringify(h.oldValue) : '(فارغ)';
+        newVal = h.newValue ? JSON.stringify(h.newValue) : '(فارغ)';
+      }
+
+      const displayOld = oldVal.length > 120 ? oldVal.slice(0, 120) + '…' : oldVal;
+      const displayNew = newVal.length > 120 ? newVal.slice(0, 120) + '…' : newVal;
+
+      return `
+        <div class="history-item">
+          <div class="hi-field"><i class="fas fa-pen"></i> ${escapeHtml(h.fieldLabel || h.field || '—')}</div>
+          <div class="hi-change">
+            <span class="hi-old">${escapeHtml(displayOld)}</span>
+            <i class="fas fa-arrow-left hi-arrow"></i>
+            <span class="hi-new">${escapeHtml(displayNew)}</span>
+          </div>
+          <div class="hi-time">
+            <span><i class="fas fa-clock"></i> ${timeStr}</span>
+            <span class="hi-by">${escapeHtml(byLabel)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    console.error('openHistoryModal failed:', e);
+    content.innerHTML = `<p style="text-align:center; padding:30px; color:var(--red);"><i class="fas fa-exclamation-triangle" style="font-size:24px; display:block; margin-bottom:8px;"></i>تعذر تحميل السجل. حاول مرة أخرى.</p>`;
+  }
+};
+
+/* ===== Devices ===== */
 window.openDevices = async function(uid, name) {
   document.getElementById('deviceList').innerHTML = '<p style="text-align:center;">جاري التحميل...</p>';
   document.getElementById('deviceModal').classList.add('active');
@@ -712,7 +788,7 @@ window.deleteDevice = async function(uid, devId) {
   openDevices(uid, '');
 };
 
-/* ===== Unified Requests — مع دعم الأجهزة ===== */
+/* ===== Unified Requests ===== */
 function toDate(v) {
   try { if (!v) return null; return v.toDate ? v.toDate() : new Date(v); }
   catch { return null; }
@@ -722,7 +798,6 @@ function buildUnifiedRequests() {
   const userMap = {};
   allUsers.forEach(u => userMap[u.id] = u);
 
-  // 1. طلبات الاشتراك
   const subReqs = allSubRequests.map(r => {
     const user = userMap[r.uid];
     const roleKey = user?.badgeType === 'founder' ? 'founder' : (user?.role || 'student');
@@ -744,7 +819,6 @@ function buildUnifiedRequests() {
     };
   });
 
-  // 2. طلبات التوثيق
   const verifReqs = allVerifications.map(v => {
     const user = userMap[v.uid];
     const roleKey = user?.badgeType === 'founder' ? 'founder' : (v.role || user?.role || 'student');
@@ -766,13 +840,11 @@ function buildUnifiedRequests() {
     };
   });
 
-  // 3. ← جديد: طلبات الأجهزة
   const deviceReqs = allDevices.map(d => {
-    // تحويل حالة الجهاز لحالة موحّدة
     let status;
     if (d.status === 'pending') status = 'pending';
     else if (d.status === 'approved') status = 'approved';
-    else status = 'rejected'; // blocked = rejected
+    else status = 'rejected';
 
     return {
       _kind: 'device',
@@ -792,17 +864,13 @@ function buildUnifiedRequests() {
 function sortRequests(list) {
   const roleOrder = { founder: 5, admin: 4, doctor: 3, ta: 2, student: 1 };
   return list.sort((a, b) => {
-    // 1. الحالة (معلقة أولاً)
     const aS = a.status === 'pending' ? 3 : a.status === 'approved' ? 2 : 1;
     const bS = b.status === 'pending' ? 3 : b.status === 'approved' ? 2 : 1;
     if (aS !== bS) return bS - aS;
-    // 2. الموثقون أولاً
     if (a.userIsVerified !== b.userIsVerified) return a.userIsVerified ? -1 : 1;
-    // 3. الدور
     const aR = roleOrder[a.userRole] || 0;
     const bR = roleOrder[b.userRole] || 0;
     if (aR !== bR) return bR - aR;
-    // 4. التاريخ
     const aT = toDate(a.createdAt)?.getTime() || 0;
     const bT = toDate(b.createdAt)?.getTime() || 0;
     return bT - aT;
@@ -854,7 +922,6 @@ function renderRequestCard(r) {
   const statusLabels = { pending: 'قيد الانتظار', approved: 'مقبول', rejected: 'مرفوض' };
   const statusClasses = { pending: 'vchip-pending', approved: 'vchip-approved', rejected: 'vchip-rejected' };
 
-  // Badge النوع
   let typeBadge;
   if (r._kind === 'subscription') typeBadge = `<span class="vchip vchip-sub">اشتراك</span>`;
   else if (r._kind === 'verification') typeBadge = r.verifType === 'free' ? `<span class="vchip vchip-free">توثيق - مجاني</span>` : `<span class="vchip vchip-paid">توثيق - مدفوع</span>`;
@@ -863,7 +930,6 @@ function renderRequestCard(r) {
   const date = toDate(r.createdAt);
   const timeStr = date ? date.toLocaleString('ar-EG', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
-  // التفاصيل
   let detailsHtml = '';
   if (r._kind === 'subscription') {
     detailsHtml = `<div class="req-detail"><strong>المادة:</strong> ${escapeHtml(r.subjectName || '—')}</div>`;
@@ -878,7 +944,6 @@ function renderRequestCard(r) {
   }
   if (r.notes) detailsHtml += `<div class="req-notes"><strong>ملاحظات:</strong> ${escapeHtml(r.notes)}</div>`;
 
-  // أزرار الإجراءات
   let actionsHtml = '';
   if (r.status === 'pending') {
     if (r._kind === 'subscription') {
@@ -968,7 +1033,6 @@ window.rejectVerificationPrompt = async function(reqId, uid) {
   } catch (e) { showToast('حدث خطأ', 'error'); }
 };
 
-/* ← جديد: الموافقة على جهاز / حظره (للطلبات الموحّدة) */
 window.approveDevice = async function(uid, devId) {
   try {
     await updateDoc(doc(db, 'devices', uid, 'list', devId), { status: 'approved' });
@@ -1035,12 +1099,10 @@ window.handleNotif = async function(id) {
     renderRequests();
     if (notif.meta?.reqId) setTimeout(() => highlightRequest(notif.meta.reqId), 150);
   } else if (type === 'new_device') {
-    // ← جديد: النقل لتبويب الطلبات مفلتر على الأجهزة
     switchTab('requests');
     reqTypeFilter = 'device';
     reqStatusFilter = 'pending';
     renderRequests();
-    // لو لدينا meta.deviceId، نُبرز الطلب
     if (notif.meta?.deviceId) setTimeout(() => highlightRequest(notif.meta.deviceId), 150);
     else if (notif.meta?.uid) setTimeout(() => highlightByUid(notif.meta.uid), 150);
   } else if (type === 'new_student') {
