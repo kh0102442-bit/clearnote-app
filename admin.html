@@ -57,17 +57,20 @@
 
   .tree-group { margin-bottom: 8px; }
   .node-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-  .node-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .node-header { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
   .node-title-area { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
   .node-icon { width: 34px; height: 34px; border-radius: 9px; background: #eef2fa; color: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
   .node-text { flex: 1; min-width: 0; }
   .node-title { font-weight: 800; color: var(--navy); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .node-type { font-size: 11px; color: var(--accent); font-weight: 700; margin-top: 1px; }
-  .node-actions { display: flex; gap: 4px; flex-shrink: 0; }
-  .action-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--line); background: #f8f9fa; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.15s; }
+  
+  .node-actions { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; max-width: 150px; }
+  .action-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--line); background: #f8f9fa; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: 0.15s; }
   .action-btn:hover { background: var(--line-soft); }
   .action-btn.manage { color: var(--green); border-color: #c9d6ee; background: #eef2fa; }
   .action-btn.danger { color: var(--red); background: #fbeaea; border-color: #fbeaea; }
+  .action-btn.move { color: var(--blue); background: #e3f2fd; border-color: #e3f2fd; }
+  
   .children-area { display: none; padding: 8px 12px 12px; background: #fafbfc; border-top: 1px solid var(--line); }
   .children-area.active { display: block; }
 
@@ -323,6 +326,12 @@ async function loadAllData() {
   try {
     const snap = await getDocs(collection(db, "content_tree"));
     treeData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // ضمان وجود حقل الترتيب
+    treeData.forEach(n => {
+      if (n.order === undefined) n.order = Date.now(); 
+    });
+    // ترتيب الشجرة بناءً على الـ order
+    treeData.sort((a, b) => (a.order || 0) - (b.order || 0));
   } catch (e) { console.warn('tree failed:', e); errors.push('المحتوى'); treeData = []; }
 
   try {
@@ -414,7 +423,7 @@ function saveOpenState() {
 
 function renderTree() {
   const container = document.getElementById('treeContainer');
-  const rootNodes = treeData.filter(n => n.parentId === "root");
+  const rootNodes = treeData.filter(n => n.parentId === "root").sort((a,b) => (a.order||0)-(b.order||0));
   if (rootNodes.length === 0) {
     container.innerHTML = `<button class="btn-primary-action" onclick="openAddModal(null, 'root')"><i class="fas fa-plus"></i> إضافة سنة دراسية</button><div class="empty-box"><i class="fas fa-sitemap"></i><h3>لا يوجد محتوى</h3><p>ابدأ بإضافة سنة دراسية</p></div>`;
     return;
@@ -423,15 +432,23 @@ function renderTree() {
 }
 
 function buildTreeHTML(nodes) {
-  return nodes.map(node => {
-    const children = treeData.filter(n => n.parentId === node.id);
+  return nodes.map((node, idx) => {
+    const children = treeData.filter(n => n.parentId === node.id).sort((a,b) => (a.order||0)-(b.order||0));
     const isModule = node.type && node.type.startsWith('module_');
     const isOpen = openNodes.has(node.id);
     const iconClass = isModule ? (node.type === 'module_video' ? 'fa-video' : 'fa-file') : 'fa-folder';
     const title = escapeHtml(node.title || '').replace(/'/g, '&#39;');
+    
+    // أزرار التحكم (ترتيب، تعديل، إضافة، حذف)
+    const moveBtns = `
+      <button class="action-btn move" onclick="moveNode('${node.id}', 'up')" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}><i class="fas fa-arrow-up"></i></button>
+      <button class="action-btn move" onclick="moveNode('${node.id}', 'down')" ${idx === nodes.length - 1 ? 'disabled style="opacity:0.3;"' : ''}><i class="fas fa-arrow-down"></i></button>
+    `;
+    
     const actions = isModule
-      ? `<button class="action-btn" onclick="editModule('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`
-      : `<button class="action-btn" onclick="editNode('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn manage" onclick="openManage('${node.id}', '${title}')"><i class="fas fa-cog"></i></button><button class="action-btn" onclick="openAddModal('${node.id}', '${node.type}')"><i class="fas fa-plus"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`;
+      ? `${moveBtns}<button class="action-btn" onclick="editModule('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`
+      : `${moveBtns}<button class="action-btn" onclick="editNode('${node.id}')"><i class="fas fa-edit"></i></button><button class="action-btn manage" onclick="openManage('${node.id}', '${title}')"><i class="fas fa-cog"></i></button><button class="action-btn" onclick="openAddModal('${node.id}', '${node.type}')"><i class="fas fa-plus"></i></button><button class="action-btn danger" onclick="deleteNode('${node.id}')"><i class="fas fa-trash"></i></button>`;
+      
     return `<div class="tree-group"><div class="node-card"><div class="node-header"><div class="node-title-area" onclick="toggleChildren('${node.id}')"><div class="node-icon"><i class="fas ${iconClass}"></i></div><div class="node-text"><div class="node-title">${escapeHtml(node.title || '')}</div><div class="node-type">${node.type || ''}</div></div></div><div class="node-actions">${actions}</div></div>${!isModule ? `<div class="children-area ${isOpen ? 'active' : ''}" id="children-${node.id}">${children.length > 0 ? buildTreeHTML(children) : '<div style="text-align:center; color:#aaa; font-size:12px; padding:8px;">لا يوجد فروع</div>'}</div>` : ''}</div></div>`;
   }).join('');
 }
@@ -442,6 +459,35 @@ window.toggleChildren = function(id) {
     el.classList.toggle('active');
     if (el.classList.contains('active')) openNodes.add(id);
     else openNodes.delete(id);
+  }
+};
+
+/* ✅ دالة تغيير الترتيب الجديدة */
+window.moveNode = async function(id, direction) {
+  const node = treeData.find(n => n.id === id);
+  if (!node) return;
+  
+  // جلب الأخوة وترتيبهم الحالي
+  const siblings = treeData.filter(n => n.parentId === node.parentId).sort((a,b) => (a.order||0)-(b.order||0));
+  const index = siblings.findIndex(n => n.id === id);
+  
+  let swapIndex = direction === 'up' ? index - 1 : index + 1;
+  if (swapIndex < 0 || swapIndex >= siblings.length) return; // لا يمكن النقل أكثر
+
+  const sibling = siblings[swapIndex];
+  const orderA = node.order || 0;
+  const orderB = sibling.order || 0;
+
+  try {
+    // تبديل قيم الترتيب في قاعدة البيانات
+    await Promise.all([
+      updateDoc(doc(db, "content_tree", node.id), { order: orderB }),
+      updateDoc(doc(db, "content_tree", sibling.id), { order: orderA })
+    ]);
+    loadAllData(); // إعادة تحميل الشجرة بالترتيب الجديد
+  } catch (e) {
+    console.error(e);
+    showToast('فشل في تغيير الترتيب', 'error');
   }
 };
 
@@ -472,9 +518,14 @@ window.saveNode = async function() {
   const title = document.getElementById("nodeTitle").value.trim();
   const editId = document.getElementById("nodeModal").dataset.editId;
   if (!title) return;
+  
+  // حساب الترتيب الجديد
+  const siblings = treeData.filter(n => n.parentId === parentId);
+  const newOrder = siblings.length > 0 ? Math.max(...siblings.map(n => n.order || 0)) + 1 : Date.now();
+  
   try {
     if (editId) await updateDoc(doc(db, "content_tree", editId), { title });
-    else await addDoc(collection(db, "content_tree"), { parentId, type, title, createdAt: serverTimestamp() });
+    else await addDoc(collection(db, "content_tree"), { parentId, type, title, order: newOrder, createdAt: serverTimestamp() });
     closeModal('nodeModal');
     loadAllData();
   } catch (e) { showToast("حدث خطأ", "error"); }
@@ -547,9 +598,13 @@ window.saveModuleCode = async function() {
   const code = document.getElementById("moduleCode").value;
   if (!code || !code.trim()) { showToast('أدخل الكود أو ارفع ملف', 'error'); return; }
   const existing = treeData.find(n => n.parentId === nodeId && n.type === 'module_' + moduleKey);
+  
+  const siblings = treeData.filter(n => n.parentId === nodeId);
+  const newOrder = siblings.length > 0 ? Math.max(...siblings.map(n => n.order || 0)) + 1 : Date.now();
+  
   try {
     if (existing) await updateDoc(doc(db, "content_tree", existing.id), { title, access, htmlContent: code });
-    else await addDoc(collection(db, "content_tree"), { parentId: nodeId, type: 'module_' + moduleKey, title, access, htmlContent: code, createdAt: serverTimestamp() });
+    else await addDoc(collection(db, "content_tree"), { parentId: nodeId, type: 'module_' + moduleKey, title, access, htmlContent: code, order: newOrder, createdAt: serverTimestamp() });
     openNodes.add(nodeId);
     closeModal('codeModal');
     loadAllData();
@@ -601,7 +656,10 @@ window.openVideoManager = function() {
   document.getElementById('videoModal').classList.add('active');
 };
 
-function addVideoItem() { addVideoItemWithData(null); }
+/* ✅ إصلاح: ربط الدالة بالنافذة لتعمل مع الزر */
+window.addVideoItem = function() { 
+  addVideoItemWithData(null); 
+};
 
 function extractYtId(url) {
   if (!url) return null;
@@ -755,7 +813,7 @@ window.saveVideos = async function() {
     const fileName = preview && preview.style.display !== 'none' ? (preview.dataset.filename || '') : '';
     const notes = item.querySelector('.video-notes-input').value.trim();
 
-    if (!vTitle) return; // تخطى الفيديوهات بلا عنوان
+    if (!vTitle) return;
 
     let url = null;
     let savedFileName = null;
@@ -782,9 +840,12 @@ window.saveVideos = async function() {
   if (hasError) return;
   if (videos.length === 0) { showToast('أضف فيديو واحد على الأقل بعنوان', 'error'); return; }
 
+  const siblings = treeData.filter(n => n.parentId === nodeId);
+  const newOrder = siblings.length > 0 ? Math.max(...siblings.map(n => n.order || 0)) + 1 : Date.now();
+
   try {
     if (editId) await updateDoc(doc(db, 'content_tree', editId), { title, access, videos, updatedAt: serverTimestamp() });
-    else await addDoc(collection(db, 'content_tree'), { parentId: nodeId, type: 'module_video', title, access, videos, createdAt: serverTimestamp() });
+    else await addDoc(collection(db, 'content_tree'), { parentId: nodeId, type: 'module_video', title, access, videos, order: newOrder, createdAt: serverTimestamp() });
     openNodes.add(nodeId);
     showToast('تم الحفظ ✓');
     closeModal('videoModal');
