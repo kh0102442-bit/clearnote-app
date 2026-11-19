@@ -1,4 +1,4 @@
-// ClearNote shared.js v3.0
+// ClearNote shared.js v3.1  (v3.0 + 3 تعديلات الفيديو)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, collection, getDocs, addDoc, query, where, orderBy, limit, onSnapshot, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -19,7 +19,14 @@ export const ROLES = { ADMIN: "admin", STUDENT: "student", TA: "ta", DOCTOR: "do
 
 const CLOUDINARY_CLOUD_NAME = "nopxs3zt";
 const CLOUDINARY_UPLOAD_PRESET = "clearnote_unsigned";
-const LIMITS = { avatar: 10 * 1024 * 1024, post: 10 * 1024 * 1024, pdf: 10 * 1024 * 1024 };
+
+/* ===== [تعديل 1] الحدود — إضافة video ===== */
+const LIMITS = {
+  avatar: 10 * 1024 * 1024,
+  post:   10 * 1024 * 1024,
+  pdf:    10 * 1024 * 1024,
+  video: 100 * 1024 * 1024   // ← جديد
+};
 
 /* ===== Privacy defaults ===== */
 export const PRIVACY_FIELDS = ['bio', 'phone', 'uniEmail', 'university'];
@@ -43,12 +50,56 @@ export async function uploadToCloudinary(file, type = 'post') {
   const fd = new FormData();
   fd.append('file', file);
   fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  fd.append('folder', `clearnote/${type === 'avatar' ? 'avatars' : type === 'pdf' ? 'pdfs' : 'posts'}`);
+  /* ===== [تعديل 2] مجلد الفيديو ===== */
+  const _folder = type === 'avatar' ? 'avatars' : type === 'pdf' ? 'pdfs' : type === 'video' ? 'videos' : 'posts';
+  fd.append('folder', `clearnote/${_folder}`);
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${rt}/upload`, { method: 'POST', body: fd });
   if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error?.message || 'فشل الرفع'); }
   return (await res.json()).secure_url;
 }
 export async function uploadAvatar(file) { return uploadToCloudinary(file, 'avatar'); }
+
+/* ===== [تعديل 3] Video upload with progress (XHR) ===== */
+export function uploadVideo(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    if (!file) { reject(new Error('لم يتم اختيار ملف')); return; }
+    if (!file.type.startsWith('video/')) {
+      reject(new Error('الملف المختار ليس فيديو')); return;
+    }
+    if (file.size > LIMITS.video) {
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      reject(new Error(`حجم الفيديو (${mb} ميجا) يتجاوز الحد (100 ميجا)`)); return;
+    }
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    fd.append('folder', 'clearnote/videos');
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && typeof onProgress === 'function') {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.secure_url) resolve(data.secure_url);
+          else reject(new Error('لم يرجع Cloudinary رابطاً'));
+        } catch { reject(new Error('استجابة غير صالحة من Cloudinary')); }
+      } else {
+        let msg = 'فشل رفع الفيديو';
+        try { const err = JSON.parse(xhr.responseText); if (err.error?.message) msg = err.error.message; } catch {}
+        reject(new Error(msg));
+      }
+    };
+    xhr.onerror = () => reject(new Error('فشل الاتصال بالسيرفر'));
+    xhr.ontimeout = () => reject(new Error('انتهت مهلة الرفع'));
+    xhr.timeout = 5 * 60 * 1000; // 5 دقائق
+    xhr.send(fd);
+  });
+}
 
 /* ===== Utilities ===== */
 export function showToast(msg, type = "success") {
@@ -98,13 +149,11 @@ export function goTo(page) { window.location.href = page; }
 const FP_STORAGE_KEY = 'clearnote_device_fp_v2';
 
 export async function getDeviceFingerprint() {
-  // 1. localStorage أولاً — إن وُجد فهو المرجع الدائم
   try {
     let fp = localStorage.getItem(FP_STORAGE_KEY);
     if (fp && fp.length >= 20) return fp;
   } catch (e) {}
 
-  // 2. توليد بصمة جديدة (UUID عشوائي + بصمات عتاد ثابتة للمساعدة)
   try {
     const random = crypto.randomUUID
       ? crypto.randomUUID().replace(/-/g, '')
@@ -119,7 +168,6 @@ export async function getDeviceFingerprint() {
     try { localStorage.setItem(FP_STORAGE_KEY, fp); sessionStorage.setItem(FP_STORAGE_KEY, fp); } catch (e) {}
     return fp;
   } catch (e) {
-    // Fallback
     const fb = 'fb-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
     try { localStorage.setItem(FP_STORAGE_KEY, fb); } catch (e) {}
     return fb;
@@ -138,13 +186,11 @@ export async function checkDeviceStatus(uid) {
       return { status: d.status, fp, isPrimary: d.isPrimary || false };
     }
 
-    // جهاز جديد — نحسب عدد الأجهزة
     const snap = await getDocs(collection(db, 'devices', uid, 'list'));
     const existing = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const isFirstDevice = existing.length === 0;
     const approvedCount = existing.filter(d => d.status === 'approved').length;
 
-    // موافقة تلقائية لو: أول جهاز OR لا يوجد أي جهاز موثق (استرداد)
     const autoApprove = isFirstDevice || approvedCount === 0;
     const newStatus = autoApprove ? 'approved' : 'pending';
     const isPrimary = isFirstDevice || (approvedCount === 0);
@@ -171,7 +217,6 @@ export async function checkDeviceStatus(uid) {
     return { status: newStatus, fp, isPrimary };
   } catch (e) {
     console.warn('checkDeviceStatus failed:', e);
-    // fail-open: نسمح بالدخول لو تعذر التحقق
     return { status: 'approved', fp, isPrimary: false };
   }
 }
@@ -190,7 +235,6 @@ export async function updateUserProfile(uid, updates, editedBy = 'self') {
   Object.keys(updates).forEach(key => {
     const oldVal = oldData[key];
     const newVal = updates[key];
-    // مقارنة JSON للتفرقة (يتعامل مع null/undefined)
     if (JSON.stringify(oldVal || '') === JSON.stringify(newVal || '')) return;
     changedFields.push(key);
     const histRef = doc(collection(db, 'users', uid, 'profile_history'));
@@ -208,7 +252,6 @@ export async function updateUserProfile(uid, updates, editedBy = 'self') {
 
   if (changedFields.length === 0) return [];
 
-  // دمج privacy بعمق لو موجود
   const finalUpdates = { ...updates, updatedAt: serverTimestamp() };
   if (updates.privacy && oldData.privacy) {
     finalUpdates.privacy = { ...oldData.privacy, ...updates.privacy };
@@ -234,7 +277,7 @@ export async function getProfileHistory(uid, max = 50) {
 /* ===== Privacy check ===== */
 export function canViewField(field, targetUser, viewerUid, isFollowing) {
   if (!targetUser) return false;
-  if (field === 'nationalId') return false; // دائمًا خاص
+  if (field === 'nationalId') return false;
   if (targetUser.uid === viewerUid) return true;
   const priv = targetUser.privacy?.[field] || DEFAULT_PRIVACY[field] || 'public';
   if (priv === 'public') return true;
