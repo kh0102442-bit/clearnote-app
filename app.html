@@ -221,7 +221,7 @@
     </div>
   </section>
 
-  <section class="view" id="chatsView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3>الدردشات قريباً</h3></div></div></section>
+  <section class="view" id="chatsView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-comments"></i><h3جاري فتح الدردشات...</h3></div></div></section>
   <section class="view" id="pomodoroView"><div class="content-wrap"><div class="empty-state"><i class="fas fa-clock"></i><h3>بومودورو قريباً</h3></div></div></section>
 </main>
 
@@ -437,6 +437,7 @@ window.doLogout = async () => {
 
 window.switchView = function(view, isBack = false) {
   if (view === 'profile') { window.location.href = 'profile.html'; return; }
+  if (view === 'chats') { window.location.href = 'chat.html'; return; }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const target = document.getElementById(view + 'View');
   if (target) target.classList.add('active');
